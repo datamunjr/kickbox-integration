@@ -1,0 +1,98 @@
+/* Checkout Email Verification Styles */
+.wckb-email-verification {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.wckb-verification-loading {
+  display: flex;
+  align-items: center;
+  color: #666;
+}
+
+.wckb-verification-loading .spinner {
+  margin-right: 8px;
+}
+
+.wckb-verification-error {
+  color: #dc3232;
+  background: #fbeaea;
+  border: 1px solid #dc3232;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.wckb-verification-status {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.wckb-verification-status.wckb-deliverable {
+  color: #46b450;
+  background: #ecf7ed;
+  border: 1px solid #46b450;
+}
+
+.wckb-verification-status.wckb-undeliverable {
+  color: #dc3232;
+  background: #fbeaea;
+  border: 1px solid #dc3232;
+}
+
+.wckb-verification-status.wckb-risky {
+  color: #ffb900;
+  background: #fff8e5;
+  border: 1px solid #ffb900;
+}
+
+.wckb-verification-status.wckb-unknown {
+  color: #00a0d2;
+  background: #e5f6ff;
+  border: 1px solid #00a0d2;
+}
+
+.wckb-status-icon {
+  margin-right: 8px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.wckb-status-message {
+  flex: 1;
+}
+
+.wckb-verification-details {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Integration with WooCommerce checkout */
+.woocommerce-checkout .wckb-email-verification {
+  margin-top: 5px;
+}
+
+.woocommerce-checkout .wckb-verification-status {
+  margin-top: 5px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .wckb-email-verification {
+    font-size: 13px;
+  }
+  
+  .wckb-verification-status {
+    padding: 6px 10px;
+  }
+  
+  .wckb-status-icon {
+    font-size: 14px;
+  }
+}
