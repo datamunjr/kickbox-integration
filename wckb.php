@@ -15,6 +15,7 @@
  * Requires PHP: 7.4
  * WC requires at least: 5.0
  * WC tested up to: 8.5
+ * HPOS: Compatible
  */
 
 // Prevent direct access
@@ -28,6 +29,13 @@ define('WCKB_PLUGIN_FILE', __FILE__);
 define('WCKB_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WCKB_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WCKB_PLUGIN_BASENAME', plugin_basename(__FILE__));
+
+// Declare HPOS compatibility
+add_action('before_woocommerce_init', function() {
+    if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+    }
+});
 
 // Check if WooCommerce is active
 add_action('plugins_loaded', 'wckb_check_woocommerce');

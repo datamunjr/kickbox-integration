@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import AdminSettings from './components/AdminSettings';
+import '../../css/admin.css';
 
 // Initialize the admin settings React app
 document.addEventListener('DOMContentLoaded', function() {

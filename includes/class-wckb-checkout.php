@@ -106,8 +106,12 @@ class WCKB_Checkout {
         if (!is_wp_error($result)) {
             // Store verification result in order meta
             add_action('woocommerce_checkout_order_processed', function($order_id) use ($result) {
-                update_post_meta($order_id, '_wckb_verification_result', $result['result'] ?? 'unknown');
-                update_post_meta($order_id, '_wckb_verification_data', json_encode($result));
+                $order = wc_get_order($order_id);
+                if ($order) {
+                    $order->update_meta_data('_wckb_verification_result', $result['result'] ?? 'unknown');
+                    $order->update_meta_data('_wckb_verification_data', json_encode($result));
+                    $order->save();
+                }
             });
         }
     }
@@ -133,13 +137,14 @@ class WCKB_Checkout {
     private function flag_for_review($email, $result, $verification_data) {
         // Store in order meta for admin review
         add_action('woocommerce_checkout_order_processed', function($order_id) use ($email, $result, $verification_data) {
-            update_post_meta($order_id, '_wckb_needs_review', 'yes');
-            update_post_meta($order_id, '_wckb_verification_result', $result);
-            update_post_meta($order_id, '_wckb_verification_data', json_encode($verification_data));
-            
-            // Add admin note
             $order = wc_get_order($order_id);
             if ($order) {
+                $order->update_meta_data('_wckb_needs_review', 'yes');
+                $order->update_meta_data('_wckb_verification_result', $result);
+                $order->update_meta_data('_wckb_verification_data', json_encode($verification_data));
+                $order->save();
+                
+                // Add admin note
                 $order->add_order_note(
                     sprintf(
                         __('Email verification flagged for review: %s (Result: %s)', 'wckb'),
@@ -155,13 +160,23 @@ class WCKB_Checkout {
      * Get verification status for order
      */
     public static function get_order_verification_status($order_id) {
-        $result = get_post_meta($order_id, '_wckb_verification_result', true);
-        $needs_review = get_post_meta($order_id, '_wckb_needs_review', true);
+        $order = wc_get_order($order_id);
+        if (!$order) {
+            return array(
+                'result' => '',
+                'needs_review' => false,
+                'data' => ''
+            );
+        }
+        
+        $result = $order->get_meta('_wckb_verification_result', true);
+        $needs_review = $order->get_meta('_wckb_needs_review', true);
+        $data = $order->get_meta('_wckb_verification_data', true);
         
         return array(
             'result' => $result,
             'needs_review' => $needs_review === 'yes',
-            'data' => get_post_meta($order_id, '_wckb_verification_data', true)
+            'data' => $data
         );
     }
 }

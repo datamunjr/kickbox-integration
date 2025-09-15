@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import EmailVerification from './components/EmailVerification';
+import '../../css/checkout.css';
 
 // Initialize the checkout email verification React app
 document.addEventListener('DOMContentLoaded', function() {

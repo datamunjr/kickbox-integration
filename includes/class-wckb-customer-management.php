@@ -20,6 +20,7 @@ class WCKB_Customer_Management {
         add_filter('manage_users_custom_column', array($this, 'show_verification_column'), 10, 3);
         add_action('admin_enqueue_scripts', array($this, 'enqueue_customer_scripts'));
         add_action('wp_ajax_wckb_verify_customer_batch', array($this, 'ajax_verify_customer_batch'));
+        add_action('wp_ajax_wckb_verify_single_customer', array($this, 'ajax_verify_single_customer'));
         add_action('admin_footer-users.php', array($this, 'add_bulk_actions'));
         add_action('load-users.php', array($this, 'handle_bulk_actions'));
     }
@@ -241,5 +242,34 @@ class WCKB_Customer_Management {
             'verified_users' => $verified_users,
             'verification_results' => $stats
         );
+    }
+    
+    /**
+     * AJAX handler for single customer verification
+     */
+    public function ajax_verify_single_customer() {
+        check_ajax_referer('wckb_customer', 'nonce');
+        
+        if (!current_user_can('manage_users')) {
+            wp_send_json_error(array('message' => __('Insufficient permissions.', 'wckb')));
+        }
+        
+        $user_id = intval($_POST['user_id'] ?? 0);
+        $email = sanitize_email($_POST['email'] ?? '');
+        
+        if (!$user_id || !$email) {
+            wp_send_json_error(array('message' => __('Invalid user ID or email.', 'wckb')));
+        }
+        
+        $result = $this->verification->verify_email($email);
+        
+        if (is_wp_error($result)) {
+            wp_send_json_error(array('message' => $result->get_error_message()));
+        }
+        
+        wp_send_json_success(array(
+            'message' => sprintf(__('Email %s verified successfully!', 'wckb'), $email),
+            'result' => $result
+        ));
     }
 }

@@ -16,6 +16,9 @@ class WCKB_Admin {
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_action('wp_ajax_wckb_test_api', array($this, 'ajax_test_api'));
+        add_action('wp_ajax_wckb_get_settings', array($this, 'ajax_get_settings'));
+        add_action('wp_ajax_wckb_save_settings', array($this, 'ajax_save_settings'));
+        add_action('wp_ajax_wckb_get_stats', array($this, 'ajax_get_stats'));
     }
     
     /**
@@ -313,5 +316,73 @@ class WCKB_Admin {
         } else {
             wp_send_json_error(array('message' => __('Unexpected response from Kickbox API.', 'wckb')));
         }
+    }
+    
+    /**
+     * AJAX handler for getting settings
+     */
+    public function ajax_get_settings() {
+        check_ajax_referer('wckb_admin', 'nonce');
+        
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(array('message' => __('Insufficient permissions.', 'wckb')));
+        }
+        
+        $settings = array(
+            'apiKey' => get_option('wckb_api_key', ''),
+            'sandboxMode' => get_option('wckb_sandbox_mode', 'yes') === 'yes',
+            'deliverableAction' => get_option('wckb_deliverable_action', 'allow'),
+            'undeliverableAction' => get_option('wckb_undeliverable_action', 'allow'),
+            'riskyAction' => get_option('wckb_risky_action', 'allow'),
+            'unknownAction' => get_option('wckb_unknown_action', 'allow'),
+            'enableCheckoutVerification' => get_option('wckb_enable_checkout_verification', 'no') === 'yes',
+            'enableCustomerVerification' => get_option('wckb_enable_customer_verification', 'no') === 'yes'
+        );
+        
+        wp_send_json_success($settings);
+    }
+    
+    /**
+     * AJAX handler for saving settings
+     */
+    public function ajax_save_settings() {
+        check_ajax_referer('wckb_admin', 'nonce');
+        
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(array('message' => __('Insufficient permissions.', 'wckb')));
+        }
+        
+        $settings = array(
+            'wckb_api_key' => sanitize_text_field($_POST['apiKey'] ?? ''),
+            'wckb_sandbox_mode' => sanitize_text_field($_POST['sandboxMode'] ?? 'no') === 'true' ? 'yes' : 'no',
+            'wckb_deliverable_action' => sanitize_text_field($_POST['deliverableAction'] ?? 'allow'),
+            'wckb_undeliverable_action' => sanitize_text_field($_POST['undeliverableAction'] ?? 'allow'),
+            'wckb_risky_action' => sanitize_text_field($_POST['riskyAction'] ?? 'allow'),
+            'wckb_unknown_action' => sanitize_text_field($_POST['unknownAction'] ?? 'allow'),
+            'wckb_enable_checkout_verification' => sanitize_text_field($_POST['enableCheckoutVerification'] ?? 'no') === 'true' ? 'yes' : 'no',
+            'wckb_enable_customer_verification' => sanitize_text_field($_POST['enableCustomerVerification'] ?? 'no') === 'true' ? 'yes' : 'no'
+        );
+        
+        foreach ($settings as $option => $value) {
+            update_option($option, $value);
+        }
+        
+        wp_send_json_success(array('message' => __('Settings saved successfully!', 'wckb')));
+    }
+    
+    /**
+     * AJAX handler for getting statistics
+     */
+    public function ajax_get_stats() {
+        check_ajax_referer('wckb_admin', 'nonce');
+        
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(array('message' => __('Insufficient permissions.', 'wckb')));
+        }
+        
+        $verification = new WCKB_Verification();
+        $stats = $verification->get_verification_stats();
+        
+        wp_send_json_success($stats);
     }
 }

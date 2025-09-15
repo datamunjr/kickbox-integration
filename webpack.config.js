@@ -55,8 +55,6 @@ module.exports = (env, argv) => {
       extensions: ['.js', '.jsx']
     },
     externals: {
-      'react': 'React',
-      'react-dom': 'ReactDOM',
       'jquery': 'jQuery'
     },
     devtool: isProduction ? 'source-map' : 'eval-source-map'
