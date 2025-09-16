@@ -4,7 +4,12 @@ import VerificationActions from './VerificationActions';
 import VerificationStats from './VerificationStats';
 
 const AdminSettings = () => {
-  const [activeTab, setActiveTab] = useState('api');
+  const [activeTab, setActiveTab] = useState(() => {
+    // Get tab from URL parameter, default to 'api'
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    return ['api', 'actions', 'stats'].includes(tab) ? tab : 'api';
+  });
   const [settings, setSettings] = useState({
     apiKey: '',
     sandboxMode: true,
@@ -21,7 +26,41 @@ const AdminSettings = () => {
   useEffect(() => {
     // Load current settings
     loadSettings();
+    
+    // Set default tab if none is specified
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    
+    if (!tab) {
+      // No tab parameter, set default to 'api' and update URL
+      const url = new URL(window.location);
+      url.searchParams.set('tab', 'api');
+      window.history.replaceState({}, '', url);
+    }
+    
+    // Listen for browser back/forward navigation
+    const handlePopState = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab');
+      if (['api', 'actions', 'stats'].includes(tab)) {
+        setActiveTab(tab);
+      }
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, []);
+
+  // Set initial page title
+  useEffect(() => {
+    const tab = tabs.find(t => t.id === activeTab);
+    if (tab) {
+      document.title = `Kickbox Integration - ${tab.label} | WordPress Admin`;
+    }
+  }, [activeTab]);
 
   const loadSettings = async () => {
     try {
@@ -113,6 +152,21 @@ const AdminSettings = () => {
     }));
   };
 
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    
+    // Update URL parameter without page reload
+    const url = new URL(window.location);
+    url.searchParams.set('tab', tabId);
+    window.history.pushState({}, '', url);
+    
+    // Update page title to reflect current tab
+    const tab = tabs.find(t => t.id === tabId);
+    if (tab) {
+      document.title = `Kickbox Integration - ${tab.label} | WordPress Admin`;
+    }
+  };
+
   const tabs = [
     { id: 'api', label: 'API Settings', component: ApiSettings },
     { id: 'actions', label: 'Verification Actions', component: VerificationActions },
@@ -137,7 +191,7 @@ const AdminSettings = () => {
           <button
             key={tab.id}
             className={`wckb-tab ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabChange(tab.id)}
           >
             {tab.label}
           </button>

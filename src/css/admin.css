@@ -21,15 +21,21 @@
   border-bottom: 2px solid transparent;
   font-size: 14px;
   color: #666;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .wckb-tab:hover {
   color: #0073aa;
+  background: rgba(0, 115, 170, 0.05);
 }
 
 .wckb-tab.active {
   color: #0073aa;
   border-bottom-color: #0073aa;
+  background: rgba(0, 115, 170, 0.1);
+  font-weight: 500;
 }
 
 .wckb-tab-content {

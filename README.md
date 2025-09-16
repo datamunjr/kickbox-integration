@@ -69,6 +69,16 @@ wckb/
 
 ## Configuration
 
+### Admin Settings Interface
+
+The admin settings page features a tabbed interface with URL parameter support:
+
+- **API Settings** (`?tab=api`) - Configure your Kickbox API key and basic settings (default tab)
+- **Verification Actions** (`?tab=actions`) - Set actions for different verification results
+- **Statistics** (`?tab=stats`) - View verification statistics and analytics
+
+When you first visit the settings page, it automatically defaults to the API Settings tab and adds `?tab=api` to the URL. You can bookmark and share direct links to specific tabs, and the interface supports browser back/forward navigation.
+
 ### API Settings
 
 1. Get your Kickbox API key from [kickbox.com](https://kickbox.com)
