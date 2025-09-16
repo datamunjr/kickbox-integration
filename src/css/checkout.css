@@ -1,4 +1,9 @@
 /* Checkout Email Verification Styles */
+#wckb-checkout-verification {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
 .wckb-email-verification {
   margin-top: 10px;
   padding: 10px;

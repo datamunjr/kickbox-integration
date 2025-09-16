@@ -6,25 +6,56 @@ const EmailVerification = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+
   useEffect(() => {
-    // Listen for email field changes
-    const emailField = document.querySelector('#billing_email');
-    if (emailField) {
-      const handleEmailChange = (e) => {
-        setEmail(e.target.value);
-        setVerificationStatus(null);
-        setError('');
-      };
+    // Function to find and attach to email field
+    const attachToEmailField = () => {
+      // Try traditional checkout first
+      let emailField = document.querySelector('#billing_email');
+      
+      // If not found, try blocks checkout
+      if (!emailField) {
+        emailField = document.querySelector('.wc-block-components-text-input input[type="email"]');
+      }
+      
+      if (emailField) {
+        const handleEmailChange = (e) => {
+          setEmail(e.target.value);
+          setVerificationStatus(null);
+          setError('');
+        };
 
-      emailField.addEventListener('input', handleEmailChange);
-      emailField.addEventListener('blur', handleEmailChange);
+        emailField.addEventListener('input', handleEmailChange);
+        emailField.addEventListener('blur', handleEmailChange);
 
-      return () => {
-        emailField.removeEventListener('input', handleEmailChange);
-        emailField.removeEventListener('blur', handleEmailChange);
-      };
+        return () => {
+          emailField.removeEventListener('input', handleEmailChange);
+          emailField.removeEventListener('blur', handleEmailChange);
+        };
+      }
+      
+      return null;
+    };
+
+    // Try to attach immediately
+    const cleanup = attachToEmailField();
+    
+    // If not found, try again after a short delay (for blocks checkout)
+    if (!cleanup) {
+      const retryTimeout = setTimeout(() => {
+        attachToEmailField();
+      }, 500);
+      
+      return () => clearTimeout(retryTimeout);
     }
+    
+    return cleanup;
   }, []);
+
+  // Don't render if verification is not enabled
+  if (!wckb_checkout || !wckb_checkout.verification_enabled) {
+    return null;
+  }
 
   const verifyEmail = async (emailToVerify) => {
     if (!emailToVerify || !isValidEmail(emailToVerify)) {
@@ -48,7 +79,9 @@ const EmailVerification = () => {
       });
 
       const data = await response.json();
-      
+
+      console.log(`wckb-data: ${data}`);
+
       if (data.success) {
         setVerificationStatus(data.data);
       } else {

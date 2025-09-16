@@ -23,6 +23,7 @@ class WCKB_Customer_Management {
         add_action('wp_ajax_wckb_verify_single_customer', array($this, 'ajax_verify_single_customer'));
         add_action('admin_footer-users.php', array($this, 'add_bulk_actions'));
         add_action('load-users.php', array($this, 'handle_bulk_actions'));
+        add_action('admin_footer-users.php', array($this, 'add_customer_verification_container'));
     }
     
     /**
@@ -97,13 +98,13 @@ class WCKB_Customer_Management {
         if ($hook !== 'users.php') {
             return;
         }
-        
-        wp_enqueue_script('wckb-customer', WCKB_PLUGIN_URL . 'assets/js/customer.js', array('jquery'), WCKB_VERSION, true);
+
         wp_enqueue_style('wckb-customer', WCKB_PLUGIN_URL . 'assets/css/customer.css', array(), WCKB_VERSION);
         
         wp_localize_script('wckb-customer', 'wckb_customer', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('wckb_customer'),
+            'verification_enabled' => get_option('wckb_enable_customer_verification', 'no') === 'yes',
             'strings' => array(
                 'verifying' => __('Verifying emails...', 'wckb'),
                 'verification_complete' => __('Email verification complete!', 'wckb'),
@@ -271,5 +272,16 @@ class WCKB_Customer_Management {
             'message' => sprintf(__('Email %s verified successfully!', 'wckb'), $email),
             'result' => $result
         ));
+    }
+    
+    /**
+     * Add customer verification container
+     */
+    public function add_customer_verification_container() {
+        if (!get_option('wckb_enable_customer_verification', 'no') === 'yes') {
+            return;
+        }
+        
+        echo '<div id="wckb-customer-verification"></div>';
     }
 }

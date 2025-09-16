@@ -15,26 +15,30 @@ class WCKB_Checkout {
     
     public function __construct() {
         $this->verification = new WCKB_Verification();
-        
+
         add_action('wp_enqueue_scripts', array($this, 'enqueue_checkout_scripts'));
         add_action('woocommerce_checkout_process', array($this, 'validate_checkout_email'));
         add_action('woocommerce_after_checkout_validation', array($this, 'after_checkout_validation'));
+        add_filter('woocommerce_form_field_email', array($this, 'add_checkout_verification_to_email_field'), 10, 4);
+        add_action('wp_footer', array($this, 'add_blocks_checkout_support'));
     }
     
     /**
      * Enqueue checkout scripts
      */
     public function enqueue_checkout_scripts() {
-        if (!is_checkout() || !$this->verification->is_verification_enabled()) {
+        if (!is_checkout()) {
             return;
         }
-        
+
+	    wp_enqueue_script('wckb-customer', WCKB_PLUGIN_URL . 'assets/js/customer.js', array('jquery'), WCKB_VERSION, true);
         wp_enqueue_script('wckb-checkout', WCKB_PLUGIN_URL . 'assets/js/checkout.js', array('jquery', 'wc-checkout'), WCKB_VERSION, true);
         wp_enqueue_style('wckb-checkout', WCKB_PLUGIN_URL . 'assets/css/checkout.css', array(), WCKB_VERSION);
         
         wp_localize_script('wckb-checkout', 'wckb_checkout', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('wckb_verify_email'),
+            'verification_enabled' => $this->verification->is_verification_enabled(),
             'strings' => array(
                 'verifying' => __('Verifying email...', 'wckb'),
                 'verification_failed' => __('Email verification failed. Please check your email address.', 'wckb'),
@@ -45,6 +49,78 @@ class WCKB_Checkout {
                 'unknown' => __('Unable to verify this email address.', 'wckb')
             )
         ));
+    }
+    
+    /**
+     * Add checkout verification to email field
+     */
+    public function add_checkout_verification_to_email_field( $field, $key, $args, $value ) {
+        // Only modify the billing email field
+        if ($key !== 'billing_email' || !$this->verification->is_verification_enabled()) {
+            return $field;
+        }
+
+        // Add the verification container after the email field
+        $field .= '<div id="wckb-checkout-verification"></div>';
+        
+        return $field;
+    }
+    
+    /**
+     * Add support for WooCommerce Blocks checkout
+     */
+    public function add_blocks_checkout_support() {
+        if (!is_checkout() || !$this->verification->is_verification_enabled()) {
+            return;
+        }
+        
+        ?>
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            // Function to add verification container to blocks checkout
+            function addVerificationToBlocksCheckout() {
+                // Look for the email field in blocks checkout
+                var emailField = $('.wc-block-components-text-input input[type="email"]');
+                
+                if (emailField.length > 0 && $('#wckb-checkout-verification').length === 0) {
+                    // Find the email field container
+                    var emailContainer = emailField.closest('.wc-block-components-text-input');
+                    
+                    if (emailContainer.length > 0) {
+                        // Add verification container after the email field
+                        emailContainer.after('<div id="wckb-checkout-verification"></div>');
+                        
+                        // Trigger React component initialization
+                        if (typeof window.wckbInitCheckoutVerification === 'function') {
+                            window.wckbInitCheckoutVerification();
+                        }
+                    }
+                }
+            }
+            
+            // Check for blocks checkout on page load
+            addVerificationToBlocksCheckout();
+            
+            // Also check when blocks are loaded dynamically
+            $(document.body).on('updated_checkout', function() {
+                setTimeout(addVerificationToBlocksCheckout, 100);
+            });
+            
+            // Check periodically for blocks checkout (fallback)
+            var blocksCheckInterval = setInterval(function() {
+                if ($('.wc-block-components-text-input input[type="email"]').length > 0) {
+                    addVerificationToBlocksCheckout();
+                    clearInterval(blocksCheckInterval);
+                }
+            }, 500);
+            
+            // Clear interval after 10 seconds
+            setTimeout(function() {
+                clearInterval(blocksCheckInterval);
+            }, 10000);
+        });
+        </script>
+        <?php
     }
     
     /**
@@ -179,4 +255,5 @@ class WCKB_Checkout {
             'data' => $data
         );
     }
+    
 }

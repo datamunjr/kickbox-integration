@@ -5,6 +5,11 @@ const CustomerVerification = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
+  // Don't render if customer verification is not enabled
+  if (!wckb_customer || !wckb_customer.verification_enabled) {
+    return null;
+  }
+
   useEffect(() => {
     // Listen for bulk action changes
     const bulkActionSelect = document.querySelector('select[name="action"]');
