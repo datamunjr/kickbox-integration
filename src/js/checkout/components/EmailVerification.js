@@ -5,6 +5,7 @@ const EmailVerification = () => {
   const [verificationStatus, setVerificationStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [shouldBlockSubmission, setShouldBlockSubmission] = useState(false);
 
 
   useEffect(() => {
@@ -84,8 +85,19 @@ const EmailVerification = () => {
 
       if (data.success) {
         setVerificationStatus(data.data);
+        
+        // Check if this result should block submission
+        const result = data.data.result;
+        const shouldBlock = result === 'undeliverable' || result === 'risky' || result === 'unknown';
+        setShouldBlockSubmission(shouldBlock);
+        
+        // If we should block, prevent form submission
+        if (shouldBlock) {
+          preventFormSubmission();
+        }
       } else {
         setError(data.data.message || wckb_checkout.strings.verification_error);
+        setShouldBlockSubmission(false);
       }
     } catch (error) {
       setError(wckb_checkout.strings.verification_error);
@@ -97,6 +109,28 @@ const EmailVerification = () => {
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  };
+
+  const preventFormSubmission = () => {
+    // For traditional checkout
+    const checkoutForm = document.querySelector('form.checkout');
+    if (checkoutForm) {
+      checkoutForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }, true);
+    }
+
+    // For blocks checkout
+    const placeOrderButton = document.querySelector('.wc-block-components-checkout-place-order-button');
+    if (placeOrderButton) {
+      placeOrderButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }, true);
+    }
   };
 
   const getStatusMessage = (result) => {
@@ -170,6 +204,11 @@ const EmailVerification = () => {
           <span className="wckb-status-message">
             {getStatusMessage(verificationStatus.result).text}
           </span>
+          {shouldBlockSubmission && (
+            <div className="wckb-block-notice">
+              <small>Checkout will be blocked until you use a different email address.</small>
+            </div>
+          )}
         </div>
       )}
 
