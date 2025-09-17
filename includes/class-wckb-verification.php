@@ -17,8 +17,8 @@ class WCKB_Verification {
     
     public function __construct() {
         $this->api_key = get_option('wckb_api_key', '');
-        $this->sandbox_mode = get_option('wckb_sandbox_mode', 'yes');
-        $this->api_url = $this->sandbox_mode === 'yes' ? 'https://api.kickbox.com/v2/verify' : 'https://api.kickbox.com/v2/verify';
+        $this->sandbox_mode = strpos($this->api_key, 'test_') === 0;
+        $this->api_url = 'https://api.kickbox.com/v2/verify';
         
         add_action('wp_ajax_wckb_verify_email', array($this, 'ajax_verify_email'));
         add_action('wp_ajax_nopriv_wckb_verify_email', array($this, 'ajax_verify_email'));

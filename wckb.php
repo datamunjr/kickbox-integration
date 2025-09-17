@@ -111,7 +111,6 @@ function wckb_create_tables() {
 function wckb_set_default_options() {
     $default_options = array(
         'wckb_api_key' => '',
-        'wckb_sandbox_mode' => 'yes',
         'wckb_deliverable_action' => 'allow',
         'wckb_undeliverable_action' => 'allow',
         'wckb_risky_action' => 'allow',
