@@ -1,4 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { Pie } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+// Register Chart.js components
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const VerificationStats = () => {
   const [stats, setStats] = useState(null);
@@ -60,48 +70,114 @@ const VerificationStats = () => {
     return labels[result] || result;
   };
 
+  // Prepare chart data
+  const prepareChartData = () => {
+    if (!stats || !Array.isArray(stats)) {
+      return null;
+    }
+
+    const total = stats.reduce((sum, item) => sum + parseInt(item.count), 0);
+    
+    if (total === 0) {
+      return null;
+    }
+
+    const chartData = {
+      labels: stats.map(item => getResultLabel(item.verification_result)),
+      datasets: [
+        {
+          data: stats.map(item => parseInt(item.count)),
+          backgroundColor: stats.map(item => getResultColor(item.verification_result)),
+          borderColor: stats.map(item => getResultColor(item.verification_result)),
+          borderWidth: 2,
+          hoverBorderWidth: 3,
+        }
+      ]
+    };
+
+    return chartData;
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          padding: 20,
+          usePointStyle: true,
+          font: {
+            size: 12
+          }
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const label = context.label || '';
+            const value = context.parsed;
+            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+            const percentage = ((value / total) * 100).toFixed(1);
+            return `${label}: ${value} (${percentage}%)`;
+          }
+        }
+      }
+    }
+  };
+
+  const chartData = prepareChartData();
+  const totalVerifications = stats ? stats.reduce((sum, item) => sum + parseInt(item.count), 0) : 0;
+
   return (
     <div className="wckb-verification-stats">
       <div className="wckb-stats-grid">
         <div className="wckb-stat-card">
-          <h3>Total Users</h3>
-          <div className="wckb-stat-number">{stats.total_users || 0}</div>
+          <h3>Total Verifications</h3>
+          <div className="wckb-stat-number">{totalVerifications}</div>
         </div>
         
         <div className="wckb-stat-card">
-          <h3>Verified Users</h3>
-          <div className="wckb-stat-number">{stats.verified_users || 0}</div>
-        </div>
-        
-        <div className="wckb-stat-card">
-          <h3>Verification Rate</h3>
+          <h3>Deliverable</h3>
           <div className="wckb-stat-number">
-            {stats.total_users > 0 
-              ? Math.round((stats.verified_users / stats.total_users) * 100) 
-              : 0}%
+            {stats ? stats.find(item => item.verification_result === 'deliverable')?.count || 0 : 0}
+          </div>
+        </div>
+        
+        <div className="wckb-stat-card">
+          <h3>Undeliverable</h3>
+          <div className="wckb-stat-number">
+            {stats ? stats.find(item => item.verification_result === 'undeliverable')?.count || 0 : 0}
+          </div>
+        </div>
+
+        <div className="wckb-stat-card">
+          <h3>Risky</h3>
+          <div className="wckb-stat-number">
+            {stats ? stats.find(item => item.verification_result === 'risky')?.count || 0 : 0}
+          </div>
+        </div>
+
+        <div className="wckb-stat-card">
+          <h3>Unknown</h3>
+          <div className="wckb-stat-number">
+            {stats ? stats.find(item => item.verification_result === 'unknown')?.count || 0 : 0}
           </div>
         </div>
       </div>
 
-      {stats.verification_results && stats.verification_results.length > 0 && (
-        <div className="wckb-results-breakdown">
-          <h3>Verification Results Breakdown</h3>
-          <div className="wckb-results-list">
-            {stats.verification_results.map((result, index) => (
-              <div key={index} className="wckb-result-item">
-                <div 
-                  className="wckb-result-color" 
-                  style={{ backgroundColor: getResultColor(result.verification_result) }}
-                ></div>
-                <div className="wckb-result-info">
-                  <span className="wckb-result-label">
-                    {getResultLabel(result.verification_result)}
-                  </span>
-                  <span className="wckb-result-count">{result.count}</span>
-                </div>
-              </div>
-            ))}
+      {chartData && (
+        <div className="wckb-pie-chart-container">
+          <h3>Verification Results Distribution</h3>
+          <div className="wckb-pie-chart">
+            <Pie data={chartData} options={chartOptions} />
           </div>
+        </div>
+      )}
+
+      {!chartData && stats && stats.length > 0 && (
+        <div className="wckb-no-data">
+          <p>No verification data available to display.</p>
         </div>
       )}
 

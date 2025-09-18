@@ -10,29 +10,35 @@ const VerificationActions = ({ settings, onSettingChange }) => {
   const verificationTypes = [
     {
       key: 'deliverableAction',
-      label: 'Deliverable Emails',
-      description: 'Emails that are confirmed to be deliverable'
+      label: 'Deliverable',
+      description: 'The recipient\'s mail server confirmed the recipient exists. Kickbox has performed additional analysis and determined this address is safe to send to within our 95% Delivery Guarantee.'
     },
     {
       key: 'undeliverableAction',
-      label: 'Undeliverable Emails',
-      description: 'Emails that are confirmed to be undeliverable'
+      label: 'Undeliverable',
+      description: 'The email address does not exist or is syntactically incorrect (and thus does not exist).'
     },
     {
       key: 'riskyAction',
-      label: 'Risky Emails',
-      description: 'Emails that may be risky or suspicious'
+      label: 'Risky',
+      description: 'The email address has quality issues and may result in a bounce or low engagement. Use caution when sending to risky addresses. Accept All, Disposable, and Role addresses are classified as Risky.'
     },
     {
       key: 'unknownAction',
-      label: 'Unknown Emails',
-      description: 'Emails that could not be verified'
+      label: 'Unknown',
+      description: 'Kickbox was unable to get a response from the recipient\'s mail server. This often happens if the destination mail server is too slow or temporarily unavailable. Unknown addresses don\'t count against your verification balance.'
     }
   ];
 
   return (
     <div className="wckb-verification-actions">
       <p>Configure what action to take for each verification result:</p>
+      <p className="description">
+        For detailed information about each verification result type, see the{' '}
+        <a href="https://docs.kickbox.com/docs/terminology" target="_blank" rel="noopener noreferrer">
+          Kickbox Terminology Documentation
+        </a>.
+      </p>
       
       <table className="form-table">
         <tbody>

@@ -231,6 +231,37 @@
   text-align: center;
 }
 
+/* Pie Chart Styles */
+.wckb-pie-chart-container {
+  margin-top: 30px;
+  background: #fff;
+  border: 1px solid #ccd0d4;
+  border-radius: 4px;
+  padding: 20px;
+}
+
+.wckb-pie-chart-container h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.wckb-pie-chart {
+  position: relative;
+  height: 400px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.wckb-no-data {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  background: #f9f9f9;
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
 /* Loading and Error States */
 .wckb-loading {
   text-align: center;

@@ -65,10 +65,10 @@ class WCKB_Checkout {
                         'verifying'           => __( 'Verifying email...', 'wckb' ),
                         'verification_failed' => __( 'Email verification failed. Please check your email address.', 'wckb' ),
                         'verification_error'  => __( 'Unable to verify email at this time. Please try again.', 'wckb' ),
-                        'deliverable'         => __( 'Email verified successfully.', 'wckb' ),
-                        'undeliverable'       => __( 'This email address appears to be invalid.', 'wckb' ),
-                        'risky'               => __( 'This email address may be risky.', 'wckb' ),
-                        'unknown'             => __( 'Unable to verify this email address.', 'wckb' )
+                        'deliverable'         => __( 'Email address is deliverable and safe to send to.', 'wckb' ),
+                        'undeliverable'       => __( 'Email address does not exist or is invalid.', 'wckb' ),
+                        'risky'               => __( 'Email address has quality issues and may result in bounces.', 'wckb' ),
+                        'unknown'             => __( 'Unable to verify email address - server timeout or unavailable.', 'wckb' )
                 )
         ) );
     }
@@ -245,9 +245,9 @@ class WCKB_Checkout {
      */
     private function block_blocks_checkout( $result, $verification_data ) {
         $messages = array(
-            'undeliverable' => __( 'This email address appears to be invalid and cannot receive emails. Please use a different email address.', 'wckb' ),
-            'risky'         => __( 'This email address has been flagged as potentially risky. Please use a different email address.', 'wckb' ),
-            'unknown'       => __( 'We were unable to verify this email address. Please use a different email address.', 'wckb' )
+            'undeliverable' => __( 'This email address does not exist or is invalid. Please use a different email address.', 'wckb' ),
+            'risky'         => __( 'This email address has quality issues and may result in bounces. Please use a different email address.', 'wckb' ),
+            'unknown'       => __( 'We were unable to verify this email address due to server timeout. Please use a different email address.', 'wckb' )
         );
 
         $message = $messages[ $result ] ?? $messages['unknown'];
@@ -307,9 +307,9 @@ class WCKB_Checkout {
      */
     private function block_checkout( $result, $verification_data ) {
         $messages = array(
-                'undeliverable' => __( 'This email address appears to be invalid and cannot receive emails. Please use a different email address.', 'wckb' ),
-                'risky'         => __( 'This email address has been flagged as potentially risky. Please use a different email address.', 'wckb' ),
-                'unknown'       => __( 'We were unable to verify this email address. Please use a different email address.', 'wckb' )
+                'undeliverable' => __( 'This email address does not exist or is invalid. Please use a different email address.', 'wckb' ),
+                'risky'         => __( 'This email address has quality issues and may result in bounces. Please use a different email address.', 'wckb' ),
+                'unknown'       => __( 'We were unable to verify this email address due to server timeout. Please use a different email address.', 'wckb' )
         );
 
         $message = $messages[ $result ] ?? $messages['unknown'];
