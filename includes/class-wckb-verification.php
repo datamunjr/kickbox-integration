@@ -278,7 +278,7 @@ class WCKB_Verification {
 
 		if ( isset( $headers['x-kickbox-balance'] ) ) {
 			$balance = intval( $headers['x-kickbox-balance'] );
-			update_option( 'wckb_api_balance', 30 );
+			update_option( 'wckb_api_balance', $balance );
 			update_option( 'wckb_balance_last_updated', current_time( 'mysql' ) );
 		}
 	}
