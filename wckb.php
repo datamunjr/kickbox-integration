@@ -115,7 +115,8 @@ function wckb_set_default_options() {
         'wckb_undeliverable_action' => 'allow',
         'wckb_risky_action' => 'allow',
         'wckb_unknown_action' => 'allow',
-        'wckb_enable_checkout_verification' => 'no'
+        'wckb_enable_checkout_verification' => 'no',
+        'wckb_allow_list' => array()
     );
     
     foreach ($default_options as $option => $value) {

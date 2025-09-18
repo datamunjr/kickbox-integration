@@ -41,6 +41,24 @@ class WCKB_Verification {
 			return new WP_Error( 'invalid_email', __( 'Invalid email address format.', 'wckb' ) );
 		}
 
+		// Check if email is in allow list
+		$admin = new WCKB_Admin();
+		if ( $admin->is_email_in_allow_list( $email ) ) {
+			// Return a deliverable result for allow list emails
+			return array(
+				'result' => 'deliverable',
+				'reason' => 'allow_list',
+				'sendex' => 1,
+				'role' => false,
+				'free' => false,
+				'disposable' => false,
+				'accept_all' => false,
+				'did_you_mean' => null,
+				'domain' => substr( strrchr( $email, '@' ), 1 ),
+				'user' => substr( $email, 0, strpos( $email, '@' ) )
+			);
+		}
+
 		$default_options = array(
 			'timeout' => 30,
 			'timeout' => 30,

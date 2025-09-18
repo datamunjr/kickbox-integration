@@ -21,6 +21,9 @@ class WCKB_Admin {
         add_action( 'wp_ajax_wckb_save_settings', array( $this, 'ajax_save_settings' ) );
         add_action( 'wp_ajax_wckb_get_stats', array( $this, 'ajax_get_stats' ) );
         add_action( 'wp_ajax_wckb_get_full_api_key', array( $this, 'ajax_get_full_api_key' ) );
+        add_action( 'wp_ajax_wckb_get_allow_list', array( $this, 'ajax_get_allow_list' ) );
+        add_action( 'wp_ajax_wckb_add_to_allow_list', array( $this, 'ajax_add_to_allow_list' ) );
+        add_action( 'wp_ajax_wckb_remove_from_allow_list', array( $this, 'ajax_remove_from_allow_list' ) );
         add_action( 'admin_notices', array( $this, 'show_balance_notice' ) );
         add_action( 'admin_notices', array( $this, 'show_verification_disabled_notice' ) );
     }
@@ -77,6 +80,12 @@ class WCKB_Admin {
         register_setting( 'wckb_settings', 'wckb_enable_checkout_verification', array(
                 'type'    => 'string',
                 'default' => 'no'
+        ) );
+
+        register_setting( 'wckb_settings', 'wckb_allow_list', array(
+                'type'              => 'array',
+                'default'           => array(),
+                'sanitize_callback' => array( $this, 'sanitize_allow_list' )
         ) );
 
     }
@@ -437,7 +446,8 @@ class WCKB_Admin {
                 'balance'                    => $balance,
                 'balanceMessage'             => $balance_message,
                 'isBalanceLow'               => $is_balance_low,
-                'hasBalanceBeenDetermined'   => $has_balance_been_determined
+                'hasBalanceBeenDetermined'   => $has_balance_been_determined,
+                'allowList'                  => $this->get_allow_list()
         );
 
         wp_send_json_success( $settings );
@@ -688,5 +698,140 @@ class WCKB_Admin {
             </p>
         </div>
         <?php
+    }
+    
+    /**
+     * Sanitize allow list
+     *
+     * @param array $value The value to sanitize
+     *
+     * @return array Sanitized value
+     */
+    public function sanitize_allow_list( $value ) {
+        if ( ! is_array( $value ) ) {
+            return array();
+        }
+        
+        $valid_emails = array();
+        
+        foreach ( $value as $email ) {
+            $email = trim( $email );
+            if ( is_email( $email ) ) {
+                $valid_emails[] = sanitize_email( $email );
+            }
+        }
+        
+        // Remove duplicates and re-index array
+        return array_values( array_unique( $valid_emails ) );
+    }
+    
+    /**
+     * Get allow list as array
+     *
+     * @return array Array of allowed emails
+     */
+    public function get_allow_list() {
+        $allow_list = get_option( 'wckb_allow_list', array() );
+        
+        // Ensure we always return an array
+        if ( ! is_array( $allow_list ) ) {
+            return array();
+        }
+        
+        return $allow_list;
+    }
+    
+    /**
+     * Check if email is in allow list
+     *
+     * @param string $email Email to check
+     *
+     * @return bool True if email is in allow list
+     */
+    public function is_email_in_allow_list( $email ) {
+        $allow_list = $this->get_allow_list();
+        return in_array( strtolower( $email ), array_map( 'strtolower', $allow_list ), true );
+    }
+    
+    /**
+     * AJAX handler to get allow list
+     */
+    public function ajax_get_allow_list() {
+        check_ajax_referer( 'wckb_admin', 'nonce' );
+        
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'wckb' ) ) );
+        }
+        
+        $allow_list = $this->get_allow_list();
+        wp_send_json_success( $allow_list );
+    }
+    
+    /**
+     * AJAX handler to add email to allow list
+     */
+    public function ajax_add_to_allow_list() {
+        check_ajax_referer( 'wckb_admin', 'nonce' );
+        
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'wckb' ) ) );
+        }
+        
+        $email = sanitize_email( $_POST['email'] ?? '' );
+        
+        if ( empty( $email ) || ! is_email( $email ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid email address.', 'wckb' ) ) );
+        }
+        
+        $allow_list = $this->get_allow_list();
+        
+        // Check if email already exists
+        if ( in_array( strtolower( $email ), array_map( 'strtolower', $allow_list ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Email address is already in the allow list.', 'wckb' ) ) );
+        }
+        
+        // Add email to list
+        $allow_list[] = $email;
+        $this->save_allow_list( $allow_list );
+        
+        wp_send_json_success( array( 'message' => __( 'Email added to allow list successfully.', 'wckb' ) ) );
+    }
+    
+    /**
+     * AJAX handler to remove email from allow list
+     */
+    public function ajax_remove_from_allow_list() {
+        check_ajax_referer( 'wckb_admin', 'nonce' );
+        
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'wckb' ) ) );
+        }
+        
+        $email = sanitize_email( $_POST['email'] ?? '' );
+        
+        if ( empty( $email ) ) {
+            wp_send_json_error( array( 'message' => __( 'Email address is required.', 'wckb' ) ) );
+        }
+        
+        $allow_list = $this->get_allow_list();
+        
+        // Remove email from list (case-insensitive)
+        $allow_list = array_filter( $allow_list, function( $list_email ) use ( $email ) {
+            return strtolower( $list_email ) !== strtolower( $email );
+        } );
+        
+        $this->save_allow_list( $allow_list );
+        
+        wp_send_json_success( array( 'message' => __( 'Email removed from allow list successfully.', 'wckb' ) ) );
+    }
+    
+    /**
+     * Save allow list
+     *
+     * @param array $allow_list Array of emails
+     */
+    private function save_allow_list( $allow_list ) {
+        // WordPress automatically serializes arrays
+        update_option( 'wckb_allow_list', $allow_list );
     }
 }

@@ -2,13 +2,14 @@ import React, {useState, useEffect} from 'react';
 import ApiSettings from './ApiSettings';
 import VerificationActions from './VerificationActions';
 import VerificationStats from './VerificationStats';
+import AllowList from './AllowList';
 
 const AdminSettings = () => {
     const [activeTab, setActiveTab] = useState(() => {
         // Get tab from URL parameter, default to 'api'
         const urlParams = new URLSearchParams(window.location.search);
         const tab = urlParams.get('tab');
-        return ['api', 'actions', 'stats'].includes(tab) ? tab : 'api';
+        return ['api', 'actions', 'allowlist', 'stats'].includes(tab) ? tab : 'api';
     });
     const [settings, setSettings] = useState({
         apiKey: '',
@@ -43,7 +44,7 @@ const AdminSettings = () => {
         const handlePopState = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const tab = urlParams.get('tab');
-            if (['api', 'actions', 'stats'].includes(tab)) {
+            if (['api', 'actions', 'allowlist', 'stats'].includes(tab)) {
                 setActiveTab(tab);
             }
         };
@@ -238,6 +239,7 @@ const AdminSettings = () => {
     const tabs = [
         {id: 'api', label: 'API Settings', component: ApiSettings},
         {id: 'actions', label: 'Verification Actions', component: VerificationActions},
+        {id: 'allowlist', label: 'Allow List', component: AllowList},
         {id: 'stats', label: 'Statistics', component: VerificationStats}
     ];
 

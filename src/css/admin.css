@@ -306,6 +306,115 @@
   line-height: 1.4;
 }
 
+/* Allow List Styles */
+.wckb-allow-list {
+  max-width: 800px;
+}
+
+.wckb-allow-list-header h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.wckb-allow-list-header .description {
+  margin-bottom: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.wckb-add-email-section {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.wckb-add-email-section h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.wckb-add-email-form {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.wckb-add-email-form input {
+  flex: 1;
+  max-width: 300px;
+}
+
+.wckb-allow-list-section h4 {
+  margin-bottom: 15px;
+}
+
+.wckb-empty-allow-list {
+  background: #f0f0f1;
+  border: 1px solid #c3c4c7;
+  border-radius: 4px;
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.wckb-allow-list-items {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.wckb-allow-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.wckb-allow-list-item:last-child {
+  border-bottom: none;
+}
+
+.wckb-allow-list-item:hover {
+  background: #f9f9f9;
+}
+
+.wckb-email-address {
+  font-family: monospace;
+  font-size: 14px;
+  color: #333;
+}
+
+.wckb-allow-list-info {
+  background: #e5f6ff;
+  border: 1px solid #b8daff;
+  border-radius: 4px;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.wckb-allow-list-info h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #004085;
+}
+
+.wckb-allow-list-info ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.wckb-allow-list-info li {
+  margin-bottom: 8px;
+  color: #004085;
+}
+
+.wckb-allow-list-info li:last-child {
+  margin-bottom: 0;
+}
+
 .wckb-no-data {
   text-align: center;
   padding: 40px;
