@@ -55,6 +55,12 @@ class WCKB_Checkout {
                 'ajax_url'             => admin_url( 'admin-ajax.php' ),
                 'nonce'                => wp_create_nonce( 'wckb_verify_email' ),
                 'verification_enabled' => $this->verification->is_verification_enabled(),
+                'verification_actions' => array(
+                        'deliverable'   => get_option( 'wckb_deliverable_action', 'allow' ),
+                        'undeliverable' => get_option( 'wckb_undeliverable_action', 'allow' ),
+                        'risky'         => get_option( 'wckb_risky_action', 'allow' ),
+                        'unknown'       => get_option( 'wckb_unknown_action', 'allow' )
+                ),
                 'strings'              => array(
                         'verifying'           => __( 'Verifying email...', 'wckb' ),
                         'verification_failed' => __( 'Email verification failed. Please check your email address.', 'wckb' ),

@@ -86,9 +86,10 @@ const EmailVerification = () => {
       if (data.success) {
         setVerificationStatus(data.data);
         
-        // Check if this result should block submission
+        // Check if this result should block submission based on backend settings
         const result = data.data.result;
-        const shouldBlock = result === 'undeliverable' || result === 'risky' || result === 'unknown';
+        const action = wckb_checkout.verification_actions[result] || 'allow';
+        const shouldBlock = action === 'block';
         setShouldBlockSubmission(shouldBlock);
         
         // If we should block, prevent form submission
@@ -207,6 +208,11 @@ const EmailVerification = () => {
           {shouldBlockSubmission && (
             <div className="wckb-block-notice">
               <small>Checkout will be blocked until you use a different email address.</small>
+            </div>
+          )}
+          {verificationStatus && !shouldBlockSubmission && wckb_checkout.verification_actions[verificationStatus.result] === 'review' && (
+            <div className="wckb-review-notice">
+              <small>This email will be flagged for review but checkout can proceed.</small>
             </div>
           )}
         </div>
