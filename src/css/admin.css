@@ -253,6 +253,43 @@
   margin: 0 auto;
 }
 
+/* Balance Information Styles */
+.wckb-balance-info {
+  padding: 10px 0;
+}
+
+.balance-message {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.balance-message.low-balance-warning {
+  color: #d63638;
+  font-weight: 600;
+}
+
+.balance-warning {
+  background: #fbeaea;
+  border: 1px solid #f1aeb5;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.balance-warning p {
+  margin: 0 0 10px 0;
+  color: #721c24;
+}
+
+.balance-warning p:last-child {
+  margin-bottom: 0;
+}
+
+.balance-warning .button {
+  margin-right: 8px;
+}
+
 .wckb-no-data {
   text-align: center;
   padding: 40px;

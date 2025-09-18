@@ -15,23 +15,31 @@ class WCKB_Checkout {
 
     public function __construct() {
         $this->verification = new WCKB_Verification();
-        error_log( "WCKB_Checkout::__construct()" );
 
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_checkout_scripts' ) );
-        
+
         // Legacy checkout validation hooks
         add_action( 'woocommerce_checkout_process', array( $this, 'validate_checkout_email' ) );
         add_action( 'woocommerce_after_checkout_validation', array( $this, 'after_checkout_validation' ) );
-        
+
         // Blocks checkout validation hooks (using Store API)
         // Use the new Store API hook (WooCommerce Blocks 7.2.0+)
-        add_action( 'woocommerce_store_api_checkout_update_order_from_request', array( $this, 'validate_blocks_checkout_email' ), 10, 2 );
-        
+        add_action( 'woocommerce_store_api_checkout_update_order_from_request', array(
+                $this,
+                'validate_blocks_checkout_email'
+        ), 10, 2 );
+
         // Fallback for older WooCommerce Blocks versions (< 7.2.0)
-        add_action( 'woocommerce_blocks_checkout_update_order_from_request', array( $this, 'validate_blocks_checkout_email' ), 10, 2 );
-        
-        add_filter( 'woocommerce_rest_checkout_process_payment_error', array( $this, 'handle_blocks_checkout_error' ), 10, 2 );
-        
+        add_action( 'woocommerce_blocks_checkout_update_order_from_request', array(
+                $this,
+                'validate_blocks_checkout_email'
+        ), 10, 2 );
+
+        add_filter( 'woocommerce_rest_checkout_process_payment_error', array(
+                $this,
+                'handle_blocks_checkout_error'
+        ), 10, 2 );
+
         add_filter( 'woocommerce_form_field_email', array( $this, 'add_checkout_verification_to_email_field' ), 10, 4 );
         add_action( 'wp_footer', array( $this, 'add_blocks_checkout_support' ) );
     }
@@ -120,18 +128,58 @@ class WCKB_Checkout {
                     }
                 }
 
+                // Function to intercept Place Order button clicks
+                function interceptPlaceOrderClicks() {
+                    // Legacy checkout - intercept form submission
+                    $('form.checkout').on('submit', function (e) {
+                        if (typeof window.wckbVerifyEmailOnSubmit === 'function') {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+
+                            window.wckbVerifyEmailOnSubmit().then(function (canProceed) {
+                                if (canProceed) {
+                                    // Remove our event handler and submit the form
+                                    $('form.checkout').off('submit').submit();
+                                }
+                            });
+                            return false;
+                        }
+                    });
+
+                    // Blocks checkout - intercept Place Order button click
+                    $(document).on('click', '.wc-block-components-checkout-place-order-button', function (e) {
+                        if (typeof window.wckbVerifyEmailOnSubmit === 'function') {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+
+                            window.wckbVerifyEmailOnSubmit().then(function (canProceed) {
+                                if (canProceed) {
+                                    // Remove our event handler and trigger the click again
+                                    $(this).off('click').trigger('click');
+                                }
+                            }.bind(this));
+                            return false;
+                        }
+                    });
+                }
+
                 // Check for blocks checkout on page load
                 addVerificationToBlocksCheckout();
+                interceptPlaceOrderClicks();
 
                 // Also check when blocks are loaded dynamically
                 $(document.body).on('updated_checkout', function () {
-                    setTimeout(addVerificationToBlocksCheckout, 100);
+                    setTimeout(function () {
+                        addVerificationToBlocksCheckout();
+                        interceptPlaceOrderClicks();
+                    }, 100);
                 });
 
                 // Check periodically for blocks checkout (fallback)
                 var blocksCheckInterval = setInterval(function () {
                     if ($('.wc-block-components-text-input input[type="email"]').length > 0) {
                         addVerificationToBlocksCheckout();
+                        interceptPlaceOrderClicks();
                         clearInterval(blocksCheckInterval);
                     }
                 }, 500);
@@ -201,7 +249,7 @@ class WCKB_Checkout {
 
         // Get email from the request data
         $email = $request['billing_address']['email'] ?? '';
-        
+
         if ( empty( $email ) ) {
             return;
         }
@@ -213,13 +261,14 @@ class WCKB_Checkout {
         if ( is_wp_error( $result ) ) {
             // Log error but don't block checkout
             error_log( 'WCKB Blocks Verification Error: ' . $result->get_error_message() );
+
             return;
         }
 
         $verification_result = $result['result'] ?? 'unknown';
-        $action = $this->verification->get_action_for_result( $verification_result );
+        $action              = $this->verification->get_action_for_result( $verification_result );
 
-        error_log( 'WCKB Blocks Verification Result: ' . $verification_result . ' - Action: ' . $action );
+        error_log( "WCKB Blocks Verification Result for email " . $email . ": " . print_r( $result, true ) );
 
         // Store verification data in order meta regardless of action
         $order->update_meta_data( '_wckb_verification_result', $verification_result );
@@ -242,17 +291,18 @@ class WCKB_Checkout {
 
     /**
      * Block blocks checkout due to verification failure
+     * @throws Exception
      */
     private function block_blocks_checkout( $result, $verification_data ) {
         $messages = array(
-            'undeliverable' => __( 'This email address does not exist or is invalid. Please use a different email address.', 'wckb' ),
-            'risky'         => __( 'This email address has quality issues and may result in bounces. Please use a different email address.', 'wckb' ),
-            'unknown'       => __( 'We were unable to verify this email address due to server timeout. Please use a different email address.', 'wckb' )
+                'undeliverable' => __( 'This email address does not exist or is invalid. Please use a different email address.', 'wckb' ),
+                'risky'         => __( 'This email address has quality issues and may result in bounces. Please use a different email address.', 'wckb' ),
+                'unknown'       => __( 'We were unable to verify this email address due to an unknown issue. Please use a different email address.', 'wckb' )
         );
 
         $message = $messages[ $result ] ?? $messages['unknown'];
 
-        // For blocks checkout, we need to throw a WP_Error
+        // For blocks checkout, we need to throw an Exception
         throw new \Exception( $message );
     }
 
@@ -266,7 +316,7 @@ class WCKB_Checkout {
             // Convert Exception to WP_Error for proper blocks handling
             return new \WP_Error( 'wckb_email_verification_failed', $error->getMessage() );
         }
-        
+
         return $error;
     }
 

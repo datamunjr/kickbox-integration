@@ -8,7 +8,8 @@ module.exports = (env, argv) => {
     entry: {
       'admin': './src/js/admin/index.js',
       'checkout': './src/js/checkout/index.js',
-      'customer': './src/js/customer/index.js'
+      'customer': './src/js/customer/index.js',
+      'dashboard': './src/js/dashboard/index.js'
     },
     output: {
       path: path.resolve(__dirname, 'assets/js'),

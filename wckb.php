@@ -64,12 +64,14 @@ function wckb_init() {
     require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-admin.php';
     require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-checkout.php';
     require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-customer-management.php';
+    require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-dashboard-widget.php';
     
     // Initialize classes
     new WCKB_Verification();
     new WCKB_Admin();
     new WCKB_Checkout();
     new WCKB_Customer_Management();
+    new WCKB_Dashboard_Widget();
 }
 
 // Activation hook

@@ -197,6 +197,39 @@ const ApiSettings = ({
                     </td>
                 </tr>
 
+                {/* Balance Information */}
+                {settings.apiKey && isApiKeyValidated && settings.hasBalanceBeenDetermined && (
+                    <tr>
+                        <th scope="row">
+                            <label>Account Balance</label>
+                        </th>
+                        <td>
+                            <div className={`wckb-balance-info ${settings.isBalanceLow ? 'low-balance' : ''}`}>
+                                <p className={`balance-message ${settings.isBalanceLow ? 'low-balance-warning' : ''}`}>
+                                    {settings.balanceMessage}
+                                </p>
+                                {settings.isBalanceLow && (
+                                    <div className="balance-warning">
+                                        <p>
+                                            <strong>⚠️ Low Balance Alert:</strong> Your verification balance is running low. 
+                                            Please add more credits to continue email verification.
+                                        </p>
+                                        <p>
+                                            <a 
+                                                href="https://kickbox.com" 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="button button-primary"
+                                            >
+                                                Add Credits to Kickbox Account
+                                            </a>
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </td>
+                    </tr>
+                )}
 
                 <tr>
                     <th scope="row">

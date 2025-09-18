@@ -100,6 +100,66 @@
   font-weight: 500;
 }
 
+/* Checkout Banner Styles */
+.wckb-checkout-blocked-banner,
+.wckb-checkout-verifying-banner,
+.wckb-checkout-error-banner {
+  margin: 20px 0;
+  padding: 15px 20px;
+  border-radius: 4px;
+  border-left: 4px solid;
+}
+
+.wckb-checkout-blocked-banner {
+  background: #fbeaea;
+  border-left-color: #dc3232;
+  color: #721c24;
+}
+
+.wckb-checkout-verifying-banner {
+  background: #e5f6ff;
+  border-left-color: #00a0d2;
+  color: #004085;
+}
+
+.wckb-checkout-error-banner {
+  background: #fff3cd;
+  border-left-color: #ffb900;
+  color: #856404;
+}
+
+.wckb-banner-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.wckb-banner-icon {
+  font-size: 20px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.wckb-banner-text {
+  flex: 1;
+}
+
+.wckb-banner-text strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.wckb-banner-text p {
+  margin: 0 0 5px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.wckb-banner-text p:last-child {
+  margin-bottom: 0;
+}
+
 /* Integration with WooCommerce checkout */
 .woocommerce-checkout .wckb-email-verification {
   margin-top: 5px;

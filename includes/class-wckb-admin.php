@@ -21,6 +21,7 @@ class WCKB_Admin {
         add_action( 'wp_ajax_wckb_save_settings', array( $this, 'ajax_save_settings' ) );
         add_action( 'wp_ajax_wckb_get_stats', array( $this, 'ajax_get_stats' ) );
         add_action( 'wp_ajax_wckb_get_full_api_key', array( $this, 'ajax_get_full_api_key' ) );
+        add_action( 'admin_notices', array( $this, 'show_balance_notice' ) );
     }
 
     /**
@@ -433,6 +434,13 @@ class WCKB_Admin {
 
         $api_key        = get_option( 'wckb_api_key', '' );
         $masked_api_key = $this->mask_api_key( $api_key );
+        
+        // Get balance information
+        $verification = new WCKB_Verification();
+        $balance = $verification->get_balance();
+        $balance_message = $verification->get_balance_status_message();
+        $is_balance_low = $verification->is_balance_low();
+        $has_balance_been_determined = $verification->has_balance_been_determined();
 
         $settings = array(
                 'apiKey'                     => $masked_api_key,
@@ -441,7 +449,11 @@ class WCKB_Admin {
                 'riskyAction'                => get_option( 'wckb_risky_action', 'allow' ),
                 'unknownAction'              => get_option( 'wckb_unknown_action', 'allow' ),
                 'enableCheckoutVerification' => get_option( 'wckb_enable_checkout_verification', 'no' ) === 'yes',
-                'enableCustomerVerification' => get_option( 'wckb_enable_customer_verification', 'no' ) === 'yes'
+                'enableCustomerVerification' => get_option( 'wckb_enable_customer_verification', 'no' ) === 'yes',
+                'balance'                    => $balance,
+                'balanceMessage'             => $balance_message,
+                'isBalanceLow'               => $is_balance_low,
+                'hasBalanceBeenDetermined'   => $has_balance_been_determined
         );
 
         wp_send_json_success( $settings );
@@ -459,8 +471,6 @@ class WCKB_Admin {
 
         $api_key             = sanitize_text_field( $_POST['apiKey'] ?? '' );
         $skip_key_validation = sanitize_text_field( $_POST['skipValidation'] ?? 'false' ) === 'true';
-
-        error_log( "Skip validation: " . print_r( $skip_key_validation, true ) );
 
         // If API key is provided and validation is not skipped, validate it before saving
         if ( ! empty( $api_key ) && ! $skip_key_validation ) {
@@ -579,5 +589,53 @@ class WCKB_Admin {
         $masked    = str_repeat( '*', strlen( $api_key ) - 4 );
 
         return $masked . $last_four;
+    }
+    
+    /**
+     * Show balance notice if balance is low
+     */
+    public function show_balance_notice() {
+        // Only show to users who can manage WooCommerce
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            return;
+        }
+        
+        // Only show if API key is configured
+        $api_key = get_option( 'wckb_api_key', '' );
+        if ( empty( $api_key ) ) {
+            return;
+        }
+        
+        $verification = new WCKB_Verification();
+        
+        // Only show if balance has been determined and is low
+        if ( ! $verification->has_balance_been_determined() || ! $verification->is_balance_low() ) {
+            return;
+        }
+        
+        $balance = $verification->get_balance();
+        $balance_message = $verification->get_balance_status_message();
+        
+        ?>
+        <div class="notice notice-warning is-dismissible">
+            <p>
+                <strong><?php echo esc_html__( 'Kickbox Email Verification - Low Balance Alert', 'wckb' ); ?></strong>
+            </p>
+            <p>
+                <?php echo esc_html( $balance_message ); ?>
+            </p>
+            <p>
+                <?php echo esc_html__( 'Your verification balance is running low. Please add more credits to continue email verification.', 'wckb' ); ?>
+            </p>
+            <p>
+                <a href="https://kickbox.com" target="_blank" class="button button-primary">
+                    <?php echo esc_html__( 'Add Credits to Kickbox Account', 'wckb' ); ?>
+                </a>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=wckb-settings' ) ); ?>" class="button button-secondary">
+                    <?php echo esc_html__( 'View Settings', 'wckb' ); ?>
+                </a>
+            </p>
+        </div>
+        <?php
     }
 }
