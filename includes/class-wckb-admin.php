@@ -22,6 +22,7 @@ class WCKB_Admin {
         add_action( 'wp_ajax_wckb_get_stats', array( $this, 'ajax_get_stats' ) );
         add_action( 'wp_ajax_wckb_get_full_api_key', array( $this, 'ajax_get_full_api_key' ) );
         add_action( 'admin_notices', array( $this, 'show_balance_notice' ) );
+        add_action( 'admin_notices', array( $this, 'show_verification_disabled_notice' ) );
     }
 
     /**
@@ -418,12 +419,12 @@ class WCKB_Admin {
 
         $api_key        = get_option( 'wckb_api_key', '' );
         $masked_api_key = $this->mask_api_key( $api_key );
-        
+
         // Get balance information
-        $verification = new WCKB_Verification();
-        $balance = $verification->get_balance();
-        $balance_message = $verification->get_balance_status_message();
-        $is_balance_low = $verification->is_balance_low();
+        $verification                = new WCKB_Verification();
+        $balance                     = $verification->get_balance();
+        $balance_message             = $verification->get_balance_status_message();
+        $is_balance_low              = $verification->is_balance_low();
         $has_balance_been_determined = $verification->has_balance_been_determined();
 
         $settings = array(
@@ -572,7 +573,7 @@ class WCKB_Admin {
 
         return $masked . $last_four;
     }
-    
+
     /**
      * Show balance notice if balance is low
      */
@@ -581,23 +582,23 @@ class WCKB_Admin {
         if ( ! current_user_can( 'manage_woocommerce' ) ) {
             return;
         }
-        
+
         // Only show if API key is configured
         $api_key = get_option( 'wckb_api_key', '' );
         if ( empty( $api_key ) ) {
             return;
         }
-        
+
         $verification = new WCKB_Verification();
-        
+
         // Only show if balance has been determined and is low
         if ( ! $verification->has_balance_been_determined() || ! $verification->is_balance_low() ) {
             return;
         }
-        
-        $balance = $verification->get_balance();
+
+        $balance         = $verification->get_balance();
         $balance_message = $verification->get_balance_status_message();
-        
+
         ?>
         <div class="notice notice-warning is-dismissible">
             <p>
@@ -613,18 +614,20 @@ class WCKB_Admin {
                 <a href="https://kickbox.com" target="_blank" class="button button-primary">
                     <?php echo esc_html__( 'Add Credits to Kickbox Account', 'wckb' ); ?>
                 </a>
-                <a href="<?php echo esc_url( admin_url( 'admin.php?page=wckb-settings' ) ); ?>" class="button button-secondary">
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=wckb-settings' ) ); ?>"
+                   class="button button-secondary">
                     <?php echo esc_html__( 'View Settings', 'wckb' ); ?>
                 </a>
             </p>
         </div>
         <?php
     }
-    
+
     /**
      * Sanitize deliverable action to prevent 'review' option
      *
      * @param string $value The value to sanitize
+     *
      * @return string Sanitized value
      */
     public function sanitize_deliverable_action( $value ) {
@@ -632,7 +635,58 @@ class WCKB_Admin {
         if ( $value === 'review' ) {
             return 'allow'; // Default to 'allow' if 'review' is somehow submitted
         }
-        
+
         return in_array( $value, array( 'allow', 'block' ), true ) ? $value : 'allow';
+    }
+
+    /**
+     * Show notice when verification is disabled
+     */
+    public function show_verification_disabled_notice() {
+        // Only show to users who can manage WooCommerce
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            return;
+        }
+
+        // Only show if API key is configured
+        $api_key = get_option( 'wckb_api_key', '' );
+        if ( empty( $api_key ) ) {
+            return;
+        }
+
+        // Only show if checkout verification is disabled
+        $verification_enabled = get_option( 'wckb_enable_checkout_verification', 'no' );
+        if ( $verification_enabled === 'yes' ) {
+            return;
+        }
+
+        ?>
+        <div class="notice notice-warning is-dismissible">
+            <p>
+                <strong><?php echo esc_html__( 'Kickbox Email Verification - Verification Disabled', 'wckb' ); ?></strong>
+            </p>
+            <p>
+                <?php echo esc_html__( 'Your Kickbox integration is enabled but checkout verification is currently disabled.', 'wckb' ); ?>
+            </p>
+            <p>
+                <?php echo esc_html__( 'This means all customer checkouts are proceeding without email verification, which can result in:', 'wckb' ); ?>
+            </p>
+            <ul style="margin-left: 20px;">
+                <li><?php echo esc_html__( 'Fake or invalid email addresses', 'wckb' ); ?></li>
+                <li><?php echo esc_html__( 'Misspelled email addresses', 'wckb' ); ?></li>
+                <li><?php echo esc_html__( 'Throw-away or disposable email addresses', 'wckb' ); ?></li>
+                <li><?php echo esc_html__( 'Reduced email deliverability and customer engagement', 'wckb' ); ?></li>
+            </ul>
+            <p>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=wckb-settings' ) ); ?>"
+                   class="button button-primary">
+                    <?php echo esc_html__( 'Enable Checkout Verification', 'wckb' ); ?>
+                </a>
+                <a href="https://docs.kickbox.com/docs/terminology" target="_blank" class="button button-secondary">
+                    <?php echo esc_html__( 'Learn More About Email Verification', 'wckb' ); ?>
+                </a>
+            </p>
+        </div>
+        <?php
     }
 }
