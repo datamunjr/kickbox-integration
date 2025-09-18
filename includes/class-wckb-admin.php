@@ -672,10 +672,10 @@ class WCKB_Admin {
                 <?php echo esc_html__( 'This means all customer checkouts are proceeding without email verification, which can result in:', 'wckb' ); ?>
             </p>
             <ul style="margin-left: 20px;">
-                <li><?php echo esc_html__( 'Fake or invalid email addresses', 'wckb' ); ?></li>
-                <li><?php echo esc_html__( 'Misspelled email addresses', 'wckb' ); ?></li>
-                <li><?php echo esc_html__( 'Throw-away or disposable email addresses', 'wckb' ); ?></li>
-                <li><?php echo esc_html__( 'Reduced email deliverability and customer engagement', 'wckb' ); ?></li>
+                <li><?php echo esc_html__( '- Fake or invalid email addresses', 'wckb' ); ?></li>
+                <li><?php echo esc_html__( '- Misspelled email addresses', 'wckb' ); ?></li>
+                <li><?php echo esc_html__( '- Throw-away or disposable email addresses', 'wckb' ); ?></li>
+                <li><?php echo esc_html__( '- Reduced email deliverability and customer engagement', 'wckb' ); ?></li>
             </ul>
             <p>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=wckb-settings' ) ); ?>"
