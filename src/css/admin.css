@@ -290,6 +290,22 @@
   margin-right: 8px;
 }
 
+/* Deliverable Block Warning */
+.wckb-deliverable-block-warning {
+  background: #fff3cd;
+  border: 1px solid #ffb900;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.wckb-deliverable-block-warning p {
+  margin: 0;
+  color: #856404;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .wckb-no-data {
   text-align: center;
   padding: 40px;

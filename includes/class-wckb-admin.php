@@ -53,8 +53,9 @@ class WCKB_Admin {
         ) );
 
         register_setting( 'wckb_settings', 'wckb_deliverable_action', array(
-                'type'    => 'string',
-                'default' => 'allow'
+                'type'              => 'string',
+                'default'           => 'allow',
+                'sanitize_callback' => array( $this, 'sanitize_deliverable_action' )
         ) );
 
         register_setting( 'wckb_settings', 'wckb_undeliverable_action', array(
@@ -77,10 +78,6 @@ class WCKB_Admin {
                 'default' => 'no'
         ) );
 
-        register_setting( 'wckb_settings', 'wckb_enable_customer_verification', array(
-                'type'    => 'string',
-                'default' => 'no'
-        ) );
     }
 
     /**
@@ -167,19 +164,6 @@ class WCKB_Admin {
                         </td>
                     </tr>
 
-                    <tr>
-                        <th scope="row">
-                            <label for="wckb_enable_customer_verification"><?php echo esc_html__( 'Customer Verification', 'wckb' ); ?></label>
-                        </th>
-                        <td>
-                            <input type="checkbox" id="wckb_enable_customer_verification"
-                                   name="wckb_enable_customer_verification"
-                                   value="yes" <?php checked( get_option( 'wckb_enable_customer_verification', 'no' ), 'yes' ); ?> />
-                            <label for="wckb_enable_customer_verification">
-                                <?php echo esc_html__( 'Enable batch verification for existing customers', 'wckb' ); ?>
-                            </label>
-                        </td>
-                    </tr>
                 </table>
 
                 <h2><?php echo esc_html__( 'Verification Actions', 'wckb' ); ?></h2>
@@ -449,7 +433,6 @@ class WCKB_Admin {
                 'riskyAction'                => get_option( 'wckb_risky_action', 'allow' ),
                 'unknownAction'              => get_option( 'wckb_unknown_action', 'allow' ),
                 'enableCheckoutVerification' => get_option( 'wckb_enable_checkout_verification', 'no' ) === 'yes',
-                'enableCustomerVerification' => get_option( 'wckb_enable_customer_verification', 'no' ) === 'yes',
                 'balance'                    => $balance,
                 'balanceMessage'             => $balance_message,
                 'isBalanceLow'               => $is_balance_low,
@@ -486,12 +469,11 @@ class WCKB_Admin {
 
         $settings = array(
                 'wckb_api_key'                      => $api_key,
-                'wckb_deliverable_action'           => sanitize_text_field( $_POST['deliverableAction'] ?? 'allow' ),
+                'wckb_deliverable_action'           => $this->sanitize_deliverable_action( $_POST['deliverableAction'] ?? 'allow' ),
                 'wckb_undeliverable_action'         => sanitize_text_field( $_POST['undeliverableAction'] ?? 'allow' ),
                 'wckb_risky_action'                 => sanitize_text_field( $_POST['riskyAction'] ?? 'allow' ),
                 'wckb_unknown_action'               => sanitize_text_field( $_POST['unknownAction'] ?? 'allow' ),
-                'wckb_enable_checkout_verification' => sanitize_text_field( $_POST['enableCheckoutVerification'] ?? 'no' ) === 'true' ? 'yes' : 'no',
-                'wckb_enable_customer_verification' => sanitize_text_field( $_POST['enableCustomerVerification'] ?? 'no' ) === 'true' ? 'yes' : 'no'
+                'wckb_enable_checkout_verification' => sanitize_text_field( $_POST['enableCheckoutVerification'] ?? 'no' ) === 'true' ? 'yes' : 'no'
         );
 
         if ( $skip_key_validation ) {
@@ -637,5 +619,20 @@ class WCKB_Admin {
             </p>
         </div>
         <?php
+    }
+    
+    /**
+     * Sanitize deliverable action to prevent 'review' option
+     *
+     * @param string $value The value to sanitize
+     * @return string Sanitized value
+     */
+    public function sanitize_deliverable_action( $value ) {
+        // Only allow 'allow' or 'block' for deliverable emails
+        if ( $value === 'review' ) {
+            return 'allow'; // Default to 'allow' if 'review' is somehow submitted
+        }
+        
+        return in_array( $value, array( 'allow', 'block' ), true ) ? $value : 'allow';
     }
 }

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Kickbox Integration
  * Plugin URI: https://your-website.com/wckb
- * Description: Integrates Kickbox email verification service with WooCommerce for real-time email validation during checkout and batch verification for existing customers.
+ * Description: Integrates Kickbox email verification service with WooCommerce for real-time email validation during checkout.
  * Version: 1.0.0
  * Author: Your Name
  * Author URI: https://your-website.com
@@ -63,14 +63,12 @@ function wckb_init() {
     require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-verification.php';
     require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-admin.php';
     require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-checkout.php';
-    require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-customer-management.php';
     require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-dashboard-widget.php';
     
     // Initialize classes
     new WCKB_Verification();
     new WCKB_Admin();
     new WCKB_Checkout();
-    new WCKB_Customer_Management();
     new WCKB_Dashboard_Widget();
 }
 
@@ -117,8 +115,7 @@ function wckb_set_default_options() {
         'wckb_undeliverable_action' => 'allow',
         'wckb_risky_action' => 'allow',
         'wckb_unknown_action' => 'allow',
-        'wckb_enable_checkout_verification' => 'no',
-        'wckb_enable_customer_verification' => 'no'
+        'wckb_enable_checkout_verification' => 'no'
     );
     
     foreach ($default_options as $option => $value) {

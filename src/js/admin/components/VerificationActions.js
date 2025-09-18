@@ -7,6 +7,11 @@ const VerificationActions = ({ settings, onSettingChange }) => {
     { value: 'review', label: 'Allow but flag for review' }
   ];
 
+  const deliverableActionOptions = [
+    { value: 'allow', label: 'Allow checkout' },
+    { value: 'block', label: 'Block checkout' }
+  ];
+
   const verificationTypes = [
     {
       key: 'deliverableAction',
@@ -53,13 +58,22 @@ const VerificationActions = ({ settings, onSettingChange }) => {
                   value={settings[type.key]}
                   onChange={(e) => onSettingChange(type.key, e.target.value)}
                 >
-                  {actionOptions.map(option => (
+                  {(type.key === 'deliverableAction' ? deliverableActionOptions : actionOptions).map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
                   ))}
                 </select>
                 <p className="description">{type.description}</p>
+                {type.key === 'deliverableAction' && settings[type.key] === 'block' && (
+                  <div className="wckb-deliverable-block-warning">
+                    <p>
+                      <strong>⚠️ Warning:</strong> Blocking deliverable emails will prevent almost all customer checkouts 
+                      and is counterproductive to your business. Deliverable emails are safe to send to and should 
+                      typically be allowed.
+                    </p>
+                  </div>
+                )}
               </td>
             </tr>
           ))}

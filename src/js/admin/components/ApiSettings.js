@@ -248,22 +248,6 @@ const ApiSettings = ({
                     </td>
                 </tr>
 
-                <tr>
-                    <th scope="row">
-                        <label htmlFor="wckb_enable_customer_verification">Customer Verification</label>
-                    </th>
-                    <td>
-                        <input
-                            type="checkbox"
-                            id="wckb_enable_customer_verification"
-                            checked={settings.enableCustomerVerification}
-                            onChange={(e) => onSettingChange('enableCustomerVerification', e.target.checked)}
-                        />
-                        <label htmlFor="wckb_enable_customer_verification">
-                            Enable batch verification for existing customers
-                        </label>
-                    </td>
-                </tr>
                 </tbody>
             </table>
         </div>
