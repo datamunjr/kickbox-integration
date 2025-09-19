@@ -25,10 +25,13 @@ const AdminSettings = () => {
     const [message, setMessage] = useState({type: '', text: '', details: null, hasDetails: false});
     const [showErrorDetails, setShowErrorDetails] = useState(false);
     const [apiKeyValidatedOnSave, setApiKeyValidatedOnSave] = useState(false);
+    const [pendingCount, setPendingCount] = useState(0);
 
     useEffect(() => {
         // Load current settings
         loadSettings();
+        // Load pending count
+        loadPendingCount();
 
         // Set default tab if none is specified
         const urlParams = new URLSearchParams(window.location.search);
@@ -42,13 +45,13 @@ const AdminSettings = () => {
         }
 
         // Listen for browser back/forward navigation
-    const handlePopState = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const tab = urlParams.get('tab');
-        if (['api', 'actions', 'allowlist', 'flagged', 'stats'].includes(tab)) {
-            setActiveTab(tab);
-        }
-    };
+        const handlePopState = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (['api', 'actions', 'allowlist', 'flagged', 'stats'].includes(tab)) {
+                setActiveTab(tab);
+            }
+        };
 
         window.addEventListener('popstate', handlePopState);
 
@@ -79,12 +82,33 @@ const AdminSettings = () => {
             });
 
             const data = await response.json();
-            console.log(data);
             if (data.success) {
                 setSettings(data.data);
             }
         } catch (error) {
             console.error('Error loading settings:', error);
+        }
+    };
+
+    const loadPendingCount = async () => {
+        try {
+            const response = await fetch(wckb_admin.ajax_url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    action: 'wckb_get_pending_count',
+                    nonce: wckb_admin.nonce
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                setPendingCount(data.data.pending_count);
+            }
+        } catch (error) {
+            console.error('Error loading pending count:', error);
         }
     };
 
@@ -237,6 +261,10 @@ const AdminSettings = () => {
         }
     };
 
+    const refreshPendingCount = () => {
+        loadPendingCount();
+    };
+
     const tabs = [
         {id: 'api', label: 'API Settings', component: ApiSettings},
         {id: 'actions', label: 'Verification Actions', component: VerificationActions},
@@ -281,6 +309,11 @@ const AdminSettings = () => {
                         onClick={() => handleTabChange(tab.id)}
                     >
                         {tab.label}
+                        {tab.id === 'flagged' && pendingCount > 0 && (
+                            <span className="wckb-pending-badge">
+                                {pendingCount}
+                            </span>
+                        )}
                     </button>
                 ))}
             </div>
@@ -294,6 +327,7 @@ const AdminSettings = () => {
                         onTestApi={testApiConnection}
                         apiKeyValidatedOnSave={apiKeyValidatedOnSave}
                         onApiKeyValidatedOnSave={() => setApiKeyValidatedOnSave(false)}
+                        onRefreshPendingCount={refreshPendingCount}
                     />
                 )}
             </div>

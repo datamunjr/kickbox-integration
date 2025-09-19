@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const FlaggedEmails = () => {
+const FlaggedEmails = ({ onRefreshPendingCount }) => {
   const [flaggedEmails, setFlaggedEmails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -92,6 +92,43 @@ const FlaggedEmails = () => {
         setSelectedEmail(null);
         setDecisionNotes('');
         fetchFlaggedEmails();
+        // Refresh pending count badge
+        if (onRefreshPendingCount) {
+          onRefreshPendingCount();
+        }
+      } else {
+        setMessage({ type: 'error', text: data.data.message || 'Failed to update decision.' });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Error updating decision.' });
+    }
+  };
+
+  const handleEditDecision = async (id, decision) => {
+    try {
+      const response = await fetch(wckb_admin.ajax_url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          action: 'wckb_edit_flagged_decision',
+          nonce: wckb_admin.nonce,
+          id: id,
+          decision: decision,
+          notes: decisionNotes
+        }),
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setMessage({ type: 'success', text: data.data.message });
+        setShowModal(false);
+        setSelectedEmail(null);
+        setDecisionNotes('');
+        fetchFlaggedEmails();
+        // Refresh pending count badge
+        if (onRefreshPendingCount) {
+          onRefreshPendingCount();
+        }
       } else {
         setMessage({ type: 'error', text: data.data.message || 'Failed to update decision.' });
       }
@@ -312,6 +349,13 @@ const FlaggedEmails = () => {
                               <strong>Notes:</strong> {email.admin_notes}
                             </div>
                           )}
+                          <button
+                            className="button button-secondary wckb-edit-button"
+                            onClick={() => openDecisionModal(email)}
+                            style={{ marginTop: '5px' }}
+                          >
+                            Edit Decision
+                          </button>
                         </div>
                       )}
                     </td>
@@ -329,7 +373,12 @@ const FlaggedEmails = () => {
         <div className="wckb-modal-overlay">
           <div className="wckb-modal">
             <div className="wckb-modal-header">
-              <h3>Review Flagged Email: {selectedEmail.email}</h3>
+              <h3>
+                {selectedEmail.admin_decision === 'pending' 
+                  ? `Review Flagged Email: ${selectedEmail.email}`
+                  : `Edit Decision for: ${selectedEmail.email}`
+                }
+              </h3>
               <button
                 className="wckb-modal-close"
                 onClick={() => setShowModal(false)}
@@ -356,17 +405,23 @@ const FlaggedEmails = () => {
               </div>
 
               <div className="wckb-decision-section">
-                <h4>Admin Decision</h4>
+                <h4>{selectedEmail.admin_decision === 'pending' ? 'Admin Decision' : 'Edit Decision'}</h4>
                 <div className="wckb-decision-options">
                   <button
                     className="button button-primary wckb-allow-button"
-                    onClick={() => handleDecisionUpdate(selectedEmail.id, 'allow')}
+                    onClick={() => selectedEmail.admin_decision === 'pending' 
+                      ? handleDecisionUpdate(selectedEmail.id, 'allow')
+                      : handleEditDecision(selectedEmail.id, 'allow')
+                    }
                   >
                     Allow Email
                   </button>
                   <button
                     className="button wckb-block-button"
-                    onClick={() => handleDecisionUpdate(selectedEmail.id, 'block')}
+                    onClick={() => selectedEmail.admin_decision === 'pending'
+                      ? handleDecisionUpdate(selectedEmail.id, 'block')
+                      : handleEditDecision(selectedEmail.id, 'block')
+                    }
                   >
                     Block Email
                   </button>

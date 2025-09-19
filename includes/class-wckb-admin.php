@@ -28,7 +28,9 @@ class WCKB_Admin {
         // Flagged emails AJAX handlers
         add_action( 'wp_ajax_wckb_get_flagged_emails', array( $this, 'ajax_get_flagged_emails' ) );
         add_action( 'wp_ajax_wckb_update_flagged_decision', array( $this, 'ajax_update_flagged_decision' ) );
+        add_action( 'wp_ajax_wckb_edit_flagged_decision', array( $this, 'ajax_edit_flagged_decision' ) );
         add_action( 'wp_ajax_wckb_get_flagged_statistics', array( $this, 'ajax_get_flagged_statistics' ) );
+        add_action( 'wp_ajax_wckb_get_pending_count', array( $this, 'ajax_get_pending_count' ) );
         add_action( 'admin_notices', array( $this, 'show_balance_notice' ) );
         add_action( 'admin_notices', array( $this, 'show_verification_disabled_notice' ) );
     }
@@ -897,6 +899,50 @@ class WCKB_Admin {
         } else {
             wp_send_json_error( array( 'message' => __( 'Failed to update decision.', 'wckb' ) ) );
         }
+    }
+
+    /**
+     * AJAX handler to edit admin decision for already reviewed flagged email
+     */
+    public function ajax_edit_flagged_decision() {
+        check_ajax_referer( 'wckb_admin', 'nonce' );
+
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'wckb' ) ) );
+        }
+
+        $id = intval( $_POST['id'] ?? 0 );
+        $decision = sanitize_text_field( $_POST['decision'] ?? '' );
+        $notes = sanitize_textarea_field( $_POST['notes'] ?? '' );
+
+        if ( empty( $id ) || ! in_array( $decision, array( 'allow', 'block' ), true ) ) {
+            wp_send_json_error( array( 'message' => __( 'Invalid parameters.', 'wckb' ) ) );
+        }
+
+        $flagged_emails = new WCKB_Flagged_Emails();
+        $result = $flagged_emails->edit_admin_decision( $id, $decision, $notes );
+
+        if ( $result ) {
+            wp_send_json_success( array( 'message' => __( 'Decision updated successfully.', 'wckb' ) ) );
+        } else {
+            wp_send_json_error( array( 'message' => __( 'Failed to update decision.', 'wckb' ) ) );
+        }
+    }
+
+    /**
+     * AJAX handler to get pending emails count
+     */
+    public function ajax_get_pending_count() {
+        check_ajax_referer( 'wckb_admin', 'nonce' );
+
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'wckb' ) ) );
+        }
+
+        $flagged_emails = new WCKB_Flagged_Emails();
+        $stats = $flagged_emails->get_statistics();
+        
+        wp_send_json_success( array( 'pending_count' => $stats['pending'] ) );
     }
 
     /**

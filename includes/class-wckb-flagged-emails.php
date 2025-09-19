@@ -252,6 +252,43 @@ class WCKB_Flagged_Emails {
     }
 
     /**
+     * Edit admin decision for an already reviewed email
+     *
+     * @param int $id Flagged email ID
+     * @param string $decision Admin decision (allow, block)
+     * @param string $notes Optional admin notes
+     * @return bool True on success, false on failure
+     */
+    public function edit_admin_decision( $id, $decision, $notes = '' ) {
+        global $wpdb;
+
+        if ( ! in_array( $decision, array( 'allow', 'block' ), true ) ) {
+            return false;
+        }
+
+        // Check if the email exists and has been reviewed
+        $existing = $this->get_flagged_email( $id );
+        if ( ! $existing || $existing->admin_decision === 'pending' ) {
+            return false;
+        }
+
+        $result = $wpdb->update(
+            $this->table_name,
+            array(
+                'admin_decision' => sanitize_text_field( $decision ),
+                'admin_notes' => sanitize_textarea_field( $notes ),
+                'reviewed_date' => current_time( 'mysql' ),
+                'reviewed_by' => get_current_user_id()
+            ),
+            array( 'id' => $id ),
+            array( '%s', '%s', '%s', '%d' ),
+            array( '%d' )
+        );
+
+        return $result !== false;
+    }
+
+    /**
      * Get admin decision for an email
      *
      * @param string $email Email address

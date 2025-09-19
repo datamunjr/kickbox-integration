@@ -38,6 +38,29 @@
   font-weight: 500;
 }
 
+.wckb-tab {
+  position: relative;
+}
+
+.wckb-pending-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1;
+  min-width: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .wckb-tab-content {
   min-height: 400px;
 }
@@ -565,6 +588,13 @@
 .wckb-notes {
   margin-top: 5px;
   font-style: italic;
+}
+
+.wckb-edit-button {
+  font-size: 11px;
+  padding: 4px 8px;
+  height: auto;
+  line-height: 1.2;
 }
 
 .wckb-pagination {

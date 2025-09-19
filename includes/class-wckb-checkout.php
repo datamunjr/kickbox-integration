@@ -229,20 +229,34 @@ class WCKB_Checkout {
         }
 
         $verification_result = $result['result'] ?? 'unknown';
-        $action              = $this->verification->get_action_for_result( $verification_result );
-
-        error_log( 'WCKB Verification Result: ' . $verification_result );
-        switch ( $action ) {
-            case 'block':
+        $reason = $result['reason'] ?? '';
+        
+        // Check if this is an admin decision result
+        if ( $reason === 'admin_decision' ) {
+            // Admin has made a decision - use the result directly
+            if ( $verification_result === 'undeliverable' ) {
                 $this->block_checkout( $verification_result, $result );
-                break;
-            case 'review':
-                $this->flag_for_review( $email, $verification_result, $result );
-                break;
-            case 'allow':
-            default:
-                // Allow checkout to proceed
-                break;
+                return;
+            }
+            // If admin decision is 'allow' or 'deliverable', proceed with checkout
+        } else {
+            // Use the settings-based action system
+            $action = $this->verification->get_action_for_result( $verification_result );
+            
+            error_log( 'WCKB Verification Result: ' . $verification_result );
+            switch ( $action ) {
+                case 'block':
+                    $this->block_checkout( $verification_result, $result );
+                    return;
+                case 'review':
+                    // Email will be automatically flagged by the verification system
+                    // Allow checkout to proceed
+                    break;
+                case 'allow':
+                default:
+                    // Allow checkout to proceed
+                    break;
+            }
         }
     }
 
@@ -287,26 +301,40 @@ class WCKB_Checkout {
         }
 
         $verification_result = $result['result'] ?? 'unknown';
-        $action              = $this->verification->get_action_for_result( $verification_result );
-
+        $reason = $result['reason'] ?? '';
+        
         error_log( "WCKB Blocks Verification Result for email " . $email . ": " . print_r( $result, true ) );
 
         // Store verification data in order meta regardless of action
         $order->update_meta_data( '_wckb_verification_result', $verification_result );
         $order->update_meta_data( '_wckb_verification_data', json_encode( $result ) );
 
-        switch ( $action ) {
-            case 'block':
+        // Check if this is an admin decision result
+        if ( $reason === 'admin_decision' ) {
+            // Admin has made a decision - use the result directly
+            if ( $verification_result === 'undeliverable' ) {
                 $this->block_blocks_checkout( $verification_result, $result );
-                break;
-            case 'review':
-                $this->flag_for_review( $email, $verification_result, $result );
-                $order->update_meta_data( '_wckb_needs_review', 'yes' );
-                break;
-            case 'allow':
-            default:
-                // Allow checkout to proceed
-                break;
+                return;
+            }
+            // If admin decision is 'allow' or 'deliverable', proceed with checkout
+        } else {
+            // Use the settings-based action system
+            $action = $this->verification->get_action_for_result( $verification_result );
+            
+            switch ( $action ) {
+                case 'block':
+                    $this->block_blocks_checkout( $verification_result, $result );
+                    return;
+                case 'review':
+                    // Email will be automatically flagged by the verification system
+                    $order->update_meta_data( '_wckb_needs_review', 'yes' );
+                    // Allow checkout to proceed
+                    break;
+                case 'allow':
+                default:
+                    // Allow checkout to proceed
+                    break;
+            }
         }
     }
 
