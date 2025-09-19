@@ -209,7 +209,17 @@ class WCKB_Checkout {
             return;
         }
 
-        $result = $this->verification->verify_email( $email );
+        // Get user ID if email is associated with a user
+        $user_id = null;
+        $user = get_user_by( 'email', $email );
+        if ( $user ) {
+            $user_id = $user->ID;
+        }
+
+        $result = $this->verification->verify_email( $email, array(
+            'origin' => 'checkout',
+            'user_id' => $user_id
+        ) );
 
         if ( is_wp_error( $result ) ) {
             // Log error but don't block checkout
@@ -256,7 +266,18 @@ class WCKB_Checkout {
 
         error_log( "WCKB Blocks Checkout: Validating email - " . $email );
 
-        $result = $this->verification->verify_email( $email );
+        // Get user ID if email is associated with a user
+        $user_id = null;
+        $user = get_user_by( 'email', $email );
+        if ( $user ) {
+            $user_id = $user->ID;
+        }
+
+        $result = $this->verification->verify_email( $email, array(
+            'origin' => 'checkout',
+            'user_id' => $user_id,
+            'order_id' => $order->get_id()
+        ) );
 
         if ( is_wp_error( $result ) ) {
             // Log error but don't block checkout

@@ -59,17 +59,18 @@ function wckb_init() {
     // Load plugin textdomain
     load_plugin_textdomain('wckb', false, dirname(plugin_basename(__FILE__)) . '/languages');
     
-    // Include required files
-    require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-verification.php';
-    require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-admin.php';
-    require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-checkout.php';
-    require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-dashboard-widget.php';
-    
-    // Initialize classes
-    new WCKB_Verification();
-    new WCKB_Admin();
-    new WCKB_Checkout();
-    new WCKB_Dashboard_Widget();
+// Include required files
+require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-verification.php';
+require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-admin.php';
+require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-checkout.php';
+require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-dashboard-widget.php';
+require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-flagged-emails.php';
+
+// Initialize classes
+new WCKB_Verification();
+new WCKB_Admin();
+new WCKB_Checkout();
+new WCKB_Dashboard_Widget();
 }
 
 // Activation hook
@@ -86,11 +87,13 @@ function wckb_activate() {
 function wckb_create_tables() {
     global $wpdb;
     
-    $table_name = $wpdb->prefix . 'wckb_verification_log';
+    $verification_log_table = $wpdb->prefix . 'wckb_verification_log';
+    $flagged_emails_table = $wpdb->prefix . 'wckb_flagged_emails';
     
     $charset_collate = $wpdb->get_charset_collate();
     
-    $sql = "CREATE TABLE $table_name (
+    // Verification log table
+    $sql_verification = "CREATE TABLE $verification_log_table (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         email varchar(255) NOT NULL,
         verification_result varchar(50) NOT NULL,
@@ -104,8 +107,31 @@ function wckb_create_tables() {
         KEY order_id (order_id)
     ) $charset_collate;";
     
+    // Flagged emails table
+    $sql_flagged = "CREATE TABLE $flagged_emails_table (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        email varchar(100) NOT NULL,
+        order_id bigint(20) NULL,
+        user_id bigint(20) NULL,
+        origin varchar(50) NOT NULL DEFAULT 'checkout',
+        kickbox_result longtext NOT NULL,
+        admin_decision varchar(20) NOT NULL DEFAULT 'pending',
+        admin_notes text NULL,
+        flagged_date datetime DEFAULT CURRENT_TIMESTAMP,
+        reviewed_date datetime NULL,
+        reviewed_by bigint(20) NULL,
+        PRIMARY KEY (id),
+        KEY email (email),
+        KEY order_id (order_id),
+        KEY user_id (user_id),
+        KEY admin_decision (admin_decision),
+        KEY flagged_date (flagged_date),
+        KEY origin (origin)
+    ) $charset_collate;";
+    
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
+    dbDelta($sql_verification);
+    dbDelta($sql_flagged);
 }
 
 function wckb_set_default_options() {

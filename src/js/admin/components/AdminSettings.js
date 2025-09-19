@@ -3,13 +3,14 @@ import ApiSettings from './ApiSettings';
 import VerificationActions from './VerificationActions';
 import VerificationStats from './VerificationStats';
 import AllowList from './AllowList';
+import FlaggedEmails from './FlaggedEmails';
 
 const AdminSettings = () => {
     const [activeTab, setActiveTab] = useState(() => {
         // Get tab from URL parameter, default to 'api'
         const urlParams = new URLSearchParams(window.location.search);
         const tab = urlParams.get('tab');
-        return ['api', 'actions', 'allowlist', 'stats'].includes(tab) ? tab : 'api';
+        return ['api', 'actions', 'allowlist', 'flagged', 'stats'].includes(tab) ? tab : 'api';
     });
     const [settings, setSettings] = useState({
         apiKey: '',
@@ -41,13 +42,13 @@ const AdminSettings = () => {
         }
 
         // Listen for browser back/forward navigation
-        const handlePopState = () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const tab = urlParams.get('tab');
-            if (['api', 'actions', 'allowlist', 'stats'].includes(tab)) {
-                setActiveTab(tab);
-            }
-        };
+    const handlePopState = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (['api', 'actions', 'allowlist', 'flagged', 'stats'].includes(tab)) {
+            setActiveTab(tab);
+        }
+    };
 
         window.addEventListener('popstate', handlePopState);
 
@@ -240,6 +241,7 @@ const AdminSettings = () => {
         {id: 'api', label: 'API Settings', component: ApiSettings},
         {id: 'actions', label: 'Verification Actions', component: VerificationActions},
         {id: 'allowlist', label: 'Allow List', component: AllowList},
+        {id: 'flagged', label: 'Review Flagged Emails', component: FlaggedEmails},
         {id: 'stats', label: 'Statistics', component: VerificationStats}
     ];
 

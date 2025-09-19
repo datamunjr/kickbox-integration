@@ -59,6 +59,58 @@ class WCKB_Verification {
 			);
 		}
 
+		// Check for existing admin decision
+		$flagged_emails = new WCKB_Flagged_Emails();
+		$admin_decision = $flagged_emails->get_admin_decision( $email );
+		
+		if ( $admin_decision === 'allow' ) {
+			// Return deliverable result for admin-allowed emails
+			return array(
+				'result' => 'deliverable',
+				'reason' => 'admin_decision',
+				'sendex' => 1,
+				'role' => false,
+				'free' => false,
+				'disposable' => false,
+				'accept_all' => false,
+				'did_you_mean' => null,
+				'domain' => substr( strrchr( $email, '@' ), 1 ),
+				'user' => substr( $email, 0, strpos( $email, '@' ) )
+			);
+		}
+		
+		if ( $admin_decision === 'block' ) {
+			// Return undeliverable result for admin-blocked emails
+			return array(
+				'result' => 'undeliverable',
+				'reason' => 'admin_decision',
+				'sendex' => 0,
+				'role' => false,
+				'free' => false,
+				'disposable' => false,
+				'accept_all' => false,
+				'did_you_mean' => null,
+				'domain' => substr( strrchr( $email, '@' ), 1 ),
+				'user' => substr( $email, 0, strpos( $email, '@' ) )
+			);
+		}
+
+		// Check if email has pending review - if so, allow checkout to proceed
+		if ( $flagged_emails->has_pending_review( $email ) ) {
+			return array(
+				'result' => 'deliverable',
+				'reason' => 'pending_review',
+				'sendex' => 1,
+				'role' => false,
+				'free' => false,
+				'disposable' => false,
+				'accept_all' => false,
+				'did_you_mean' => null,
+				'domain' => substr( strrchr( $email, '@' ), 1 ),
+				'user' => substr( $email, 0, strpos( $email, '@' ) )
+			);
+		}
+
 		$default_options = array(
 			'timeout' => 30,
 			'timeout' => 30,
@@ -97,9 +149,46 @@ class WCKB_Verification {
 		// Log the verification
 		$this->log_verification( $email, $data );
 
+		// Check if we should flag this email for review
+		$this->check_and_flag_for_review( $email, $data, $options );
+
 		return $data;
 	}
 
+
+	/**
+	 * Check if email should be flagged for review and flag it if necessary
+	 *
+	 * @param string $email Email address
+	 * @param array $kickbox_result Kickbox API result
+	 * @param array $options Verification options
+	 */
+	private function check_and_flag_for_review( $email, $kickbox_result, $options = array() ) {
+		$result = $kickbox_result['result'] ?? '';
+		
+		// Only flag emails that are undeliverable, risky, or unknown
+		if ( ! in_array( $result, array( 'undeliverable', 'risky', 'unknown' ), true ) ) {
+			return;
+		}
+		
+		// Get the action setting for this result type
+		$action_setting = get_option( 'wckb_' . $result . '_action', 'allow' );
+		
+		// Only flag if action is set to 'review'
+		if ( $action_setting !== 'review' ) {
+			return;
+		}
+		
+		// Flag the email for review
+		$flagged_emails = new WCKB_Flagged_Emails();
+		$flagged_emails->flag_email(
+			$email,
+			$kickbox_result,
+			$options['order_id'] ?? null,
+			$options['user_id'] ?? null,
+			$options['origin'] ?? 'checkout'
+		);
+	}
 
 	/**
 	 * AJAX handler for email verification
