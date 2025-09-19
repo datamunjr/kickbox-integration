@@ -14,7 +14,7 @@ class WCKB_Admin {
     public function __construct() {
         add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
-        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 25 );
         add_action( 'wp_ajax_wckb_test_api', array( $this, 'validate_kickbox_api_key' ) );
         add_action( 'wp_ajax_wckb_validate_api_key', array( $this, 'validate_kickbox_api_key' ) );
         add_action( 'wp_ajax_wckb_get_settings', array( $this, 'ajax_get_settings' ) );
@@ -24,7 +24,7 @@ class WCKB_Admin {
         add_action( 'wp_ajax_wckb_get_allow_list', array( $this, 'ajax_get_allow_list' ) );
         add_action( 'wp_ajax_wckb_add_to_allow_list', array( $this, 'ajax_add_to_allow_list' ) );
         add_action( 'wp_ajax_wckb_remove_from_allow_list', array( $this, 'ajax_remove_from_allow_list' ) );
-        
+
         // Flagged emails AJAX handlers
         add_action( 'wp_ajax_wckb_get_flagged_emails', array( $this, 'ajax_get_flagged_emails' ) );
         add_action( 'wp_ajax_wckb_update_flagged_decision', array( $this, 'ajax_update_flagged_decision' ) );
@@ -105,8 +105,14 @@ class WCKB_Admin {
             return;
         }
 
+        // Enqueue WooCommerce help tip functionality
+        wp_enqueue_script( 'jquery-tiptip' );
+
+        wp_enqueue_style( 'woocommerce_admin_styles' );
+
+        // Enqueue our admin scripts with WooCommerce as dependency
         wp_enqueue_script( 'wckb-admin', WCKB_PLUGIN_URL . 'assets/js/admin.js', array( 'jquery' ), WCKB_VERSION, true );
-        wp_enqueue_style( 'wckb-admin', WCKB_PLUGIN_URL . 'assets/css/admin.css', array(), WCKB_VERSION );
+        wp_enqueue_style( 'wckb-admin', WCKB_PLUGIN_URL . 'assets/css/admin.css', array( 'woocommerce_admin_styles' ), WCKB_VERSION );
 
         wp_localize_script( 'wckb-admin', 'wckb_admin', array(
                 'ajax_url' => admin_url( 'admin-ajax.php' ),
@@ -706,7 +712,7 @@ class WCKB_Admin {
         </div>
         <?php
     }
-    
+
     /**
      * Sanitize allow list
      *
@@ -718,20 +724,20 @@ class WCKB_Admin {
         if ( ! is_array( $value ) ) {
             return array();
         }
-        
+
         $valid_emails = array();
-        
+
         foreach ( $value as $email ) {
             $email = trim( $email );
             if ( is_email( $email ) ) {
                 $valid_emails[] = sanitize_email( $email );
             }
         }
-        
+
         // Remove duplicates and re-index array
         return array_values( array_unique( $valid_emails ) );
     }
-    
+
     /**
      * Get allow list as array
      *
@@ -739,15 +745,15 @@ class WCKB_Admin {
      */
     public function get_allow_list() {
         $allow_list = get_option( 'wckb_allow_list', array() );
-        
+
         // Ensure we always return an array
         if ( ! is_array( $allow_list ) ) {
             return array();
         }
-        
+
         return $allow_list;
     }
-    
+
     /**
      * Check if email is in allow list
      *
@@ -757,81 +763,82 @@ class WCKB_Admin {
      */
     public function is_email_in_allow_list( $email ) {
         $allow_list = $this->get_allow_list();
+
         return in_array( strtolower( $email ), array_map( 'strtolower', $allow_list ), true );
     }
-    
+
     /**
      * AJAX handler to get allow list
      */
     public function ajax_get_allow_list() {
         check_ajax_referer( 'wckb_admin', 'nonce' );
-        
+
         if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'wckb' ) ) );
         }
-        
+
         $allow_list = $this->get_allow_list();
         wp_send_json_success( $allow_list );
     }
-    
+
     /**
      * AJAX handler to add email to allow list
      */
     public function ajax_add_to_allow_list() {
         check_ajax_referer( 'wckb_admin', 'nonce' );
-        
+
         if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'wckb' ) ) );
         }
-        
+
         $email = sanitize_email( $_POST['email'] ?? '' );
-        
+
         if ( empty( $email ) || ! is_email( $email ) ) {
             wp_send_json_error( array( 'message' => __( 'Invalid email address.', 'wckb' ) ) );
         }
-        
+
         $allow_list = $this->get_allow_list();
-        
+
         // Check if email already exists
         if ( in_array( strtolower( $email ), array_map( 'strtolower', $allow_list ), true ) ) {
             wp_send_json_error( array( 'message' => __( 'Email address is already in the allow list.', 'wckb' ) ) );
         }
-        
+
         // Add email to list
         $allow_list[] = $email;
         $this->save_allow_list( $allow_list );
-        
+
         wp_send_json_success( array( 'message' => __( 'Email added to allow list successfully.', 'wckb' ) ) );
     }
-    
+
     /**
      * AJAX handler to remove email from allow list
      */
     public function ajax_remove_from_allow_list() {
         check_ajax_referer( 'wckb_admin', 'nonce' );
-        
+
         if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'wckb' ) ) );
         }
-        
+
         $email = sanitize_email( $_POST['email'] ?? '' );
-        
+
         if ( empty( $email ) ) {
             wp_send_json_error( array( 'message' => __( 'Email address is required.', 'wckb' ) ) );
         }
-        
+
         $allow_list = $this->get_allow_list();
-        
+
         // Remove email from list (case-insensitive)
-        $allow_list = array_filter( $allow_list, function( $list_email ) use ( $email ) {
+        $allow_list = array_filter( $allow_list, function ( $list_email ) use ( $email ) {
             return strtolower( $list_email ) !== strtolower( $email );
         } );
-        
+
         $this->save_allow_list( $allow_list );
-        
+
         wp_send_json_success( array( 'message' => __( 'Email removed from allow list successfully.', 'wckb' ) ) );
     }
-    
+
     /**
      * Save allow list
      *
@@ -854,15 +861,15 @@ class WCKB_Admin {
             }
 
             $flagged_emails = new WCKB_Flagged_Emails();
-            
+
             $args = array(
-                'page' => intval( $_POST['page'] ?? 1 ),
-                'per_page' => intval( $_POST['per_page'] ?? 20 ),
-                'search' => sanitize_text_field( $_POST['search'] ?? '' ),
-                'decision' => sanitize_text_field( $_POST['decision'] ?? '' ),
-                'origin' => sanitize_text_field( $_POST['origin'] ?? '' ),
-                'orderby' => sanitize_text_field( $_POST['orderby'] ?? 'flagged_date' ),
-                'order' => sanitize_text_field( $_POST['order'] ?? 'DESC' )
+                    'page'     => intval( $_POST['page'] ?? 1 ),
+                    'per_page' => intval( $_POST['per_page'] ?? 20 ),
+                    'search'   => sanitize_text_field( $_POST['search'] ?? '' ),
+                    'decision' => sanitize_text_field( $_POST['decision'] ?? '' ),
+                    'origin'   => sanitize_text_field( $_POST['origin'] ?? '' ),
+                    'orderby'  => sanitize_text_field( $_POST['orderby'] ?? 'flagged_date' ),
+                    'order'    => sanitize_text_field( $_POST['order'] ?? 'DESC' )
             );
 
             $result = $flagged_emails->get_flagged_emails( $args );
@@ -883,16 +890,16 @@ class WCKB_Admin {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'wckb' ) ) );
         }
 
-        $id = intval( $_POST['id'] ?? 0 );
+        $id       = intval( $_POST['id'] ?? 0 );
         $decision = sanitize_text_field( $_POST['decision'] ?? '' );
-        $notes = sanitize_textarea_field( $_POST['notes'] ?? '' );
+        $notes    = sanitize_textarea_field( $_POST['notes'] ?? '' );
 
         if ( empty( $id ) || ! in_array( $decision, array( 'allow', 'block' ), true ) ) {
             wp_send_json_error( array( 'message' => __( 'Invalid parameters.', 'wckb' ) ) );
         }
 
         $flagged_emails = new WCKB_Flagged_Emails();
-        $result = $flagged_emails->update_admin_decision( $id, $decision, $notes );
+        $result         = $flagged_emails->update_admin_decision( $id, $decision, $notes );
 
         if ( $result ) {
             wp_send_json_success( array( 'message' => __( 'Decision updated successfully.', 'wckb' ) ) );
@@ -911,16 +918,16 @@ class WCKB_Admin {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'wckb' ) ) );
         }
 
-        $id = intval( $_POST['id'] ?? 0 );
+        $id       = intval( $_POST['id'] ?? 0 );
         $decision = sanitize_text_field( $_POST['decision'] ?? '' );
-        $notes = sanitize_textarea_field( $_POST['notes'] ?? '' );
+        $notes    = sanitize_textarea_field( $_POST['notes'] ?? '' );
 
         if ( empty( $id ) || ! in_array( $decision, array( 'allow', 'block' ), true ) ) {
             wp_send_json_error( array( 'message' => __( 'Invalid parameters.', 'wckb' ) ) );
         }
 
         $flagged_emails = new WCKB_Flagged_Emails();
-        $result = $flagged_emails->edit_admin_decision( $id, $decision, $notes );
+        $result         = $flagged_emails->edit_admin_decision( $id, $decision, $notes );
 
         if ( $result ) {
             wp_send_json_success( array( 'message' => __( 'Decision updated successfully.', 'wckb' ) ) );
@@ -940,8 +947,8 @@ class WCKB_Admin {
         }
 
         $flagged_emails = new WCKB_Flagged_Emails();
-        $stats = $flagged_emails->get_statistics();
-        
+        $stats          = $flagged_emails->get_statistics();
+
         wp_send_json_success( array( 'pending_count' => $stats['pending'] ) );
     }
 
@@ -956,8 +963,8 @@ class WCKB_Admin {
         }
 
         $flagged_emails = new WCKB_Flagged_Emails();
-        $stats = $flagged_emails->get_statistics();
-        
+        $stats          = $flagged_emails->get_statistics();
+
         wp_send_json_success( $stats );
     }
 }

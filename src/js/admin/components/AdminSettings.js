@@ -269,7 +269,7 @@ const AdminSettings = () => {
         {id: 'api', label: 'API Settings', component: ApiSettings},
         {id: 'actions', label: 'Verification Actions', component: VerificationActions},
         {id: 'allowlist', label: 'Allow List', component: AllowList},
-        {id: 'flagged', label: 'Review Flagged Emails', component: FlaggedEmails},
+        {id: 'flagged', label: 'Flagged Emails', component: FlaggedEmails},
         {id: 'stats', label: 'Statistics', component: VerificationStats}
     ];
 
