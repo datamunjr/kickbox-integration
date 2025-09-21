@@ -92,6 +92,7 @@ const EmailVerification = () => {
         return messages[result] || messages.unknown;
     };
 
+
     // Function to verify email (called on Place Order click)
     const verifyEmailOnSubmit = async () => {
         if (!email || !isValidEmail(email)) {
@@ -135,6 +136,7 @@ const EmailVerification = () => {
                 const action = wckb_checkout.verification_actions[result] || 'allow';
                 const shouldBlock = action === 'block';
                 setShouldBlockSubmission(shouldBlock);
+
 
                 return !shouldBlock; // Return true if submission should proceed
             } else {

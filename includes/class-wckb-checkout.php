@@ -12,33 +12,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WCKB_Checkout {
 
     private $verification;
+    private $cached_email; // Email that we use during woocommerce_blocks_validate_location_address_fields
+    private $cached_result;
 
     public function __construct() {
         $this->verification = new WCKB_Verification();
 
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_checkout_scripts' ) );
 
-        // Legacy checkout validation hooks
-        add_action( 'woocommerce_checkout_process', array( $this, 'validate_checkout_email' ) );
-        add_action( 'woocommerce_after_checkout_validation', array( $this, 'after_checkout_validation' ) );
-
-        // Blocks checkout validation hooks (using Store API)
-        // Use the new Store API hook (WooCommerce Blocks 7.2.0+)
-        add_action( 'woocommerce_store_api_checkout_update_order_from_request', array(
+        // Use WooCommerce Blocks location address validation for both legacy and blocks checkout
+        add_action( 'woocommerce_blocks_validate_location_address_fields', array(
                 $this,
-                'validate_blocks_checkout_email'
-        ), 10, 2 );
+                'validate_email_in_address_fields'
+        ), 10, 3 );
 
-        // Fallback for older WooCommerce Blocks versions (< 7.2.0)
-        add_action( 'woocommerce_blocks_checkout_update_order_from_request', array(
+        add_action( 'woocommerce_blocks_validate_location_contact_fields', array(
                 $this,
-                'validate_blocks_checkout_email'
-        ), 10, 2 );
+                'add_verification_errors_to_contact_field'
+        ), 10, 3 );
 
-        add_filter( 'woocommerce_rest_checkout_process_payment_error', array(
-                $this,
-                'handle_blocks_checkout_error'
-        ) );
+//        add_action( 'woocommerce_checkout_process', array( $this, 'validate_email_in_address_fields' ), 10, 3 );
 
         add_filter( 'woocommerce_form_field_email', array( $this, 'add_checkout_verification_to_email_field' ), 10, 4 );
         add_action( 'wp_footer', array( $this, 'add_blocks_checkout_support' ) );
@@ -193,223 +186,101 @@ class WCKB_Checkout {
         <?php
     }
 
+
     /**
-     * Validate checkout email
-     * @throws Exception
+     * Validate email in address fields - see validate_callback() method in Checkout.php in WooCommerce
+     *
+     * @param WP_Error $errors The errors object
+     * @param array $fields The address fields
+     * @param string $group The field group (billing or shipping)
      */
-    public function validate_checkout_email() {
-        error_log( "validate_checkout_email" );
+    public function validate_email_in_address_fields( $errors, $fields, $group ) {
+        // Only validate billing address fields
+        if ( $group !== 'billing' ) {
+            return;
+        }
+
         if ( ! $this->verification->is_verification_enabled() ) {
             return;
         }
 
-        $email = $_POST['billing_email'] ?? '';
+        // Cache the email
+        $this->cached_email = $fields['email'] ?? '';
 
-        if ( empty( $email ) ) {
-            return;
+        if ( empty( $this->cached_email ) ) {
+            return; // No email to validate
         }
 
         // Get user ID if email is associated with a user
         $user_id = null;
-        $user    = get_user_by( 'email', $email );
+        $user    = get_user_by( 'email', $this->cached_email );
         if ( $user ) {
             $user_id = $user->ID;
         }
 
-        $result = $this->verification->verify_email( $email, array(
+        // Verify the email
+        $result = $this->verification->verify_email( $this->cached_email, array(
                 'origin'  => 'checkout',
                 'user_id' => $user_id
         ) );
 
         if ( is_wp_error( $result ) ) {
             // Log error but don't block checkout
-            error_log( '[WCKB] Verification Error: ' . $result->get_error_message() );
+            error_log( 'WCKB Verification Error: ' . $result->get_error_message() );
 
             return;
         }
 
-        $verification_result = $result['result'] ?? 'unknown';
-        $reason              = $result['reason'] ?? '';
+        // Cache the result
+        $this->cached_result = $result;
+    }
+
+    /**
+     * There's a weird UX experience where the error banner shows up above the Billing Address section, which we
+     * don't want it to show there. Instead, we want it to show over the "contact" section or "additional_fields"
+     * section.
+     *
+     * @param $errors
+     * @param $fields
+     * @param $group
+     *
+     * @return void
+     */
+    public function add_verification_errors_to_contact_field( $errors, $fields, $group ) {
+        $verification_result = $this->cached_result['result'] ?? 'unknown';
+        $reason              = $this->cached_result['reason'] ?? '';
 
         // Check if this is an admin decision result
         if ( $reason === 'admin_decision' ) {
             // Admin has made a decision - use the result directly
             if ( $verification_result === 'undeliverable' ) {
-                $this->block_checkout( $verification_result );
+                $this->add_validation_error( $errors, $verification_result );
             }
-            // If admin decision is 'allow' or 'deliverable', proceed with checkout
         } else {
             // Use the settings-based action system
             $action = $this->verification->get_action_for_result( $verification_result );
 
-            error_log( '[WCKB] Verification Result: ' . $verification_result );
-            switch ( $action ) {
-                case 'block':
-                    $this->block_checkout( $verification_result );
-                case 'review':
-                    // Email will be automatically flagged by the verification system
-                    // Allow checkout to proceed
-                    break;
-                case 'allow':
-                default:
-                    // Allow checkout to proceed
-                    break;
+            if ( $action === 'block' ) {
+                $this->add_validation_error( $errors, $verification_result );
             }
         }
     }
 
     /**
-     * Validate blocks checkout email
-     * This hook is called when WooCommerce Store API processes the checkout
-     * Uses the Store API hook: woocommerce_store_api_checkout_update_order_from_request (7.2.0+)
-     * Falls back to: woocommerce_blocks_checkout_update_order_from_request (< 7.2.0)
-     * @throws Exception
+     * Add validation error to the errors object
+     *
+     * @param WP_Error $errors The errors object
+     * @param string $result The verification result
      */
-    public function validate_blocks_checkout_email( $order, $request ) {
-        if ( ! $this->verification->is_verification_enabled() ) {
-            return;
-        }
-
-        // Get email from the request data
-        $email = $request['billing_address']['email'] ?? '';
-
-        if ( empty( $email ) ) {
-            return;
-        }
-
-        error_log( "WCKB Blocks Checkout: Validating email - " . $email );
-
-        // Get user ID if email is associated with a user
-        $user_id = null;
-        $user    = get_user_by( 'email', $email );
-        if ( $user ) {
-            $user_id = $user->ID;
-        }
-
-        $result = $this->verification->verify_email( $email, array(
-                'origin'   => 'checkout',
-                'user_id'  => $user_id,
-                'order_id' => $order->get_id()
-        ) );
-
-        if ( is_wp_error( $result ) ) {
-            // Log error but don't block checkout
-            error_log( '[WCKB] Blocks Verification Error: ' . $result->get_error_message() );
-
-            return;
-        }
-
-        $verification_result = $result['result'] ?? 'unknown';
-        $reason              = $result['reason'] ?? '';
-
-        error_log( "WCKB Blocks Verification Result for email " . $email . ": " . print_r( $result, true ) );
-
-        // Store verification data in order meta regardless of action
-        $order->update_meta_data( '_wckb_verification_result', $verification_result );
-        $order->update_meta_data( '_wckb_verification_data', json_encode( $result ) );
-
-        // Check if this is an admin decision result
-        if ( $reason === 'admin_decision' ) {
-            // Admin has made a decision - use the result directly
-            if ( $verification_result === 'undeliverable' ) {
-                $this->block_blocks_checkout( $verification_result );
-            }
-            // If admin decision is 'allow' or 'deliverable', proceed with checkout
-        } else {
-            // Use the settings-based action system
-            $action = $this->verification->get_action_for_result( $verification_result );
-
-            switch ( $action ) {
-                case 'block':
-                    $this->block_blocks_checkout( $verification_result );
-                case 'review':
-                    // Email will be automatically flagged by the verification system
-                    $order->update_meta_data( '_wckb_needs_review', 'yes' );
-                    // Allow checkout to proceed
-                    break;
-                case 'allow':
-                default:
-                    // Allow checkout to proceed
-                    break;
-            }
-        }
-    }
-
-    /**
-     * Block blocks checkout due to verification failure
-     * @throws Exception
-     */
-    private function block_blocks_checkout( $result ) {
+    private function add_validation_error( $errors, $result ) {
         $messages = array(
-                'undeliverable' => __( 'This email address does not exist or is invalid. Please use a different email address.', 'wckb' ),
-                'risky'         => __( 'This email address has quality issues and may result in bounces. Please use a different email address.', 'wckb' ),
-                'unknown'       => __( 'We were unable to verify this email address due to an unknown issue. Please use a different email address.', 'wckb' )
+                'undeliverable' => esc_html__( 'This email address does not exist or is invalid. Please use a different email address.', 'wckb' ),
+                'risky'         => esc_html__( 'This email address has quality issues and may result in bounces. Please use a different email address.', 'wckb' ),
+                'unknown'       => esc_html__( 'We were unable to verify this email address due to unknown issue. Please use a different email address.', 'wckb' )
         );
 
         $message = $messages[ $result ] ?? $messages['unknown'];
 
-        // For blocks checkout, we need to throw an Exception
-        throw new Exception( $message );
-    }
-
-    /**
-     * Handle blocks checkout error
-     * This filter is called when there's an error during blocks checkout processing
-     */
-    public function handle_blocks_checkout_error( $error ) {
-        // Check if this is our verification error
-        if ( $error instanceof Exception && strpos( $error->getMessage(), 'email address' ) !== false ) {
-            // Convert Exception to WP_Error for proper blocks handling
-            return new WP_Error( 'wckb_email_verification_failed', $error->getMessage() );
-        }
-
-        return $error;
-    }
-
-    /**
-     * After checkout validation
-     */
-    public function after_checkout_validation( $data ) {
-        error_log( "after_checkout_validation" );
-        if ( ! $this->verification->is_verification_enabled() ) {
-            return;
-        }
-
-        $email = $data['billing_email'] ?? '';
-
-        if ( empty( $email ) ) {
-            return;
-        }
-
-        // Log verification for completed orders
-        $result = $this->verification->verify_email( $email );
-
-        if ( ! is_wp_error( $result ) ) {
-            // Store verification result in order meta
-            add_action( 'woocommerce_checkout_order_processed', function ( $order_id ) use ( $result ) {
-                $order = wc_get_order( $order_id );
-                if ( $order ) {
-                    $order->update_meta_data( '_wckb_verification_result', $result['result'] ?? 'unknown' );
-                    $order->update_meta_data( '_wckb_verification_data', json_encode( $result ) );
-                    $order->save();
-                }
-            } );
-        }
-    }
-
-    /**
-     * Block checkout due to verification failure
-     * @throws Exception
-     */
-    private function block_checkout( $result ) {
-        $messages = array(
-                'undeliverable' => __( 'This email address does not exist or is invalid. Please use a different email address.', 'wckb' ),
-                'risky'         => __( 'This email address has quality issues and may result in bounces. Please use a different email address.', 'wckb' ),
-                'unknown'       => __( 'We were unable to verify this email address due to server timeout. Please use a different email address.', 'wckb' )
-        );
-
-        $message = $messages[ $result ] ?? $messages['unknown'];
-
-        throw new Exception( $message );
+        $errors->add( 'wckb_email_verification', $message );
     }
 }
