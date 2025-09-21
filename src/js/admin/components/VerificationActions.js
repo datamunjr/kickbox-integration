@@ -2,14 +2,14 @@ import React, {useEffect} from 'react';
 
 const VerificationActions = ({settings, onSettingChange}) => {
     const actionOptions = [
-        {value: 'allow', label: 'Allow checkout'},
-        {value: 'block', label: 'Block checkout'},
+        {value: 'allow', label: 'Allow'},
+        {value: 'block', label: 'Block'},
         {value: 'review', label: 'Allow but flag for review'}
     ];
 
     const deliverableActionOptions = [
-        {value: 'allow', label: 'Allow checkout'},
-        {value: 'block', label: 'Block checkout'}
+        {value: 'allow', label: 'Allow'},
+        {value: 'block', label: 'Block'}
     ];
 
     const verificationTypes = [
@@ -84,17 +84,17 @@ const VerificationActions = ({settings, onSettingChange}) => {
                                     </option>
                                 ))}
                             </select>
-                            {type.key === 'deliverableAction' && settings[type.key] === 'block' && (
-                                <div className="wckb-deliverable-block-warning">
-                                    <p>
-                                        <strong>⚠️ Warning:</strong> Blocking deliverable emails will prevent almost all
-                                        customer checkouts
-                                        and is counterproductive to your business. Deliverable emails are safe to send
-                                        to and should
-                                        typically be allowed.
-                                    </p>
-                                </div>
-                            )}
+                             {type.key === 'deliverableAction' && settings[type.key] === 'block' && (
+                                 <div className="wckb-deliverable-block-warning">
+                                     <p>
+                                         <strong>⚠️ Warning:</strong> Blocking deliverable emails will prevent almost all
+                                         users from proceeding
+                                         and is counterproductive to your business. Deliverable emails are safe to send
+                                         to and should
+                                         typically be allowed.
+                                     </p>
+                                 </div>
+                             )}
                         </td>
                     </tr>
                 ))}
@@ -104,14 +104,9 @@ const VerificationActions = ({settings, onSettingChange}) => {
             <div className="wckb-action-info">
                 <h4>Action Explanations:</h4>
                 <ul>
-                    <li><strong>Allow checkout:</strong> The customer can complete their purchase regardless of
-                        verification result.
-                    </li>
-                    <li><strong>Block checkout:</strong> The customer will be prevented from completing their purchase.
-                    </li>
-                    <li><strong>Allow but flag for review:</strong> The customer can complete their purchase, but the
-                        order will be flagged for admin review.
-                    </li>
+                    <li><strong>Allow:</strong> The user can proceed regardless of verification result.</li>
+                    <li><strong>Block:</strong> The user will be prevented from proceeding and the email will be automatically flagged for admin review.</li>
+                    <li><strong>Allow but flag for review:</strong> The user can proceed, but the action will be flagged for admin review.</li>
                 </ul>
             </div>
         </div>

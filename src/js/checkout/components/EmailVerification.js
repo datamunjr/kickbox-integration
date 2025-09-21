@@ -6,6 +6,7 @@ const EmailVerification = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [shouldBlockSubmission, setShouldBlockSubmission] = useState(false);
+    const [lastVerifiedEmail, setLastVerifiedEmail] = useState('');
 
 
     useEffect(() => {
@@ -21,11 +22,13 @@ const EmailVerification = () => {
 
             if (emailField) {
                 const handleEmailChange = (e) => {
-                    setEmail(e.target.value);
+                    const newEmail = e.target.value;
+                    setEmail(newEmail);
                     // Clear verification status when email changes
                     setVerificationStatus(null);
                     setError('');
                     setShouldBlockSubmission(false);
+                    setLastVerifiedEmail('');
                 };
 
                 // Only listen to input events to track email changes, not for verification
@@ -95,6 +98,16 @@ const EmailVerification = () => {
             return false; // Allow submission if no email or invalid format
         }
 
+        // If we've already verified this email and should block, prevent submission
+        if (lastVerifiedEmail === email && shouldBlockSubmission) {
+            return false; // Block submission
+        }
+
+        // If we've already verified this email and it's allowed, allow submission
+        if (lastVerifiedEmail === email && !shouldBlockSubmission && verificationStatus) {
+            return true; // Allow submission
+        }
+
         setLoading(true);
         setError('');
 
@@ -115,6 +128,7 @@ const EmailVerification = () => {
 
             if (data.success) {
                 setVerificationStatus(data.data);
+                setLastVerifiedEmail(email); // Store the email we just verified
 
                 // Check if this result should block submission based on backend settings
                 const result = data.data.result;
@@ -141,7 +155,7 @@ const EmailVerification = () => {
         return () => {
             delete window.wckbVerifyEmailOnSubmit;
         };
-    }, [email]);
+    }, [email, lastVerifiedEmail, shouldBlockSubmission, verificationStatus]);
 
     // Show blocking banner if verification failed and should block
     if (shouldBlockSubmission && verificationStatus) {

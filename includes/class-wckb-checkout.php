@@ -38,7 +38,7 @@ class WCKB_Checkout {
         add_filter( 'woocommerce_rest_checkout_process_payment_error', array(
                 $this,
                 'handle_blocks_checkout_error'
-        ), 10, 2 );
+        ) );
 
         add_filter( 'woocommerce_form_field_email', array( $this, 'add_checkout_verification_to_email_field' ), 10, 4 );
         add_action( 'wp_footer', array( $this, 'add_blocks_checkout_support' ) );
@@ -52,7 +52,7 @@ class WCKB_Checkout {
             return;
         }
 
-        wp_enqueue_script( 'wckb-customer', WCKB_PLUGIN_URL . 'assets/js/customer.js', array( 'jquery' ), WCKB_VERSION, true );
+
         wp_enqueue_script( 'wckb-checkout', WCKB_PLUGIN_URL . 'assets/js/checkout.js', array(
                 'jquery',
                 'wc-checkout'
@@ -84,7 +84,7 @@ class WCKB_Checkout {
     /**
      * Add checkout verification to email field
      */
-    public function add_checkout_verification_to_email_field( $field, $key, $args, $value ) {
+    public function add_checkout_verification_to_email_field( $field, $key ) {
         // Only modify the billing email field
         if ( $key !== 'billing_email' || ! $this->verification->is_verification_enabled() ) {
             return $field;
@@ -110,11 +110,11 @@ class WCKB_Checkout {
                 // Function to add verification container to blocks checkout
                 function addVerificationToBlocksCheckout() {
                     // Look for the email field in blocks checkout
-                    var emailField = $('.wc-block-components-text-input input[type="email"]');
+                    const emailField = $('.wc-block-components-text-input input[type="email"]');
 
                     if (emailField.length > 0 && $('#wckb-checkout-verification').length === 0) {
                         // Find the email field container
-                        var emailContainer = emailField.closest('.wc-block-components-text-input');
+                        const emailContainer = emailField.closest('.wc-block-components-text-input');
 
                         if (emailContainer.length > 0) {
                             // Add verification container after the email field
@@ -176,7 +176,7 @@ class WCKB_Checkout {
                 });
 
                 // Check periodically for blocks checkout (fallback)
-                var blocksCheckInterval = setInterval(function () {
+                const blocksCheckInterval = setInterval(function () {
                     if ($('.wc-block-components-text-input input[type="email"]').length > 0) {
                         addVerificationToBlocksCheckout();
                         interceptPlaceOrderClicks();
@@ -211,43 +211,41 @@ class WCKB_Checkout {
 
         // Get user ID if email is associated with a user
         $user_id = null;
-        $user = get_user_by( 'email', $email );
+        $user    = get_user_by( 'email', $email );
         if ( $user ) {
             $user_id = $user->ID;
         }
 
         $result = $this->verification->verify_email( $email, array(
-            'origin' => 'checkout',
-            'user_id' => $user_id
+                'origin'  => 'checkout',
+                'user_id' => $user_id
         ) );
 
         if ( is_wp_error( $result ) ) {
             // Log error but don't block checkout
-            error_log( 'WCKB Verification Error: ' . $result->get_error_message() );
+            error_log( '[WCKB] Verification Error: ' . $result->get_error_message() );
 
             return;
         }
 
         $verification_result = $result['result'] ?? 'unknown';
-        $reason = $result['reason'] ?? '';
-        
+        $reason              = $result['reason'] ?? '';
+
         // Check if this is an admin decision result
         if ( $reason === 'admin_decision' ) {
             // Admin has made a decision - use the result directly
             if ( $verification_result === 'undeliverable' ) {
-                $this->block_checkout( $verification_result, $result );
-                return;
+                $this->block_checkout( $verification_result );
             }
             // If admin decision is 'allow' or 'deliverable', proceed with checkout
         } else {
             // Use the settings-based action system
             $action = $this->verification->get_action_for_result( $verification_result );
-            
-            error_log( 'WCKB Verification Result: ' . $verification_result );
+
+            error_log( '[WCKB] Verification Result: ' . $verification_result );
             switch ( $action ) {
                 case 'block':
-                    $this->block_checkout( $verification_result, $result );
-                    return;
+                    $this->block_checkout( $verification_result );
                 case 'review':
                     // Email will be automatically flagged by the verification system
                     // Allow checkout to proceed
@@ -265,6 +263,7 @@ class WCKB_Checkout {
      * This hook is called when WooCommerce Store API processes the checkout
      * Uses the Store API hook: woocommerce_store_api_checkout_update_order_from_request (7.2.0+)
      * Falls back to: woocommerce_blocks_checkout_update_order_from_request (< 7.2.0)
+     * @throws Exception
      */
     public function validate_blocks_checkout_email( $order, $request ) {
         if ( ! $this->verification->is_verification_enabled() ) {
@@ -282,27 +281,27 @@ class WCKB_Checkout {
 
         // Get user ID if email is associated with a user
         $user_id = null;
-        $user = get_user_by( 'email', $email );
+        $user    = get_user_by( 'email', $email );
         if ( $user ) {
             $user_id = $user->ID;
         }
 
         $result = $this->verification->verify_email( $email, array(
-            'origin' => 'checkout',
-            'user_id' => $user_id,
-            'order_id' => $order->get_id()
+                'origin'   => 'checkout',
+                'user_id'  => $user_id,
+                'order_id' => $order->get_id()
         ) );
 
         if ( is_wp_error( $result ) ) {
             // Log error but don't block checkout
-            error_log( 'WCKB Blocks Verification Error: ' . $result->get_error_message() );
+            error_log( '[WCKB] Blocks Verification Error: ' . $result->get_error_message() );
 
             return;
         }
 
         $verification_result = $result['result'] ?? 'unknown';
-        $reason = $result['reason'] ?? '';
-        
+        $reason              = $result['reason'] ?? '';
+
         error_log( "WCKB Blocks Verification Result for email " . $email . ": " . print_r( $result, true ) );
 
         // Store verification data in order meta regardless of action
@@ -313,18 +312,16 @@ class WCKB_Checkout {
         if ( $reason === 'admin_decision' ) {
             // Admin has made a decision - use the result directly
             if ( $verification_result === 'undeliverable' ) {
-                $this->block_blocks_checkout( $verification_result, $result );
-                return;
+                $this->block_blocks_checkout( $verification_result );
             }
             // If admin decision is 'allow' or 'deliverable', proceed with checkout
         } else {
             // Use the settings-based action system
             $action = $this->verification->get_action_for_result( $verification_result );
-            
+
             switch ( $action ) {
                 case 'block':
-                    $this->block_blocks_checkout( $verification_result, $result );
-                    return;
+                    $this->block_blocks_checkout( $verification_result );
                 case 'review':
                     // Email will be automatically flagged by the verification system
                     $order->update_meta_data( '_wckb_needs_review', 'yes' );
@@ -342,7 +339,7 @@ class WCKB_Checkout {
      * Block blocks checkout due to verification failure
      * @throws Exception
      */
-    private function block_blocks_checkout( $result, $verification_data ) {
+    private function block_blocks_checkout( $result ) {
         $messages = array(
                 'undeliverable' => __( 'This email address does not exist or is invalid. Please use a different email address.', 'wckb' ),
                 'risky'         => __( 'This email address has quality issues and may result in bounces. Please use a different email address.', 'wckb' ),
@@ -352,18 +349,18 @@ class WCKB_Checkout {
         $message = $messages[ $result ] ?? $messages['unknown'];
 
         // For blocks checkout, we need to throw an Exception
-        throw new \Exception( $message );
+        throw new Exception( $message );
     }
 
     /**
      * Handle blocks checkout error
      * This filter is called when there's an error during blocks checkout processing
      */
-    public function handle_blocks_checkout_error( $error, $request ) {
+    public function handle_blocks_checkout_error( $error ) {
         // Check if this is our verification error
-        if ( $error instanceof \Exception && strpos( $error->getMessage(), 'email address' ) !== false ) {
+        if ( $error instanceof Exception && strpos( $error->getMessage(), 'email address' ) !== false ) {
             // Convert Exception to WP_Error for proper blocks handling
-            return new \WP_Error( 'wckb_email_verification_failed', $error->getMessage() );
+            return new WP_Error( 'wckb_email_verification_failed', $error->getMessage() );
         }
 
         return $error;
@@ -372,7 +369,7 @@ class WCKB_Checkout {
     /**
      * After checkout validation
      */
-    public function after_checkout_validation( $data, $errors ) {
+    public function after_checkout_validation( $data ) {
         error_log( "after_checkout_validation" );
         if ( ! $this->verification->is_verification_enabled() ) {
             return;
@@ -404,7 +401,7 @@ class WCKB_Checkout {
      * Block checkout due to verification failure
      * @throws Exception
      */
-    private function block_checkout( $result, $verification_data ) {
+    private function block_checkout( $result ) {
         $messages = array(
                 'undeliverable' => __( 'This email address does not exist or is invalid. Please use a different email address.', 'wckb' ),
                 'risky'         => __( 'This email address has quality issues and may result in bounces. Please use a different email address.', 'wckb' ),
@@ -415,54 +412,4 @@ class WCKB_Checkout {
 
         throw new Exception( $message );
     }
-
-    /**
-     * Flag email for review
-     */
-    private function flag_for_review( $email, $result, $verification_data ) {
-        // Store in order meta for admin review
-        add_action( 'woocommerce_checkout_order_processed', function ( $order_id ) use ( $email, $result, $verification_data ) {
-            $order = wc_get_order( $order_id );
-            if ( $order ) {
-                $order->update_meta_data( '_wckb_needs_review', 'yes' );
-                $order->update_meta_data( '_wckb_verification_result', $result );
-                $order->update_meta_data( '_wckb_verification_data', json_encode( $verification_data ) );
-                $order->save();
-
-                // Add admin note
-                $order->add_order_note(
-                        sprintf(
-                                __( 'Email verification flagged for review: %s (Result: %s)', 'wckb' ),
-                                $email,
-                                $result
-                        )
-                );
-            }
-        } );
-    }
-
-    /**
-     * Get verification status for order
-     */
-    public static function get_order_verification_status( $order_id ) {
-        $order = wc_get_order( $order_id );
-        if ( ! $order ) {
-            return array(
-                    'result'       => '',
-                    'needs_review' => false,
-                    'data'         => ''
-            );
-        }
-
-        $result       = $order->get_meta( '_wckb_verification_result', true );
-        $needs_review = $order->get_meta( '_wckb_needs_review', true );
-        $data         = $order->get_meta( '_wckb_verification_data', true );
-
-        return array(
-                'result'       => $result,
-                'needs_review' => $needs_review === 'yes',
-                'data'         => $data
-        );
-    }
-
 }

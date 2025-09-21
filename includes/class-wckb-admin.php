@@ -106,12 +106,13 @@ class WCKB_Admin {
         }
 
         // Enqueue WooCommerce help tip functionality
-        wp_enqueue_script( 'jquery-tiptip' );
-
         wp_enqueue_style( 'woocommerce_admin_styles' );
 
         // Enqueue our admin scripts with WooCommerce as dependency
-        wp_enqueue_script( 'wckb-admin', WCKB_PLUGIN_URL . 'assets/js/admin.js', array( 'jquery' ), WCKB_VERSION, true );
+        wp_enqueue_script( 'wckb-admin', WCKB_PLUGIN_URL . 'assets/js/admin.js', array(
+                'jquery',
+                'jquery-tiptip'
+        ), WCKB_VERSION, true );
         wp_enqueue_style( 'wckb-admin', WCKB_PLUGIN_URL . 'assets/css/admin.css', array( 'woocommerce_admin_styles' ), WCKB_VERSION );
 
         wp_localize_script( 'wckb-admin', 'wckb_admin', array(
@@ -314,7 +315,7 @@ class WCKB_Admin {
 
         if ( is_wp_error( $response ) ) {
             // Log the WP_Error for debugging
-            error_log( 'WCKB: WP_Error during API test - ' . $response->get_error_message() );
+            error_log( '[WCKB]: WP_Error during API test - ' . $response->get_error_message() );
 
             wp_send_json_error( array(
                     'message'     => $response->get_error_message(),
@@ -331,7 +332,7 @@ class WCKB_Admin {
 
         if ( json_last_error() !== JSON_ERROR_NONE ) {
             // Log the invalid JSON response for debugging
-            error_log( 'WCKB: Invalid JSON response from Kickbox API - ' . $body );
+            error_log( '[WCKB]: Invalid JSON response from Kickbox API - ' . $body );
 
             wp_send_json_error( array(
                     'message'     => __( 'Invalid response from Kickbox API.', 'wckb' ),
@@ -350,7 +351,7 @@ class WCKB_Admin {
             ) );
         } else {
             // Log the unexpected response for debugging
-            error_log( 'WCKB: Unexpected Kickbox API response - ' . print_r( $data, true ) );
+            error_log( '[WCKB]: Unexpected Kickbox API response - ' . print_r( $data, true ) );
 
             wp_send_json_error( array(
                     'message'     => __( 'Unexpected response from Kickbox API.', 'wckb' ),
@@ -386,7 +387,7 @@ class WCKB_Admin {
 
         if ( is_wp_error( $response ) ) {
             // Log the WP_Error for debugging
-            error_log( 'WCKB: WP_Error during API validation - ' . $response->get_error_message() );
+            error_log( '[WCKB]: WP_Error during API validation - ' . $response->get_error_message() );
 
             return array(
                     'success' => false,
@@ -403,7 +404,7 @@ class WCKB_Admin {
 
         if ( json_last_error() !== JSON_ERROR_NONE ) {
             // Log the invalid JSON response for debugging
-            error_log( 'WCKB: Invalid JSON response during API validation - ' . $body );
+            error_log( '[WCKB]: Invalid JSON response during API validation - ' . $body );
 
             return array(
                     'success' => false,
@@ -419,7 +420,7 @@ class WCKB_Admin {
             return array( 'success' => true, 'message' => __( 'API key is valid.', 'wckb' ) );
         } else {
             // Log the unexpected response for debugging
-            error_log( 'WCKB: Unexpected Kickbox API response during validation - ' . print_r( $data, true ) );
+            error_log( '[WCKB]: Unexpected Kickbox API response during validation - ' . print_r( $data, true ) );
 
             return array(
                     'success' => false,
@@ -875,7 +876,7 @@ class WCKB_Admin {
             $result = $flagged_emails->get_flagged_emails( $args );
             wp_send_json_success( $result );
         } catch ( Exception $e ) {
-            error_log( 'WCKB Flagged Emails AJAX Error: ' . $e->getMessage() );
+            error_log( '[WCKB] Flagged Emails AJAX Error: ' . $e->getMessage() );
             wp_send_json_error( array( 'message' => __( 'Error loading flagged emails: ', 'wckb' ) . $e->getMessage() ) );
         }
     }

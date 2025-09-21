@@ -28,11 +28,11 @@ class WCKB_Verification {
 	 * Verify a single email address
 	 *
 	 * @param string $email Email address to verify
-	 * @param array $options Additional verification options
+	 * @param array $meta_data Extra data like user_id, order_id and origin used for flagging the email
 	 *
 	 * @return array|WP_Error Verification result or error
 	 */
-	public function verify_email( $email, $options = array() ) {
+	public function verify_email( $email, $meta_data = array() ) {
 		if ( empty( $this->api_key ) ) {
 			return new WP_Error( 'no_api_key', __( 'Kickbox API key is not configured.', 'wckb' ) );
 		}
@@ -44,89 +44,76 @@ class WCKB_Verification {
 		// Check if email is in allow list
 		$admin = new WCKB_Admin();
 		if ( $admin->is_email_in_allow_list( $email ) ) {
+			error_log( "[WCKB] E-mail $email address is in the allow-list, skipping kickbox verification." );
+
 			// Return a deliverable result for allow list emails
 			return array(
-				'result' => 'deliverable',
-				'reason' => 'allow_list',
-				'sendex' => 1,
-				'role' => false,
-				'free' => false,
-				'disposable' => false,
-				'accept_all' => false,
+				'result'       => 'deliverable',
+				'reason'       => 'allow_list',
+				'sendex'       => 1,
+				'role'         => false,
+				'free'         => false,
+				'disposable'   => false,
+				'accept_all'   => false,
 				'did_you_mean' => null,
-				'domain' => substr( strrchr( $email, '@' ), 1 ),
-				'user' => substr( $email, 0, strpos( $email, '@' ) )
+				'domain'       => substr( strrchr( $email, '@' ), 1 ),
+				'user'         => substr( $email, 0, strpos( $email, '@' ) )
 			);
 		}
 
 		// Check for existing admin decision
 		$flagged_emails = new WCKB_Flagged_Emails();
 		$admin_decision = $flagged_emails->get_admin_decision( $email );
-		
+
+		error_log( "[WCKB] E-mail $email address has been flagged with decision: $admin_decision." );
+
 		if ( $admin_decision === 'allow' ) {
 			// Return deliverable result for admin-allowed emails
 			return array(
-				'result' => 'deliverable',
-				'reason' => 'admin_decision',
-				'sendex' => 1,
-				'role' => false,
-				'free' => false,
-				'disposable' => false,
-				'accept_all' => false,
+				'result'       => 'deliverable',
+				'reason'       => 'admin_decision',
+				'sendex'       => 1,
+				'role'         => false,
+				'free'         => false,
+				'disposable'   => false,
+				'accept_all'   => false,
 				'did_you_mean' => null,
-				'domain' => substr( strrchr( $email, '@' ), 1 ),
-				'user' => substr( $email, 0, strpos( $email, '@' ) )
+				'domain'       => substr( strrchr( $email, '@' ), 1 ),
+				'user'         => substr( $email, 0, strpos( $email, '@' ) )
 			);
 		}
-		
+
 		if ( $admin_decision === 'block' ) {
 			// Return undeliverable result for admin-blocked emails
 			return array(
-				'result' => 'undeliverable',
-				'reason' => 'admin_decision',
-				'sendex' => 0,
-				'role' => false,
-				'free' => false,
-				'disposable' => false,
-				'accept_all' => false,
+				'result'       => 'undeliverable',
+				'reason'       => 'admin_decision',
+				'sendex'       => 0,
+				'role'         => false,
+				'free'         => false,
+				'disposable'   => false,
+				'accept_all'   => false,
 				'did_you_mean' => null,
-				'domain' => substr( strrchr( $email, '@' ), 1 ),
-				'user' => substr( $email, 0, strpos( $email, '@' ) )
+				'domain'       => substr( strrchr( $email, '@' ), 1 ),
+				'user'         => substr( $email, 0, strpos( $email, '@' ) )
 			);
 		}
 
-		// Check if email has pending review - if so, allow checkout to proceed
-		if ( $flagged_emails->has_pending_review( $email ) ) {
-			return array(
-				'result' => 'deliverable',
-				'reason' => 'pending_review',
-				'sendex' => 1,
-				'role' => false,
-				'free' => false,
-				'disposable' => false,
-				'accept_all' => false,
-				'did_you_mean' => null,
-				'domain' => substr( strrchr( $email, '@' ), 1 ),
-				'user' => substr( $email, 0, strpos( $email, '@' ) )
-			);
+		// Check if email has pending review - if so, use the existing kickbox result
+		if ( $admin_decision === 'pending' ) {
+			$cached_kickbox_result = $flagged_emails->get_kickbox_result( $email );
+			error_log( "[WCKB] E-mail $email is has a pending admin decision. Using cached Kickbox result: " .
+			           print_r( $cached_kickbox_result, true ) );
+
+			return $cached_kickbox_result;
 		}
-
-		$default_options = array(
-			'timeout' => 30,
-			'timeout' => 30,
-			'timeout' => 30
-		);
-
-		$options = wp_parse_args( $options, $default_options );
 
 		$url = add_query_arg( array(
-			'email'   => $email,
-			'apikey'  => $this->api_key,
-			'timeout' => $options['timeout']
+			'email'  => urlencode( $email ),
+			'apikey' => $this->api_key
 		), $this->api_url );
 
 		$response = wp_remote_get( $url, array(
-			'timeout' => $options['timeout'],
 			'headers' => array(
 				'User-Agent' => 'WooCommerce-Kickbox-Integration/' . WCKB_VERSION
 			)
@@ -150,7 +137,7 @@ class WCKB_Verification {
 		$this->log_verification( $email, $data );
 
 		// Check if we should flag this email for review
-		$this->check_and_flag_for_review( $email, $data, $options );
+		$this->check_and_flag_for_review( $email, $data, $meta_data );
 
 		return $data;
 	}
@@ -165,28 +152,29 @@ class WCKB_Verification {
 	 */
 	private function check_and_flag_for_review( $email, $kickbox_result, $options = array() ) {
 		$result = $kickbox_result['result'] ?? '';
-		
+
 		// Only flag emails that are undeliverable, risky, or unknown
 		if ( ! in_array( $result, array( 'undeliverable', 'risky', 'unknown' ), true ) ) {
 			return;
 		}
-		
+
 		// Get the action setting for this result type
 		$action_setting = get_option( 'wckb_' . $result . '_action', 'allow' );
-		
-		// Only flag if action is set to 'review'
-		if ( $action_setting !== 'review' ) {
+
+		// Flag if action is set to 'review' or 'block'
+		if ( ! in_array( $action_setting, array( 'review', 'block' ), true ) ) {
 			return;
 		}
-		
-		// Flag the email for review
+
+		// Flag the email for review with the appropriate verification action
 		$flagged_emails = new WCKB_Flagged_Emails();
 		$flagged_emails->flag_email(
 			$email,
 			$kickbox_result,
 			$options['order_id'] ?? null,
 			$options['user_id'] ?? null,
-			$options['origin'] ?? 'checkout'
+			$options['origin'] ?? 'checkout',
+			$action_setting // Pass the verification action (review or block)
 		);
 	}
 

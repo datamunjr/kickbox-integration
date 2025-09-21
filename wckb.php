@@ -115,6 +115,7 @@ function wckb_create_tables() {
         user_id bigint(20) NULL,
         origin varchar(50) NOT NULL DEFAULT 'checkout',
         kickbox_result longtext NOT NULL,
+        verification_action varchar(20) NOT NULL DEFAULT 'review',
         admin_decision varchar(20) NOT NULL DEFAULT 'pending',
         admin_notes text NULL,
         flagged_date datetime DEFAULT CURRENT_TIMESTAMP,
@@ -125,6 +126,7 @@ function wckb_create_tables() {
         KEY order_id (order_id),
         KEY user_id (user_id),
         KEY admin_decision (admin_decision),
+        KEY verification_action (verification_action),
         KEY flagged_date (flagged_date),
         KEY origin (origin)
     ) $charset_collate;";

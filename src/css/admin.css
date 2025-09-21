@@ -564,6 +564,11 @@
   color: #721c24;
 }
 
+.wckb-badge-review {
+  background: #cce5ff;
+  color: #004085;
+}
+
 .wckb-badge-default {
   background: #e9ecef;
   color: #495057;

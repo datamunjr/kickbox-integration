@@ -161,6 +161,14 @@ const FlaggedEmails = ({ onRefreshPendingCount }) => {
     }
   };
 
+  const getVerificationActionBadgeClass = (action) => {
+    switch (action) {
+      case 'block': return 'wckb-badge-block';
+      case 'review': return 'wckb-badge-review';
+      default: return 'wckb-badge-default';
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
   };
@@ -291,6 +299,7 @@ const FlaggedEmails = ({ onRefreshPendingCount }) => {
                 <tr>
                   <th>Email</th>
                   <th>Kickbox Result</th>
+                  <th>Verification Action</th>
                   <th>Decision</th>
                   <th>Origin</th>
                   <th>Order ID</th>
@@ -318,6 +327,11 @@ const FlaggedEmails = ({ onRefreshPendingCount }) => {
                           {email.kickbox_result.reason}
                         </div>
                       )}
+                    </td>
+                    <td>
+                      <span className={`wckb-badge ${getVerificationActionBadgeClass(email.verification_action)}`}>
+                        {email.verification_action || 'review'}
+                      </span>
                     </td>
                     <td>
                       <span className={`wckb-badge ${getDecisionBadgeClass(email.admin_decision)}`}>
