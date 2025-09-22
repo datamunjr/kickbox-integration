@@ -1,5 +1,5 @@
 === WooCommerce Kickbox Integration ===
-Contributors: yourname
+Contributors: munjr llc
 Tags: woocommerce, email verification, kickbox, checkout, customer management
 Requires at least: 5.0
 Tested up to: 6.4

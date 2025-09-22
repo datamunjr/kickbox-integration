@@ -4,13 +4,18 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Build outputs
-assets/js/*.js
-assets/css/*.css
-assets/images/*
+# Build outputs - all auto-generated files
+assets/js/
+assets/css/
+assets/images/
 
-# Source maps
+# Source maps and build artifacts
 *.map
+*.LICENSE.txt
+
+# Build directories
+build/
+dist/
 
 # IDE files
 .vscode/
