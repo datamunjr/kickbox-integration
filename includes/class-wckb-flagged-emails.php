@@ -162,6 +162,7 @@ class WCKB_Flagged_Emails {
 			'search'   => '',
 			'decision' => '',
 			'origin'   => '',
+			'verification_action' => '',
 			'orderby'  => 'flagged_date',
 			'order'    => 'DESC'
 		);
@@ -187,6 +188,12 @@ class WCKB_Flagged_Emails {
 		if ( ! empty( $args['origin'] ) ) {
 			$where_conditions[] = 'origin = %s';
 			$where_values[]     = sanitize_text_field( $args['origin'] );
+		}
+
+		// Filter by verification action
+		if ( ! empty( $args['verification_action'] ) ) {
+			$where_conditions[] = 'verification_action = %s';
+			$where_values[]     = sanitize_text_field( $args['verification_action'] );
 		}
 
 		$where_clause = implode( ' AND ', $where_conditions );

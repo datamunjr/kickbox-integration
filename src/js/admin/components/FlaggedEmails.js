@@ -14,6 +14,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
         search: '',
         decision: '',
         origin: '',
+        verification_action: '',
         orderby: 'flagged_date',
         order: 'DESC'
     });
@@ -39,6 +40,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                     search: filters.search,
                     decision: filters.decision,
                     origin: filters.origin,
+                    verification_action: filters.verification_action,
                     orderby: filters.orderby,
                     order: filters.order
                 }),
@@ -276,6 +278,20 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                         >
                             <option value="">All Origins</option>
                             <option value="checkout">Checkout</option>
+                            <option value="registration">Registration</option>
+                        </select>
+                    </div>
+
+                    <div className="wckb-filter-group">
+                        <label htmlFor="verification-action-filter">Action at time of Verification:</label>
+                        <select
+                            id="verification-action-filter"
+                            value={filters.verification_action}
+                            onChange={(e) => handleFilterChange('verification_action', e.target.value)}
+                        >
+                            <option value="">All Actions</option>
+                            <option value="block">Block</option>
+                            <option value="review">Review</option>
                         </select>
                     </div>
 

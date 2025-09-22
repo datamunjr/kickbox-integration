@@ -893,6 +893,7 @@ class WCKB_Admin {
                     'search'   => sanitize_text_field( $_POST['search'] ?? '' ),
                     'decision' => sanitize_text_field( $_POST['decision'] ?? '' ),
                     'origin'   => sanitize_text_field( $_POST['origin'] ?? '' ),
+                    'verification_action' => sanitize_text_field( $_POST['verification_action'] ?? '' ),
                     'orderby'  => sanitize_text_field( $_POST['orderby'] ?? 'flagged_date' ),
                     'order'    => sanitize_text_field( $_POST['order'] ?? 'DESC' )
             );
