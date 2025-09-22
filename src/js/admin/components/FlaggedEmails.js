@@ -1,4 +1,21 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
+
+// Custom debounce hook
+const useDebounce = (value, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+};
 
 const FlaggedEmails = ({onRefreshPendingCount}) => {
     const [flaggedEmails, setFlaggedEmails] = useState([]);
@@ -21,10 +38,19 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
     const [selectedEmail, setSelectedEmail] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [decisionNotes, setDecisionNotes] = useState('');
+    
+    // Debounce search input with 500ms delay
+    const debouncedSearch = useDebounce(filters.search, 500);
 
+    // Effect for non-search filters and pagination
     useEffect(() => {
         fetchFlaggedEmails();
-    }, [pagination.current_page, filters]);
+    }, [pagination.current_page, filters.decision, filters.origin, filters.verification_action, filters.orderby, filters.order]);
+    
+    // Separate effect for debounced search
+    useEffect(() => {
+        fetchFlaggedEmails();
+    }, [debouncedSearch]);
 
     const fetchFlaggedEmails = async () => {
         setLoading(true);
@@ -37,7 +63,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                     nonce: wckb_admin.nonce,
                     page: pagination.current_page,
                     per_page: pagination.per_page,
-                    search: filters.search,
+                    search: debouncedSearch,
                     decision: filters.decision,
                     origin: filters.origin,
                     verification_action: filters.verification_action,
@@ -66,6 +92,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
 
     const handleFilterChange = (key, value) => {
         setFilters(prev => ({...prev, [key]: value}));
+        // Reset to first page when any filter changes
         setPagination(prev => ({...prev, current_page: 1}));
     };
 

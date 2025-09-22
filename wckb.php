@@ -83,6 +83,12 @@ function wckb_activate() {
     // Create database tables if needed
     wckb_create_tables();
     
+    // Add origin column to existing verification log table if it doesn't exist
+    wckb_add_origin_column_to_verification_log();
+    
+    // Add performance indexes to existing tables
+    wckb_add_performance_indexes();
+    
     // Set default options
     wckb_set_default_options();
 }
@@ -103,11 +109,16 @@ function wckb_create_tables() {
         verification_data longtext,
         user_id bigint(20),
         order_id bigint(20),
+        origin varchar(50) DEFAULT NULL,
         created_at datetime DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
         KEY email (email),
         KEY user_id (user_id),
-        KEY order_id (order_id)
+        KEY order_id (order_id),
+        KEY origin (origin),
+        KEY email_created (email, created_at),
+        KEY result_created (verification_result, created_at),
+        KEY origin_created (origin, created_at)
     ) $charset_collate;";
     
     // Flagged emails table
@@ -131,12 +142,71 @@ function wckb_create_tables() {
         KEY admin_decision (admin_decision),
         KEY verification_action (verification_action),
         KEY flagged_date (flagged_date),
-        KEY origin (origin)
+        KEY origin (origin),
+        KEY email_flagged (email, flagged_date),
+        KEY decision_flagged (admin_decision, flagged_date),
+        KEY origin_decision (origin, admin_decision),
+        KEY action_decision (verification_action, admin_decision)
     ) $charset_collate;";
     
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql_verification);
     dbDelta($sql_flagged);
+}
+
+function wckb_add_origin_column_to_verification_log() {
+    global $wpdb;
+    
+    $verification_log_table = $wpdb->prefix . 'wckb_verification_log';
+    
+    // Check if origin column exists
+    $column_exists = $wpdb->get_results("SHOW COLUMNS FROM $verification_log_table LIKE 'origin'");
+    
+    if (empty($column_exists)) {
+        // Add origin column
+        $wpdb->query("ALTER TABLE $verification_log_table ADD COLUMN origin varchar(50) DEFAULT NULL AFTER order_id");
+        
+        // Add index for origin column
+        $wpdb->query("ALTER TABLE $verification_log_table ADD INDEX origin (origin)");
+        
+        // Note: We don't update existing records since we don't know their actual origin
+    }
+}
+
+function wckb_add_performance_indexes() {
+    global $wpdb;
+    
+    $verification_log_table = $wpdb->prefix . 'wckb_verification_log';
+    $flagged_emails_table = $wpdb->prefix . 'wckb_flagged_emails';
+    
+    // Add composite indexes to verification log table
+    $verification_indexes = array(
+        'email_created' => 'email, created_at',
+        'result_created' => 'verification_result, created_at',
+        'origin_created' => 'origin, created_at'
+    );
+    
+    foreach ( $verification_indexes as $index_name => $columns ) {
+        $index_exists = $wpdb->get_results("SHOW INDEX FROM $verification_log_table WHERE Key_name = '$index_name'");
+        if ( empty( $index_exists ) ) {
+            $wpdb->query("ALTER TABLE $verification_log_table ADD INDEX $index_name ($columns)");
+        }
+    }
+    
+    // Add composite indexes to flagged emails table
+    $flagged_indexes = array(
+        'email_flagged' => 'email, flagged_date',
+        'decision_flagged' => 'admin_decision, flagged_date',
+        'origin_decision' => 'origin, admin_decision',
+        'action_decision' => 'verification_action, admin_decision'
+    );
+    
+    foreach ( $flagged_indexes as $index_name => $columns ) {
+        $index_exists = $wpdb->get_results("SHOW INDEX FROM $flagged_emails_table WHERE Key_name = '$index_name'");
+        if ( empty( $index_exists ) ) {
+            $wpdb->query("ALTER TABLE $flagged_emails_table ADD INDEX $index_name ($columns)");
+        }
+    }
 }
 
 function wckb_set_default_options() {

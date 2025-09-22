@@ -134,7 +134,7 @@ class WCKB_Verification {
 		$this->update_balance_from_response( $response );
 
 		// Log the verification
-		$this->log_verification( $email, $data );
+		$this->log_verification( $email, $data, $meta_data['user_id'] ?? null, $meta_data['order_id'] ?? null, $meta_data['origin'] ?? null );
 
 		// Check if we should flag this email for review
 		$this->check_and_flag_for_review( $email, $data, $meta_data );
@@ -206,8 +206,9 @@ class WCKB_Verification {
 	 * @param array $result Verification result
 	 * @param int $user_id User ID (optional)
 	 * @param int $order_id Order ID (optional)
+	 * @param string $origin Origin of verification (checkout, registration)
 	 */
-	private function log_verification( $email, $result, $user_id = null, $order_id = null ) {
+	private function log_verification( $email, $result, $user_id = null, $order_id = null, $origin = null ) {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'wckb_verification_log';
@@ -223,9 +224,10 @@ class WCKB_Verification {
 				'verification_data'   => $verification_data,
 				'user_id'             => $user_id,
 				'order_id'            => $order_id,
+				'origin'              => $origin,
 				'created_at'          => current_time( 'mysql' )
 			),
-			array( '%s', '%s', '%s', '%d', '%d', '%s' )
+			array( '%s', '%s', '%s', '%d', '%d', '%s', '%s' )
 		);
 	}
 
