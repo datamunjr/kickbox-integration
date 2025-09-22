@@ -200,7 +200,7 @@ class WCKB_Checkout {
             return;
         }
 
-        if ( ! $this->verification->is_verification_enabled() ) {
+        if ( ! $this->verification->is_verification_enabled( 'checkout' ) ) {
             return;
         }
 

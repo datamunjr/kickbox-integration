@@ -269,9 +269,13 @@ class WCKB_Verification {
 	/**
 	 * Check if email verification is enabled
 	 *
+	 * @param string $type Verification type ('checkout' or 'registration')
 	 * @return bool
 	 */
-	public function is_verification_enabled() {
+	public function is_verification_enabled( $type = 'checkout' ) {
+		if ( $type === 'registration' ) {
+			return get_option( 'wckb_enable_registration_verification', 'no' ) === 'yes';
+		}
 		return get_option( 'wckb_enable_checkout_verification', 'no' ) === 'yes';
 	}
 

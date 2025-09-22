@@ -22,6 +22,7 @@ const AdminSettings = () => {
         enableCustomerVerification: false
     });
     const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
     const [message, setMessage] = useState({type: '', text: '', details: null, hasDetails: false});
     const [showErrorDetails, setShowErrorDetails] = useState(false);
     const [apiKeyValidatedOnSave, setApiKeyValidatedOnSave] = useState(false);
@@ -87,6 +88,8 @@ const AdminSettings = () => {
             }
         } catch (error) {
             console.error('Error loading settings:', error);
+        } finally {
+            setInitialLoading(false);
         }
     };
 
@@ -127,6 +130,7 @@ const AdminSettings = () => {
                 riskyAction: settings.riskyAction,
                 unknownAction: settings.unknownAction,
                 enableCheckoutVerification: settings.enableCheckoutVerification,
+                enableRegistrationVerification: settings.enableRegistrationVerification,
                 enableCustomerVerification: settings.enableCustomerVerification,
                 skipValidation: Boolean(!settings?.hasApiKeyChanged).toString()
             }
@@ -274,6 +278,41 @@ const AdminSettings = () => {
     ];
 
     const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
+
+    // Show loading state while initial data is being fetched
+    if (initialLoading) {
+        return (
+            <div className="wckb-admin-container">
+                <div className="wckb-header">
+                    <h2>Kickbox Integration Settings</h2>
+                </div>
+                <div className="wckb-loading" style={{
+                    textAlign: 'center',
+                    padding: '40px 20px',
+                    fontSize: '16px',
+                    color: '#666'
+                }}>
+                    <div style={{
+                        display: 'inline-block',
+                        width: '20px',
+                        height: '20px',
+                        border: '2px solid #f3f3f3',
+                        borderTop: '2px solid #0073aa',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite',
+                        marginRight: '10px'
+                    }}></div>
+                    Loading settings...
+                </div>
+                <style>{`
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                `}</style>
+            </div>
+        );
+    }
 
     return (
         <div className="wckb-admin-container">

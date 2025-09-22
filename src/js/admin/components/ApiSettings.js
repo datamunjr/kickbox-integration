@@ -248,6 +248,23 @@ const ApiSettings = ({
                     </td>
                 </tr>
 
+                <tr>
+                    <th scope="row">
+                        <label htmlFor="wckb_enable_registration_verification">Registration Verification</label>
+                    </th>
+                    <td>
+                        <input
+                            type="checkbox"
+                            id="wckb_enable_registration_verification"
+                            checked={settings.enableRegistrationVerification}
+                            onChange={(e) => onSettingChange('enableRegistrationVerification', e.target.checked)}
+                        />
+                        <label htmlFor="wckb_enable_registration_verification">
+                            Enable email verification during user registration
+                        </label>
+                    </td>
+                </tr>
+
                 </tbody>
             </table>
         </div>

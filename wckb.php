@@ -63,6 +63,7 @@ function wckb_init() {
 require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-verification.php';
 require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-admin.php';
 require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-checkout.php';
+require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-registration.php';
 require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-dashboard-widget.php';
 require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-flagged-emails.php';
 
@@ -70,7 +71,9 @@ require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-flagged-emails.php';
 new WCKB_Verification();
 new WCKB_Admin();
 new WCKB_Checkout();
+new WCKB_Registration();
 new WCKB_Dashboard_Widget();
+new WCKB_Flagged_Emails();
 }
 
 // Activation hook
@@ -144,6 +147,7 @@ function wckb_set_default_options() {
         'wckb_risky_action' => 'allow',
         'wckb_unknown_action' => 'allow',
         'wckb_enable_checkout_verification' => 'no',
+        'wckb_enable_registration_verification' => 'no',
         'wckb_allow_list' => array()
     );
     

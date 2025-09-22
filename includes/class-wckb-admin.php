@@ -89,6 +89,11 @@ class WCKB_Admin {
                 'default' => 'no'
         ) );
 
+        register_setting( 'wckb_settings', 'wckb_enable_registration_verification', array(
+                'type'    => 'string',
+                'default' => 'no'
+        ) );
+
         register_setting( 'wckb_settings', 'wckb_allow_list', array(
                 'type'              => 'array',
                 'default'           => array(),
@@ -184,6 +189,20 @@ class WCKB_Admin {
                                    value="yes" <?php checked( get_option( 'wckb_enable_checkout_verification', 'no' ), 'yes' ); ?> />
                             <label for="wckb_enable_checkout_verification">
                                 <?php echo esc_html__( 'Enable email verification during checkout', 'wckb' ); ?>
+                            </label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">
+                            <label for="wckb_enable_registration_verification"><?php echo esc_html__( 'Registration Verification', 'wckb' ); ?></label>
+                        </th>
+                        <td>
+                            <input type="checkbox" id="wckb_enable_registration_verification"
+                                   name="wckb_enable_registration_verification"
+                                   value="yes" <?php checked( get_option( 'wckb_enable_registration_verification', 'no' ), 'yes' ); ?> />
+                            <label for="wckb_enable_registration_verification">
+                                <?php echo esc_html__( 'Enable email verification during user registration', 'wckb' ); ?>
                             </label>
                         </td>
                     </tr>
@@ -457,6 +476,7 @@ class WCKB_Admin {
                 'riskyAction'                => get_option( 'wckb_risky_action', 'allow' ),
                 'unknownAction'              => get_option( 'wckb_unknown_action', 'allow' ),
                 'enableCheckoutVerification' => get_option( 'wckb_enable_checkout_verification', 'no' ) === 'yes',
+                'enableRegistrationVerification' => get_option( 'wckb_enable_registration_verification', 'no' ) === 'yes',
                 'balance'                    => $balance,
                 'balanceMessage'             => $balance_message,
                 'isBalanceLow'               => $is_balance_low,
@@ -498,7 +518,8 @@ class WCKB_Admin {
                 'wckb_undeliverable_action'         => sanitize_text_field( $_POST['undeliverableAction'] ?? 'allow' ),
                 'wckb_risky_action'                 => sanitize_text_field( $_POST['riskyAction'] ?? 'allow' ),
                 'wckb_unknown_action'               => sanitize_text_field( $_POST['unknownAction'] ?? 'allow' ),
-                'wckb_enable_checkout_verification' => sanitize_text_field( $_POST['enableCheckoutVerification'] ?? 'no' ) === 'true' ? 'yes' : 'no'
+                'wckb_enable_checkout_verification' => sanitize_text_field( $_POST['enableCheckoutVerification'] ?? 'no' ) === 'true' ? 'yes' : 'no',
+                'wckb_enable_registration_verification' => sanitize_text_field( $_POST['enableRegistrationVerification'] ?? 'no' ) === 'true' ? 'yes' : 'no'
         );
 
         if ( $skip_key_validation ) {
@@ -678,9 +699,11 @@ class WCKB_Admin {
             return;
         }
 
-        // Only show if checkout verification is disabled
-        $verification_enabled = get_option( 'wckb_enable_checkout_verification', 'no' );
-        if ( $verification_enabled === 'yes' ) {
+        // Only show if both checkout and registration verification are disabled
+        $checkout_verification_enabled = get_option( 'wckb_enable_checkout_verification', 'no' );
+        $registration_verification_enabled = get_option( 'wckb_enable_registration_verification', 'no' );
+        
+        if ( $checkout_verification_enabled === 'yes' || $registration_verification_enabled === 'yes' ) {
             return;
         }
 
@@ -690,21 +713,22 @@ class WCKB_Admin {
                 <strong><?php echo esc_html__( 'Kickbox Email Verification - Verification Disabled', 'wckb' ); ?></strong>
             </p>
             <p>
-                <?php echo esc_html__( 'Your Kickbox integration is enabled but checkout verification is currently disabled.', 'wckb' ); ?>
+                <?php echo esc_html__( 'Your Kickbox integration is enabled but both checkout and registration verification are currently disabled.', 'wckb' ); ?>
             </p>
             <p>
-                <?php echo esc_html__( 'This means all customer checkouts are proceeding without email verification, which can result in:', 'wckb' ); ?>
+                <?php echo esc_html__( 'This means customers can use invalid email addresses during checkout and registration, which can result in:', 'wckb' ); ?>
             </p>
             <ul style="margin-left: 20px;">
                 <li><?php echo esc_html__( '- Fake or invalid email addresses', 'wckb' ); ?></li>
                 <li><?php echo esc_html__( '- Misspelled email addresses', 'wckb' ); ?></li>
                 <li><?php echo esc_html__( '- Throw-away or disposable email addresses', 'wckb' ); ?></li>
+                <li><?php echo esc_html__( '- Invalid user accounts and failed order deliveries', 'wckb' ); ?></li>
                 <li><?php echo esc_html__( '- Reduced email deliverability and customer engagement', 'wckb' ); ?></li>
             </ul>
             <p>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=wckb-settings' ) ); ?>"
                    class="button button-primary">
-                    <?php echo esc_html__( 'Enable Checkout Verification', 'wckb' ); ?>
+                    <?php echo esc_html__( 'Enable Email Verification', 'wckb' ); ?>
                 </a>
                 <a href="https://docs.kickbox.com/docs/terminology" target="_blank" class="button button-secondary">
                     <?php echo esc_html__( 'Learn More About Email Verification', 'wckb' ); ?>
