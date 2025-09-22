@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: WooCommerce Kickbox Integration
- * Plugin URI: https://munjr.com/woocommerce-kickbox-integration
+ * Plugin Name: Kickbox Integration
+ * Plugin URI: https://munjr.com/kickbox-integration
  * Description: Integrates Kickbox email verification service with WooCommerce for real-time email validation during checkout.
  * Version: 1.0.0
  * Author: munjr llc
