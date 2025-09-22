@@ -1,6 +1,6 @@
-=== WooCommerce Kickbox Integration ===
+=== Kickbox Integration ===
 Contributors: munjr llc
-Tags: woocommerce, email verification, kickbox, checkout, customer management
+Tags: email verification, kickbox, checkout, customer management
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
@@ -12,7 +12,7 @@ Integrates Kickbox email verification service with WooCommerce for real-time ema
 
 == Description ==
 
-The WooCommerce Kickbox Integration plugin provides seamless email verification functionality for your WooCommerce store. It integrates with the Kickbox email verification service to help you maintain clean email lists and reduce bounce rates.
+The Kickbox Integration plugin provides seamless email verification functionality for your WooCommerce store. It integrates with the Kickbox email verification service to help you maintain clean email lists and reduce bounce rates.
 
 = Key Features =
 

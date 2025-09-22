@@ -1,4 +1,4 @@
-# WooCommerce Kickbox Integration
+# Kickbox Integration
 
 A WordPress plugin that integrates Kickbox email verification service with WooCommerce for real-time email validation during checkout and batch verification for existing customers.
 
@@ -77,7 +77,8 @@ The admin settings page features a tabbed interface with URL parameter support:
 - **Verification Actions** (`?tab=actions`) - Set actions for different verification results
 - **Statistics** (`?tab=stats`) - View verification statistics and analytics
 
-When you first visit the settings page, it automatically defaults to the API Settings tab and adds `?tab=api` to the URL. You can bookmark and share direct links to specific tabs, and the interface supports browser back/forward navigation.
+When you first visit the settings page, it automatically defaults to the API Settings tab and adds
+`?tab=api` to the URL. You can bookmark and share direct links to specific tabs, and the interface supports browser back/forward navigation.
 
 ### API Settings
 
@@ -97,6 +98,7 @@ Configure what action to take for each verification result:
 - **Unknown**: Emails that couldn't be verified
 
 Actions available:
+
 - Allow checkout
 - Block checkout
 - Allow but flag for review
