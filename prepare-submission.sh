@@ -32,6 +32,9 @@ echo "Cleaning up submission copy..."
 echo "Removing development directories..."
 rm -rf node_modules/
 rm -rf src/
+rm -rf .git/
+rm -rf .idea/
+rm -rf .vscode/
 
 # Remove development files
 echo "Removing development files..."
@@ -40,12 +43,19 @@ rm -f package.json
 rm -f package-lock.json
 rm -f install.sh
 rm -f prepare-submission.sh
+rm -f .eslintrc.js
+rm -f .prettierrc.json
+rm -f .gitignore
 
 # Remove build artifacts
 echo "Removing build artifacts..."
 rm -f assets/css/*.map
 rm -f assets/js/*.map
 rm -f assets/js/*.LICENSE.txt
+
+# Remove system files
+echo "Removing system files..."
+find . -name ".DS_Store" -delete
 
 # Remove empty directories
 echo "Cleaning up empty directories..."
@@ -62,11 +72,18 @@ echo ""
 echo "🗑️  Files removed from submission copy:"
 echo "   - node_modules/ (development dependencies)"
 echo "   - src/ (source files)"
+echo "   - .git/ (git repository)"
+echo "   - .idea/ (IntelliJ IDEA settings)"
+echo "   - .vscode/ (VS Code settings)"
 echo "   - webpack.config.js (build configuration)"
 echo "   - package.json (npm configuration)"
 echo "   - package-lock.json (npm lock file)"
+echo "   - .eslintrc.js (linting configuration)"
+echo "   - .prettierrc.json (formatting configuration)"
+echo "   - .gitignore (git ignore rules)"
 echo "   - install.sh (installation script)"
 echo "   - Source maps and license files"
+echo "   - .DS_Store (macOS system files)"
 echo ""
 echo "💾 Original development files preserved in: $CURRENT_DIR"
 echo ""
