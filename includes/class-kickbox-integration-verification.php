@@ -184,7 +184,7 @@ class Kickbox_Integration_Verification {
 	public function ajax_verify_email() {
 		check_ajax_referer( 'kickbox_integration_verify_email', 'nonce' );
 
-		$email = sanitize_email( $_POST['email'] ?? '' );
+		$email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
 
 		if ( empty( $email ) ) {
 			wp_send_json_error( array( 'message' => __( 'Email address is required.', 'kickbox-integration' ) ) );

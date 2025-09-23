@@ -306,8 +306,8 @@ class Kickbox_Integration_Admin {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'kickbox-integration' ) ) );
         }
 
-        $api_key      = sanitize_text_field( $_POST['api_key'] ?? '' );
-        $sandbox_mode = sanitize_text_field( $_POST['sandbox_mode'] ?? 'yes' );
+        $api_key      = sanitize_text_field( wp_unslash( $_POST['api_key'] ?? '' ) );
+        $sandbox_mode = sanitize_text_field( wp_unslash( $_POST['sandbox_mode'] ?? 'yes' ) );
 
         if ( empty( $api_key ) ) {
             wp_send_json_error( array( 'message' => __( 'API key is required.', 'kickbox-integration' ) ) );
@@ -497,8 +497,8 @@ class Kickbox_Integration_Admin {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'kickbox-integration' ) ) );
         }
 
-        $api_key             = sanitize_text_field( $_POST['apiKey'] ?? '' );
-        $skip_key_validation = sanitize_text_field( $_POST['skipValidation'] ?? 'false' ) === 'true';
+        $api_key             = sanitize_text_field( wp_unslash( $_POST['apiKey'] ?? '' ) );
+        $skip_key_validation = sanitize_text_field( wp_unslash( $_POST['skipValidation'] ?? 'false' ) ) === 'true';
 
         // If API key is provided and validation is not skipped, validate it before saving
         if ( ! empty( $api_key ) && ! $skip_key_validation ) {
@@ -514,12 +514,12 @@ class Kickbox_Integration_Admin {
 
         $settings = array(
                 'kickbox_integration_api_key'                      => $api_key,
-                'kickbox_integration_deliverable_action'           => $this->sanitize_deliverable_action( $_POST['deliverableAction'] ?? 'allow' ),
-                'kickbox_integration_undeliverable_action'         => sanitize_text_field( $_POST['undeliverableAction'] ?? 'allow' ),
-                'kickbox_integration_risky_action'                 => sanitize_text_field( $_POST['riskyAction'] ?? 'allow' ),
-                'kickbox_integration_unknown_action'               => sanitize_text_field( $_POST['unknownAction'] ?? 'allow' ),
-                'kickbox_integration_enable_checkout_verification' => sanitize_text_field( $_POST['enableCheckoutVerification'] ?? 'no' ) === 'true' ? 'yes' : 'no',
-                'kickbox_integration_enable_registration_verification' => sanitize_text_field( $_POST['enableRegistrationVerification'] ?? 'no' ) === 'true' ? 'yes' : 'no'
+                'kickbox_integration_deliverable_action'           => $this->sanitize_deliverable_action( wp_unslash( $_POST['deliverableAction'] ?? 'allow' ) ),
+                'kickbox_integration_undeliverable_action'         => sanitize_text_field( wp_unslash( $_POST['undeliverableAction'] ?? 'allow' ) ),
+                'kickbox_integration_risky_action'                 => sanitize_text_field( wp_unslash( $_POST['riskyAction'] ?? 'allow' ) ),
+                'kickbox_integration_unknown_action'               => sanitize_text_field( wp_unslash( $_POST['unknownAction'] ?? 'allow' ) ),
+                'kickbox_integration_enable_checkout_verification' => sanitize_text_field( wp_unslash( $_POST['enableCheckoutVerification'] ?? 'no' ) ) === 'true' ? 'yes' : 'no',
+                'kickbox_integration_enable_registration_verification' => sanitize_text_field( wp_unslash( $_POST['enableRegistrationVerification'] ?? 'no' ) ) === 'true' ? 'yes' : 'no'
         );
 
         if ( $skip_key_validation ) {
@@ -816,7 +816,7 @@ class Kickbox_Integration_Admin {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'kickbox-integration' ) ) );
         }
 
-        $email = sanitize_email( $_POST['email'] ?? '' );
+        $email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
 
         if ( empty( $email ) || ! is_email( $email ) ) {
             wp_send_json_error( array( 'message' => __( 'Invalid email address.', 'kickbox-integration' ) ) );
@@ -846,7 +846,7 @@ class Kickbox_Integration_Admin {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'kickbox-integration' ) ) );
         }
 
-        $email = sanitize_email( $_POST['email'] ?? '' );
+        $email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
 
         if ( empty( $email ) ) {
             wp_send_json_error( array( 'message' => __( 'Email address is required.', 'kickbox-integration' ) ) );
@@ -888,14 +888,14 @@ class Kickbox_Integration_Admin {
             $flagged_emails = new Kickbox_Integration_Flagged_Emails();
 
             $args = array(
-                    'page'     => intval( $_POST['page'] ?? 1 ),
-                    'per_page' => intval( $_POST['per_page'] ?? 20 ),
-                    'search'   => sanitize_text_field( $_POST['search'] ?? '' ),
-                    'decision' => sanitize_text_field( $_POST['decision'] ?? '' ),
-                    'origin'   => sanitize_text_field( $_POST['origin'] ?? '' ),
-                    'verification_action' => sanitize_text_field( $_POST['verification_action'] ?? '' ),
-                    'orderby'  => sanitize_text_field( $_POST['orderby'] ?? 'flagged_date' ),
-                    'order'    => sanitize_text_field( $_POST['order'] ?? 'DESC' )
+                    'page'     => intval( wp_unslash( $_POST['page'] ?? 1 ) ),
+                    'per_page' => intval( wp_unslash( $_POST['per_page'] ?? 20 ) ),
+                    'search'   => sanitize_text_field( wp_unslash( $_POST['search'] ?? '' ) ),
+                    'decision' => sanitize_text_field( wp_unslash( $_POST['decision'] ?? '' ) ),
+                    'origin'   => sanitize_text_field( wp_unslash( $_POST['origin'] ?? '' ) ),
+                    'verification_action' => sanitize_text_field( wp_unslash( $_POST['verification_action'] ?? '' ) ),
+                    'orderby'  => sanitize_text_field( wp_unslash( $_POST['orderby'] ?? 'flagged_date' ) ),
+                    'order'    => sanitize_text_field( wp_unslash( $_POST['order'] ?? 'DESC' ) )
             );
 
             $result = $flagged_emails->get_flagged_emails( $args );
@@ -916,9 +916,9 @@ class Kickbox_Integration_Admin {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'kickbox-integration' ) ) );
         }
 
-        $id       = intval( $_POST['id'] ?? 0 );
-        $decision = sanitize_text_field( $_POST['decision'] ?? '' );
-        $notes    = sanitize_textarea_field( $_POST['notes'] ?? '' );
+        $id       = intval( wp_unslash( $_POST['id'] ?? 0 ) );
+        $decision = sanitize_text_field( wp_unslash( $_POST['decision'] ?? '' ) );
+        $notes    = sanitize_textarea_field( wp_unslash( $_POST['notes'] ?? '' ) );
 
         if ( empty( $id ) || ! in_array( $decision, array( 'allow', 'block' ), true ) ) {
             wp_send_json_error( array( 'message' => __( 'Invalid parameters.', 'kickbox-integration' ) ) );
@@ -944,9 +944,9 @@ class Kickbox_Integration_Admin {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'kickbox-integration' ) ) );
         }
 
-        $id       = intval( $_POST['id'] ?? 0 );
-        $decision = sanitize_text_field( $_POST['decision'] ?? '' );
-        $notes    = sanitize_textarea_field( $_POST['notes'] ?? '' );
+        $id       = intval( wp_unslash( $_POST['id'] ?? 0 ) );
+        $decision = sanitize_text_field( wp_unslash( $_POST['decision'] ?? '' ) );
+        $notes    = sanitize_textarea_field( wp_unslash( $_POST['notes'] ?? '' ) );
 
         if ( empty( $id ) || ! in_array( $decision, array( 'allow', 'block' ), true ) ) {
             wp_send_json_error( array( 'message' => __( 'Invalid parameters.', 'kickbox-integration' ) ) );
