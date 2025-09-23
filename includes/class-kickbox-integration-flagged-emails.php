@@ -304,8 +304,7 @@ class Kickbox_Integration_Flagged_Emails {
 		$where_clause = ! empty( $where_values ) ? implode( ' AND ', $where_values ) : '';
 
 		// Count total records
-		$count_query = $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE %s", $this->table_name, $where_clause );
-		$total_items = $wpdb->get_var( $count_query );
+		$total_items = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE %s", $this->table_name, $where_clause ) );
 
 		// Calculate pagination
 		$offset      = ( $args['page'] - 1 ) * $args['per_page'];
@@ -313,16 +312,15 @@ class Kickbox_Integration_Flagged_Emails {
 
 		// Get records
 		$orderby = sanitize_sql_orderby( $args['orderby'] . ' ' . $args['order'] );
-		$query   = $wpdb->prepare(
+
+		$results = $wpdb->get_results( $wpdb->prepare(
 			"SELECT * FROM %i WHERE %s ORDER BY %s LIMIT %d OFFSET %d",
 			$this->table_name,
 			$where_clause,
 			$orderby,
 			$args['per_page'],
 			$offset
-		);
-
-		$results = $wpdb->get_results( $query );
+		) );
 
 		// Decode JSON for each result
 		foreach ( $results as $result ) {
