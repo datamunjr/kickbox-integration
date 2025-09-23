@@ -75,11 +75,11 @@ class Kickbox_Integration_Verification {
 	 */
 	public function verify_email( $email, $meta_data = array() ) {
 		if ( empty( $this->api_key ) ) {
-			return new WP_Error( 'no_api_key', __( 'Kickbox API key is not configured.', 'kickbox-integration' ) );
+			return new WP_Error( 'no_api_key', 'Kickbox API key is not configured.' );
 		}
 
 		if ( ! is_email( $email ) ) {
-			return new WP_Error( 'invalid_email', __( 'Invalid email address format.', 'kickbox-integration' ) );
+			return new WP_Error( 'invalid_email', 'Invalid email address format.' );
 		}
 
 		// Check if email is in allow list
