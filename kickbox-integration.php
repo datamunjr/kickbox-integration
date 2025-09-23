@@ -57,10 +57,8 @@ function kickbox_integration_woocommerce_missing_notice() {
 }
 
 function kickbox_integration_init() {
-	// Load plugin textdomain
-	load_plugin_textdomain( 'kickbox-integration', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
-// Include required files
+	// Include required files
 	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-verification.php';
 	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-admin.php';
 	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-checkout.php';
@@ -68,7 +66,7 @@ function kickbox_integration_init() {
 	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-dashboard-widget.php';
 	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails.php';
 
-// Initialize classes
+	// Initialize classes
 	new Kickbox_Integration_Verification();
 	new Kickbox_Integration_Admin();
 	new Kickbox_Integration_Checkout();
@@ -161,14 +159,14 @@ function kickbox_integration_add_origin_column_to_verification_log() {
 	$verification_log_table = $wpdb->prefix . 'kickbox_integration_verification_log';
 
 	// Check if origin column exists
-	$column_exists = $wpdb->get_results( $wpdb->prepare( "SHOW COLUMNS FROM %i LIKE %s", $verification_log_table, 'origin' ) );
+	$column_exists = $wpdb->get_results( $wpdb->prepare( "SHOW COLUMNS FROM %s LIKE %s", $verification_log_table, 'origin' ) );
 
 	if ( empty( $column_exists ) ) {
 		// Add origin column
-		$wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD COLUMN origin varchar(50) DEFAULT NULL AFTER order_id", $verification_log_table ) );
+		$wpdb->query( $wpdb->prepare( "ALTER TABLE %s ADD COLUMN origin varchar(50) DEFAULT NULL AFTER order_id", $verification_log_table ) );
 
 		// Add index for origin column
-		$wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD INDEX origin (origin)", $verification_log_table ) );
+		$wpdb->query( $wpdb->prepare( "ALTER TABLE %s ADD INDEX origin (origin)", $verification_log_table ) );
 
 		// Note: We don't update existing records since we don't know their actual origin
 	}
@@ -188,9 +186,9 @@ function kickbox_integration_add_performance_indexes() {
 	);
 
 	foreach ( $verification_indexes as $index_name => $columns ) {
-		$index_exists = $wpdb->get_results( $wpdb->prepare( "SHOW INDEX FROM %i WHERE Key_name = %s", $verification_log_table, $index_name ) );
+		$index_exists = $wpdb->get_results( $wpdb->prepare( "SHOW INDEX FROM %s WHERE Key_name = %s", $verification_log_table, $index_name ) );
 		if ( empty( $index_exists ) ) {
-			$wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD INDEX %i (%s)", $verification_log_table, $index_name, $columns ) );
+			$wpdb->query( $wpdb->prepare( "ALTER TABLE %s ADD INDEX %s (%s)", $verification_log_table, $index_name, $columns ) );
 		}
 	}
 
@@ -203,9 +201,9 @@ function kickbox_integration_add_performance_indexes() {
 	);
 
 	foreach ( $flagged_indexes as $index_name => $columns ) {
-		$index_exists = $wpdb->get_results( $wpdb->prepare( "SHOW INDEX FROM %i WHERE Key_name = %s", $flagged_emails_table, $index_name ) );
+		$index_exists = $wpdb->get_results( $wpdb->prepare( "SHOW INDEX FROM %s WHERE Key_name = %s", $flagged_emails_table, $index_name ) );
 		if ( empty( $index_exists ) ) {
-			$wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD INDEX %i (%s)", $flagged_emails_table, $index_name, $columns ) );
+			$wpdb->query( $wpdb->prepare( "ALTER TABLE %s ADD INDEX %s (%s)", $flagged_emails_table, $index_name, $columns ) );
 		}
 	}
 }
