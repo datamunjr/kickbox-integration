@@ -15,6 +15,20 @@ class Kickbox_Integration_Verification {
 	private $sandbox_mode;
 	private $api_url;
 
+	/**
+	 * Cache group for verification data
+	 *
+	 * @var string
+	 */
+	private $cache_group = 'kickbox_verification';
+
+	/**
+	 * Cache expiration time in seconds (1 hour)
+	 *
+	 * @var int
+	 */
+	private $cache_expiration = 3600;
+
 	public function __construct() {
 		$this->api_key      = get_option( 'kickbox_integration_api_key', '' );
 		$this->sandbox_mode = strpos( $this->api_key, 'test_' ) === 0;
@@ -22,6 +36,32 @@ class Kickbox_Integration_Verification {
 
 		add_action( 'wp_ajax_kickbox_integration_verify_email', array( $this, 'ajax_verify_email' ) );
 		add_action( 'wp_ajax_nopriv_kickbox_integration_verify_email', array( $this, 'ajax_verify_email' ) );
+	}
+
+	/**
+	 * Generate cache key for verification history
+	 *
+	 * @param string $email Email address
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_history( $email ) {
+		return "verification_history_" . md5( sanitize_email( $email ) );
+	}
+
+	/**
+	 * Generate cache key for verification statistics
+	 *
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_stats() {
+		return "verification_stats";
+	}
+
+	/**
+	 * Clear all cached verification data
+	 */
+	private function clear_verification_cache() {
+		wp_cache_flush_group( $this->cache_group );
 	}
 
 	/**
@@ -229,6 +269,9 @@ class Kickbox_Integration_Verification {
 			),
 			array( '%s', '%s', '%s', '%d', '%d', '%s', '%s' )
 		);
+
+		// Clear cache when new verification is logged
+		$this->clear_verification_cache();
 	}
 
 	/**
@@ -239,6 +282,15 @@ class Kickbox_Integration_Verification {
 	 * @return array Verification history
 	 */
 	public function get_verification_history( $email ) {
+		$cache_key = $this->get_cache_key_for_history( $email );
+		
+		// Try to get from cache first
+		$results = wp_cache_get( $cache_key, $this->cache_group );
+		
+		if ( $results !== false ) {
+			return $results;
+		}
+
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'kickbox_integration_verification_log';
@@ -249,6 +301,9 @@ class Kickbox_Integration_Verification {
 			$email
 		) );
 
+		// Cache the result
+		wp_cache_set( $cache_key, $results, $this->cache_group, $this->cache_expiration );
+
 		return $results;
 	}
 
@@ -258,6 +313,15 @@ class Kickbox_Integration_Verification {
 	 * @return array Statistics
 	 */
 	public function get_verification_stats() {
+		$cache_key = $this->get_cache_key_for_stats();
+		
+		// Try to get from cache first
+		$stats = wp_cache_get( $cache_key, $this->cache_group );
+		
+		if ( $stats !== false ) {
+			return $stats;
+		}
+
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'kickbox_integration_verification_log';
@@ -265,6 +329,9 @@ class Kickbox_Integration_Verification {
 		$stats = $wpdb->get_results(
 			$wpdb->prepare( "SELECT verification_result, COUNT(*) as count FROM %i GROUP BY verification_result", $table_name )
 		);
+
+		// Cache the result
+		wp_cache_set( $cache_key, $stats, $this->cache_group, $this->cache_expiration );
 
 		return $stats;
 	}

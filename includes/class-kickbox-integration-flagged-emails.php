@@ -22,6 +22,20 @@ class Kickbox_Integration_Flagged_Emails {
 	private $table_name;
 
 	/**
+	 * Cache group for flagged emails
+	 *
+	 * @var string
+	 */
+	private $cache_group = 'kickbox_flagged_emails';
+
+	/**
+	 * Cache expiration time in seconds (1 hour)
+	 *
+	 * @var int
+	 */
+	private $cache_expiration = 3600;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
@@ -41,6 +55,62 @@ class Kickbox_Integration_Flagged_Emails {
 			// Table doesn't exist, create it
 			kickbox_integration_create_tables();
 		}
+	}
+
+	/**
+	 * Generate cache key for flagged email by ID
+	 *
+	 * @param int $id Flagged email ID
+	 * @return string Cache key
+	 */
+	private function get_cache_key_by_id( $id ) {
+		return "flagged_email_id_{$id}";
+	}
+
+	/**
+	 * Generate cache key for flagged email by email address
+	 *
+	 * @param string $email Email address
+	 * @return string Cache key
+	 */
+	private function get_cache_key_by_email( $email ) {
+		return "flagged_email_email_" . md5( sanitize_email( $email ) );
+	}
+
+	/**
+	 * Generate cache key for flagged emails list
+	 *
+	 * @param array $args Query arguments
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_list( $args ) {
+		$key_data = array(
+			'page' => $args['page'] ?? 1,
+			'per_page' => $args['per_page'] ?? 20,
+			'search' => $args['search'] ?? '',
+			'decision' => $args['decision'] ?? '',
+			'origin' => $args['origin'] ?? '',
+			'verification_action' => $args['verification_action'] ?? '',
+			'orderby' => $args['orderby'] ?? 'flagged_date',
+			'order' => $args['order'] ?? 'DESC'
+		);
+		return "flagged_emails_list_" . md5( serialize( $key_data ) );
+	}
+
+	/**
+	 * Generate cache key for statistics
+	 *
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_stats() {
+		return "flagged_emails_stats";
+	}
+
+	/**
+	 * Clear all cached data for flagged emails
+	 */
+	private function clear_all_cache() {
+		wp_cache_flush_group( $this->cache_group );
 	}
 
 	/**
@@ -92,7 +162,12 @@ class Kickbox_Integration_Flagged_Emails {
 			return false;
 		}
 
-		return $wpdb->insert_id;
+		$insert_id = $wpdb->insert_id;
+
+		// Clear cache when new data is inserted
+		$this->clear_all_cache();
+
+		return $insert_id;
 	}
 
 	/**
@@ -103,18 +178,28 @@ class Kickbox_Integration_Flagged_Emails {
 	 * @return object|null Flagged email object or null if not found
 	 */
 	public function get_flagged_email( $id ) {
-		global $wpdb;
+		$cache_key = $this->get_cache_key_by_id( $id );
+		
+		// Try to get from cache first
+		$result = wp_cache_get( $cache_key, $this->cache_group );
+		
+		if ( $result === false ) {
+			global $wpdb;
 
-		$result = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM %i WHERE id = %d",
-				$this->table_name,
-				$id
-			)
-		);
+			$result = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM %i WHERE id = %d",
+					$this->table_name,
+					$id
+				)
+			);
 
-		if ( $result ) {
-			$result->kickbox_result = json_decode( $result->kickbox_result, true );
+			if ( $result ) {
+				$result->kickbox_result = json_decode( $result->kickbox_result, true );
+			}
+
+			// Cache the result (even if null)
+			wp_cache_set( $cache_key, $result, $this->cache_group, $this->cache_expiration );
 		}
 
 		return $result;
@@ -128,18 +213,28 @@ class Kickbox_Integration_Flagged_Emails {
 	 * @return object|null Flagged email object or null if not found
 	 */
 	public function get_flagged_email_by_email( $email ) {
-		global $wpdb;
+		$cache_key = $this->get_cache_key_by_email( $email );
+		
+		// Try to get from cache first
+		$result = wp_cache_get( $cache_key, $this->cache_group );
+		
+		if ( $result === false ) {
+			global $wpdb;
 
-		$result = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM %i WHERE email = %s ORDER BY flagged_date DESC LIMIT 1",
-				$this->table_name,
-				sanitize_email( $email )
-			)
-		);
+			$result = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM %i WHERE email = %s ORDER BY flagged_date DESC LIMIT 1",
+					$this->table_name,
+					sanitize_email( $email )
+				)
+			);
 
-		if ( $result ) {
-			$result->kickbox_result = json_decode( $result->kickbox_result, true );
+			if ( $result ) {
+				$result->kickbox_result = json_decode( $result->kickbox_result, true );
+			}
+
+			// Cache the result (even if null)
+			wp_cache_set( $cache_key, $result, $this->cache_group, $this->cache_expiration );
 		}
 
 		return $result;
@@ -153,8 +248,6 @@ class Kickbox_Integration_Flagged_Emails {
 	 * @return array Array of flagged emails with pagination info
 	 */
 	public function get_flagged_emails( $args = array() ) {
-		global $wpdb;
-
 		// Check if table exists, create if not
 		$this->ensure_table_exists();
 
@@ -170,6 +263,17 @@ class Kickbox_Integration_Flagged_Emails {
 		);
 
 		$args = wp_parse_args( $args, $defaults );
+
+		$cache_key = $this->get_cache_key_for_list( $args );
+		
+		// Try to get from cache first
+		$result = wp_cache_get( $cache_key, $this->cache_group );
+		
+		if ( $result !== false ) {
+			return $result;
+		}
+
+		global $wpdb;
 
 		$where_conditions = array( '1=1' );
 		$where_values     = array();
@@ -224,13 +328,18 @@ class Kickbox_Integration_Flagged_Emails {
 			$result->kickbox_result = json_decode( $result->kickbox_result, true );
 		}
 
-		return array(
+		$result_data = array(
 			'items'        => $results,
 			'total_items'  => $total_items,
 			'total_pages'  => $total_pages,
 			'current_page' => $args['page'],
 			'per_page'     => $args['per_page']
 		);
+
+		// Cache the result
+		wp_cache_set( $cache_key, $result_data, $this->cache_group, $this->cache_expiration );
+
+		return $result_data;
 	}
 
 	/**
@@ -261,6 +370,11 @@ class Kickbox_Integration_Flagged_Emails {
 			array( '%s', '%s', '%s', '%d' ),
 			array( '%d' )
 		);
+
+		if ( $result !== false ) {
+			// Clear cache when data is updated
+			$this->clear_all_cache();
+		}
 
 		return $result !== false;
 	}
@@ -300,6 +414,11 @@ class Kickbox_Integration_Flagged_Emails {
 			array( '%d' )
 		);
 
+		if ( $result !== false ) {
+			// Clear cache when data is updated
+			$this->clear_all_cache();
+		}
+
 		return $result !== false;
 	}
 
@@ -338,6 +457,15 @@ class Kickbox_Integration_Flagged_Emails {
 	 * @return array Statistics array
 	 */
 	public function get_statistics() {
+		$cache_key = $this->get_cache_key_for_stats();
+		
+		// Try to get from cache first
+		$stats = wp_cache_get( $cache_key, $this->cache_group );
+		
+		if ( $stats !== false ) {
+			return $stats;
+		}
+
 		global $wpdb;
 
 		$stats = array();
@@ -366,6 +494,9 @@ class Kickbox_Integration_Flagged_Emails {
 			OBJECT_K
 		);
 
+		// Cache the result
+		wp_cache_set( $cache_key, $stats, $this->cache_group, $this->cache_expiration );
+
 		return $stats;
 	}
 
@@ -384,6 +515,11 @@ class Kickbox_Integration_Flagged_Emails {
 			array( 'id' => $id ),
 			array( '%d' )
 		);
+
+		if ( $result !== false ) {
+			// Clear cache when data is deleted
+			$this->clear_all_cache();
+		}
 
 		return $result !== false;
 	}

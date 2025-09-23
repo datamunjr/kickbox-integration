@@ -130,6 +130,11 @@ class Kickbox_Integration_Admin {
                         'confirm_test' => __( 'Are you sure you want to test the API connection? This will use 1 verification credit.', 'kickbox-integration' )
                 )
         ) );
+
+        // Add debugging information
+        error_log( '[Kickbox_Integration] Admin scripts enqueued for hook: ' . $hook );
+        error_log( '[Kickbox_Integration] Admin JS URL: ' . KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/js/admin.js' );
+        error_log( '[Kickbox_Integration] Admin CSS URL: ' . KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/css/admin.css' );
     }
 
     /**
@@ -140,7 +145,10 @@ class Kickbox_Integration_Admin {
         <div class="wrap">
             <h1><?php echo esc_html__( 'Kickbox Integration Settings', 'kickbox-integration' ); ?></h1>
 
-            <div id="kickbox-integration-admin-app"></div>
+            <div id="kickbox-integration-admin-app">
+                <p>Loading Kickbox Integration Settings...</p>
+                <p><em>If this message persists, there may be a JavaScript error. Please check the browser console.</em></p>
+            </div>
 
             <form method="post" action="options.php" id="kickbox-integration-settings-form" style="display: none;">
                 <?php
