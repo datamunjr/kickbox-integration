@@ -56,10 +56,8 @@ function kickbox_integration_woocommerce_missing_notice() {
 }
 
 function kickbox_integration_init() {
-	// Load plugin textdomain
-	load_plugin_textdomain( 'kickbox-integration', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
-// Include required files
+	// Include required files
 	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-verification.php';
 	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-admin.php';
 	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-checkout.php';
@@ -67,7 +65,7 @@ function kickbox_integration_init() {
 	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-dashboard-widget.php';
 	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails.php';
 
-// Initialize classes
+	// Initialize classes
 	new Kickbox_Integration_Verification();
 	new Kickbox_Integration_Admin();
 	new Kickbox_Integration_Checkout();
