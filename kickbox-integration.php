@@ -161,14 +161,14 @@ function kickbox_integration_add_origin_column_to_verification_log() {
 	$verification_log_table = $wpdb->prefix . 'kickbox_integration_verification_log';
 
 	// Check if origin column exists
-	$column_exists = $wpdb->get_results( "SHOW COLUMNS FROM $verification_log_table LIKE 'origin'" );
+	$column_exists = $wpdb->get_results( $wpdb->prepare( "SHOW COLUMNS FROM %i LIKE %s", $verification_log_table, 'origin' ) );
 
 	if ( empty( $column_exists ) ) {
 		// Add origin column
-		$wpdb->query( "ALTER TABLE $verification_log_table ADD COLUMN origin varchar(50) DEFAULT NULL AFTER order_id" );
+		$wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD COLUMN origin varchar(50) DEFAULT NULL AFTER order_id", $verification_log_table ) );
 
 		// Add index for origin column
-		$wpdb->query( "ALTER TABLE $verification_log_table ADD INDEX origin (origin)" );
+		$wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD INDEX origin (origin)", $verification_log_table ) );
 
 		// Note: We don't update existing records since we don't know their actual origin
 	}
@@ -188,9 +188,9 @@ function kickbox_integration_add_performance_indexes() {
 	);
 
 	foreach ( $verification_indexes as $index_name => $columns ) {
-		$index_exists = $wpdb->get_results( "SHOW INDEX FROM $verification_log_table WHERE Key_name = '$index_name'" );
+		$index_exists = $wpdb->get_results( $wpdb->prepare( "SHOW INDEX FROM %i WHERE Key_name = %s", $verification_log_table, $index_name ) );
 		if ( empty( $index_exists ) ) {
-			$wpdb->query( "ALTER TABLE $verification_log_table ADD INDEX $index_name ($columns)" );
+			$wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD INDEX %i (%s)", $verification_log_table, $index_name, $columns ) );
 		}
 	}
 
@@ -203,9 +203,9 @@ function kickbox_integration_add_performance_indexes() {
 	);
 
 	foreach ( $flagged_indexes as $index_name => $columns ) {
-		$index_exists = $wpdb->get_results( "SHOW INDEX FROM $flagged_emails_table WHERE Key_name = '$index_name'" );
+		$index_exists = $wpdb->get_results( $wpdb->prepare( "SHOW INDEX FROM %i WHERE Key_name = %s", $flagged_emails_table, $index_name ) );
 		if ( empty( $index_exists ) ) {
-			$wpdb->query( "ALTER TABLE $flagged_emails_table ADD INDEX $index_name ($columns)" );
+			$wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD INDEX %i (%s)", $flagged_emails_table, $index_name, $columns ) );
 		}
 	}
 }

@@ -35,7 +35,7 @@ class Kickbox_Integration_Flagged_Emails {
 	private function ensure_table_exists() {
 		global $wpdb;
 
-		$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '{$this->table_name}'" );
+		$table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $this->table_name ) );
 
 		if ( ! $table_exists ) {
 			// Table doesn't exist, create it
@@ -107,7 +107,8 @@ class Kickbox_Integration_Flagged_Emails {
 
 		$result = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$this->table_name} WHERE id = %d",
+				"SELECT * FROM %i WHERE id = %d",
+				$this->table_name,
 				$id
 			)
 		);
@@ -131,7 +132,8 @@ class Kickbox_Integration_Flagged_Emails {
 
 		$result = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$this->table_name} WHERE email = %s ORDER BY flagged_date DESC LIMIT 1",
+				"SELECT * FROM %i WHERE email = %s ORDER BY flagged_date DESC LIMIT 1",
+				$this->table_name,
 				sanitize_email( $email )
 			)
 		);
@@ -199,10 +201,9 @@ class Kickbox_Integration_Flagged_Emails {
 		$where_clause = implode( ' AND ', $where_conditions );
 
 		// Count total records
-		$count_query = "SELECT COUNT(*) FROM {$this->table_name} WHERE {$where_clause}";
-		if ( ! empty( $where_values ) ) {
-			$count_query = $wpdb->prepare( $count_query, $where_values );
-		}
+		$count_query = "SELECT COUNT(*) FROM %i WHERE {$where_clause}";
+		$count_values = array_merge( array( $this->table_name ), $where_values );
+		$count_query = $wpdb->prepare( $count_query, $count_values );
 		$total_items = $wpdb->get_var( $count_query );
 
 		// Calculate pagination
@@ -211,9 +212,9 @@ class Kickbox_Integration_Flagged_Emails {
 
 		// Get records
 		$orderby = sanitize_sql_orderby( $args['orderby'] . ' ' . $args['order'] );
-		$query   = "SELECT * FROM {$this->table_name} WHERE {$where_clause} ORDER BY {$orderby} LIMIT %d OFFSET %d";
+		$query   = "SELECT * FROM %i WHERE {$where_clause} ORDER BY {$orderby} LIMIT %d OFFSET %d";
 
-		$query_values = array_merge( $where_values, array( $args['per_page'], $offset ) );
+		$query_values = array_merge( array( $this->table_name ), $where_values, array( $args['per_page'], $offset ) );
 		$query        = $wpdb->prepare( $query, $query_values );
 
 		$results = $wpdb->get_results( $query );
@@ -342,26 +343,26 @@ class Kickbox_Integration_Flagged_Emails {
 		$stats = array();
 
 		// Total flagged emails
-		$stats['total'] = $wpdb->get_var( "SELECT COUNT(*) FROM {$this->table_name}" );
+		$stats['total'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i", $this->table_name ) );
 
 		// Pending reviews
-		$stats['pending'] = $wpdb->get_var( "SELECT COUNT(*) FROM {$this->table_name} WHERE admin_decision = 'pending'" );
+		$stats['pending'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE admin_decision = %s", $this->table_name, 'pending' ) );
 
 		// Allowed emails
-		$stats['allowed'] = $wpdb->get_var( "SELECT COUNT(*) FROM {$this->table_name} WHERE admin_decision = 'allow'" );
+		$stats['allowed'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE admin_decision = %s", $this->table_name, 'allow' ) );
 
 		// Blocked emails
-		$stats['blocked'] = $wpdb->get_var( "SELECT COUNT(*) FROM {$this->table_name} WHERE admin_decision = 'block'" );
+		$stats['blocked'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE admin_decision = %s", $this->table_name, 'block' ) );
 
 		// By origin
 		$stats['by_origin'] = $wpdb->get_results(
-			"SELECT origin, COUNT(*) as count FROM {$this->table_name} GROUP BY origin",
+			$wpdb->prepare( "SELECT origin, COUNT(*) as count FROM %i GROUP BY origin", $this->table_name ),
 			OBJECT_K
 		);
 
 		// By Kickbox result
 		$stats['by_result'] = $wpdb->get_results(
-			"SELECT JSON_EXTRACT(kickbox_result, '$.result') as result, COUNT(*) as count FROM {$this->table_name} GROUP BY JSON_EXTRACT(kickbox_result, '$.result')",
+			$wpdb->prepare( "SELECT JSON_EXTRACT(kickbox_result, '$.result') as result, COUNT(*) as count FROM %i GROUP BY JSON_EXTRACT(kickbox_result, '$.result')", $this->table_name ),
 			OBJECT_K
 		);
 

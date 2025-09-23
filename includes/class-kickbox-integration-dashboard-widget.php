@@ -38,7 +38,7 @@ class Kickbox_Integration_Dashboard_Widget {
         <div id="kickbox-integration-dashboard-widget">
             <div class="kickbox-integration-dashboard-loading">
                 <span class="spinner is-active"></span>
-                <?php _e( 'Loading statistics...', 'kickbox-integration' ); ?>
+                <?php esc_html_e( 'Loading statistics...', 'kickbox-integration' ); ?>
             </div>
         </div>
         <?php

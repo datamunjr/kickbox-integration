@@ -244,7 +244,8 @@ class Kickbox_Integration_Verification {
 		$table_name = $wpdb->prefix . 'kickbox_integration_verification_log';
 
 		$results = $wpdb->get_results( $wpdb->prepare(
-			"SELECT * FROM $table_name WHERE email = %s ORDER BY created_at DESC",
+			"SELECT * FROM %i WHERE email = %s ORDER BY created_at DESC",
+			$table_name,
 			$email
 		) );
 
@@ -262,7 +263,7 @@ class Kickbox_Integration_Verification {
 		$table_name = $wpdb->prefix . 'kickbox_integration_verification_log';
 
 		$stats = $wpdb->get_results(
-			"SELECT verification_result, COUNT(*) as count FROM $table_name GROUP BY verification_result"
+			$wpdb->prepare( "SELECT verification_result, COUNT(*) as count FROM %i GROUP BY verification_result", $table_name )
 		);
 
 		return $stats;
