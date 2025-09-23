@@ -1,30 +1,36 @@
 #!/bin/bash
 
 # Script to prepare the plugin for WooCommerce submission
-# This creates a clean copy for submission while preserving the original development files
+# This creates a clean zip file for submission while preserving the original development files
 
 echo "Preparing WooCommerce Kickbox Integration for submission..."
 
 # Get the current directory name
 CURRENT_DIR=$(basename "$PWD")
-SUBMISSION_DIR="../wckb-submission"
+TEMP_DIR="../wckb-temp"
+ZIP_FILE="kickbox-integration.zip"
 
-# Remove existing submission directory if it exists
-if [ -d "$SUBMISSION_DIR" ]; then
-    echo "Removing existing submission directory..."
-    rm -rf "$SUBMISSION_DIR"
+# Remove existing temp directory and zip file if they exist
+if [ -d "$TEMP_DIR" ]; then
+    echo "Removing existing temp directory..."
+    rm -rf "$TEMP_DIR"
 fi
 
-# Create submission directory
-echo "Creating submission directory: $SUBMISSION_DIR"
-mkdir -p "$SUBMISSION_DIR"
+if [ -f "$ZIP_FILE" ]; then
+    echo "Removing existing zip file..."
+    rm -f "$ZIP_FILE"
+fi
 
-# Copy all files to submission directory
-echo "Copying plugin files to submission directory..."
-cp -r . "$SUBMISSION_DIR/"
+# Create temp directory
+echo "Creating temp directory: $TEMP_DIR"
+mkdir -p "$TEMP_DIR"
 
-# Change to submission directory
-cd "$SUBMISSION_DIR"
+# Copy all files to temp directory
+echo "Copying plugin files to temp directory..."
+cp -r . "$TEMP_DIR/"
+
+# Change to temp directory
+cd "$TEMP_DIR"
 
 echo "Cleaning up submission copy..."
 
@@ -61,13 +67,26 @@ find . -name ".DS_Store" -delete
 echo "Cleaning up empty directories..."
 rmdir wckb/ 2>/dev/null || true
 
+# Go back to parent directory to create zip
+cd ".."
+
+# Create zip file from temp directory contents (not the directory itself)
+echo "Creating zip file: $CURRENT_DIR/$ZIP_FILE"
+cd "$(basename "$TEMP_DIR")"
+zip -r "../$CURRENT_DIR/$ZIP_FILE" . -x "*.DS_Store" "*/.*"
+cd ".."
+
+# Remove temp directory
+echo "Cleaning up temp directory..."
+rm -rf "$TEMP_DIR"
+
 # Go back to original directory
-cd "../$CURRENT_DIR"
+cd "$CURRENT_DIR"
 
 echo ""
 echo "✅ Plugin prepared for submission!"
 echo ""
-echo "📁 Submission directory created: $SUBMISSION_DIR"
+echo "📦 Zip file created: $ZIP_FILE"
 echo ""
 echo "🗑️  Files removed from submission copy:"
 echo "   - node_modules/ (development dependencies)"
@@ -82,14 +101,14 @@ echo "   - .eslintrc.js (linting configuration)"
 echo "   - .prettierrc.json (formatting configuration)"
 echo "   - .gitignore (git ignore rules)"
 echo "   - install.sh (installation script)"
+echo "   - prepare-submission.sh (this script)"
 echo "   - Source maps and license files"
 echo "   - .DS_Store (macOS system files)"
 echo ""
 echo "💾 Original development files preserved in: $CURRENT_DIR"
 echo ""
 echo "📦 Next steps:"
-echo "   1. Navigate to: $SUBMISSION_DIR"
-echo "   2. Create a ZIP file of the contents"
-echo "   3. Submit to WooCommerce"
+echo "   1. The zip file is ready: $(pwd)/$ZIP_FILE"
+echo "   2. Submit the zip file to WooCommerce"
 echo ""
 echo "The plugin is now ready for WooCommerce submission!"
