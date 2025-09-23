@@ -198,6 +198,17 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
         }
     };
 
+    const getVerificationActionTerms = (action) => {
+        switch (action) {
+            case 'block':
+                return 'blocked';
+            case 'review':
+                return 'flagged';
+            default:
+                return 'unknown'
+        }
+    }
+
     const getVerificationActionBadgeClass = (action) => {
         switch (action) {
             case 'block':
@@ -386,7 +397,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                                     <td>
                       <span
                           className={`kickbox_integration-badge ${getVerificationActionBadgeClass(email.verification_action)}`}>
-                        {email.verification_action + 'ed' || 'unknown'}
+                        {getVerificationActionTerms(email.verification_action)}
                       </span>
                                     </td>
                                     <td>
