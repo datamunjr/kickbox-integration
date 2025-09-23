@@ -10,12 +10,11 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: kickbox-integration
  * Domain Path: /languages
- * Requires at least: 5.0
+ * Requires at least: 6.2
  * Tested up to: 6.8
  * Requires PHP: 7.4
- * WC requires at least: 5.0
+ * WC requires at least: 10.2
  * WC tested up to: 8.5
- * HPOS: Compatible
  */
 
 // Prevent direct access
