@@ -61,6 +61,7 @@ class Kickbox_Integration_Flagged_Emails {
 	 * Generate cache key for flagged email by ID
 	 *
 	 * @param int $id Flagged email ID
+	 *
 	 * @return string Cache key
 	 */
 	private function get_cache_key_by_id( $id ) {
@@ -71,6 +72,7 @@ class Kickbox_Integration_Flagged_Emails {
 	 * Generate cache key for flagged email by email address
 	 *
 	 * @param string $email Email address
+	 *
 	 * @return string Cache key
 	 */
 	private function get_cache_key_by_email( $email ) {
@@ -81,19 +83,21 @@ class Kickbox_Integration_Flagged_Emails {
 	 * Generate cache key for flagged emails list
 	 *
 	 * @param array $args Query arguments
+	 *
 	 * @return string Cache key
 	 */
 	private function get_cache_key_for_list( $args ) {
 		$key_data = array(
-			'page' => $args['page'] ?? 1,
-			'per_page' => $args['per_page'] ?? 20,
-			'search' => $args['search'] ?? '',
-			'decision' => $args['decision'] ?? '',
-			'origin' => $args['origin'] ?? '',
+			'page'                => $args['page'] ?? 1,
+			'per_page'            => $args['per_page'] ?? 20,
+			'search'              => $args['search'] ?? '',
+			'decision'            => $args['decision'] ?? '',
+			'origin'              => $args['origin'] ?? '',
 			'verification_action' => $args['verification_action'] ?? '',
-			'orderby' => $args['orderby'] ?? 'flagged_date',
-			'order' => $args['order'] ?? 'DESC'
+			'orderby'             => $args['orderby'] ?? 'flagged_date',
+			'order'               => $args['order'] ?? 'DESC'
 		);
+
 		return "flagged_emails_list_" . md5( serialize( $key_data ) );
 	}
 
@@ -179,10 +183,10 @@ class Kickbox_Integration_Flagged_Emails {
 	 */
 	public function get_flagged_email( $id ) {
 		$cache_key = $this->get_cache_key_by_id( $id );
-		
+
 		// Try to get from cache first
 		$result = wp_cache_get( $cache_key, $this->cache_group );
-		
+
 		if ( $result === false ) {
 			global $wpdb;
 
@@ -214,10 +218,10 @@ class Kickbox_Integration_Flagged_Emails {
 	 */
 	public function get_flagged_email_by_email( $email ) {
 		$cache_key = $this->get_cache_key_by_email( $email );
-		
+
 		// Try to get from cache first
 		$result = wp_cache_get( $cache_key, $this->cache_group );
-		
+
 		if ( $result === false ) {
 			global $wpdb;
 
@@ -252,62 +256,55 @@ class Kickbox_Integration_Flagged_Emails {
 		$this->ensure_table_exists();
 
 		$defaults = array(
-			'page'     => 1,
-			'per_page' => 20,
-			'search'   => '',
-			'decision' => '',
-			'origin'   => '',
+			'page'                => 1,
+			'per_page'            => 20,
+			'search'              => '',
+			'decision'            => '',
+			'origin'              => '',
 			'verification_action' => '',
-			'orderby'  => 'flagged_date',
-			'order'    => 'DESC'
+			'orderby'             => 'flagged_date',
+			'order'               => 'DESC'
 		);
 
 		$args = wp_parse_args( $args, $defaults );
 
 		$cache_key = $this->get_cache_key_for_list( $args );
-		
+
 		// Try to get from cache first
 		$result = wp_cache_get( $cache_key, $this->cache_group );
-		
+
 		if ( $result !== false ) {
 			return $result;
 		}
 
 		global $wpdb;
 
-		$where_conditions = array( '1=1' );
-		$where_values     = array();
+		$where_values = array( "1=1" );
 
 		// Search by email
 		if ( ! empty( $args['search'] ) ) {
-			$where_conditions[] = 'email LIKE %s';
-			$where_values[]     = '%' . $wpdb->esc_like( $args['search'] ) . '%';
+			$where_values[] = 'email LIKE ' . '%' . $wpdb->esc_like( $args['search'] ) . '%';
 		}
 
 		// Filter by decision
 		if ( ! empty( $args['decision'] ) ) {
-			$where_conditions[] = 'admin_decision = %s';
-			$where_values[]     = sanitize_text_field( $args['decision'] );
+			$where_values[] = "admin_decision = " . sanitize_text_field( $args['decision'] );
 		}
 
 		// Filter by origin
 		if ( ! empty( $args['origin'] ) ) {
-			$where_conditions[] = 'origin = %s';
-			$where_values[]     = sanitize_text_field( $args['origin'] );
+			$where_values[] = 'origin = ' . sanitize_text_field( $args['origin'] );
 		}
 
 		// Filter by verification action
 		if ( ! empty( $args['verification_action'] ) ) {
-			$where_conditions[] = 'verification_action = %s';
-			$where_values[]     = sanitize_text_field( $args['verification_action'] );
+			$where_values[] = 'verification_action = ' . sanitize_text_field( $args['verification_action'] );
 		}
 
-		$where_clause = implode( ' AND ', $where_conditions );
+		$where_clause = ! empty( $where_values ) ? implode( ' AND ', $where_values ) : '';
 
 		// Count total records
-		$count_query = "SELECT COUNT(*) FROM %i WHERE {$where_clause}";
-		$count_values = array_merge( array( $this->table_name ), $where_values );
-		$count_query = $wpdb->prepare( $count_query, $count_values );
+		$count_query = $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE %s", $this->table_name, $where_clause );
 		$total_items = $wpdb->get_var( $count_query );
 
 		// Calculate pagination
@@ -316,10 +313,14 @@ class Kickbox_Integration_Flagged_Emails {
 
 		// Get records
 		$orderby = sanitize_sql_orderby( $args['orderby'] . ' ' . $args['order'] );
-		$query   = "SELECT * FROM %i WHERE {$where_clause} ORDER BY {$orderby} LIMIT %d OFFSET %d";
-
-		$query_values = array_merge( array( $this->table_name ), $where_values, array( $args['per_page'], $offset ) );
-		$query        = $wpdb->prepare( $query, $query_values );
+		$query   = $wpdb->prepare(
+			"SELECT * FROM %i WHERE %s ORDER BY %s LIMIT %d OFFSET %d",
+			$this->table_name,
+			$where_clause,
+			$orderby,
+			$args['per_page'],
+			$offset
+		);
 
 		$results = $wpdb->get_results( $query );
 
@@ -458,10 +459,10 @@ class Kickbox_Integration_Flagged_Emails {
 	 */
 	public function get_statistics() {
 		$cache_key = $this->get_cache_key_for_stats();
-		
+
 		// Try to get from cache first
 		$stats = wp_cache_get( $cache_key, $this->cache_group );
-		
+
 		if ( $stats !== false ) {
 			return $stats;
 		}

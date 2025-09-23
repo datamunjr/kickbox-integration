@@ -23,13 +23,22 @@ class Kickbox_Integration_Admin {
         add_action( 'wp_ajax_kickbox_integration_get_full_api_key', array( $this, 'ajax_get_full_api_key' ) );
         add_action( 'wp_ajax_kickbox_integration_get_allow_list', array( $this, 'ajax_get_allow_list' ) );
         add_action( 'wp_ajax_kickbox_integration_add_to_allow_list', array( $this, 'ajax_add_to_allow_list' ) );
-        add_action( 'wp_ajax_kickbox_integration_remove_from_allow_list', array( $this, 'ajax_remove_from_allow_list' ) );
+        add_action( 'wp_ajax_kickbox_integration_remove_from_allow_list', array(
+                $this,
+                'ajax_remove_from_allow_list'
+        ) );
 
         // Flagged emails AJAX handlers
         add_action( 'wp_ajax_kickbox_integration_get_flagged_emails', array( $this, 'ajax_get_flagged_emails' ) );
-        add_action( 'wp_ajax_kickbox_integration_update_flagged_decision', array( $this, 'ajax_update_flagged_decision' ) );
+        add_action( 'wp_ajax_kickbox_integration_update_flagged_decision', array(
+                $this,
+                'ajax_update_flagged_decision'
+        ) );
         add_action( 'wp_ajax_kickbox_integration_edit_flagged_decision', array( $this, 'ajax_edit_flagged_decision' ) );
-        add_action( 'wp_ajax_kickbox_integration_get_flagged_statistics', array( $this, 'ajax_get_flagged_statistics' ) );
+        add_action( 'wp_ajax_kickbox_integration_get_flagged_statistics', array(
+                $this,
+                'ajax_get_flagged_statistics'
+        ) );
         add_action( 'wp_ajax_kickbox_integration_get_pending_count', array( $this, 'ajax_get_pending_count' ) );
         add_action( 'admin_notices', array( $this, 'show_balance_notice' ) );
         add_action( 'admin_notices', array( $this, 'show_verification_disabled_notice' ) );
@@ -66,7 +75,7 @@ class Kickbox_Integration_Admin {
         register_setting( 'kickbox_integration_settings', 'kickbox_integration_deliverable_action', array(
                 'type'              => 'string',
                 'default'           => 'allow',
-                'sanitize_callback' => array( $this, 'sanitize_deliverable_action' )
+                'sanitize_callback' => array( $this, 'restrict_deliverable_action' )
         ) );
 
         register_setting( 'kickbox_integration_settings', 'kickbox_integration_undeliverable_action', array(
@@ -130,11 +139,6 @@ class Kickbox_Integration_Admin {
                         'confirm_test' => __( 'Are you sure you want to test the API connection? This will use 1 verification credit.', 'kickbox-integration' )
                 )
         ) );
-
-        // Add debugging information
-        error_log( '[Kickbox_Integration] Admin scripts enqueued for hook: ' . $hook );
-        error_log( '[Kickbox_Integration] Admin JS URL: ' . KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/js/admin.js' );
-        error_log( '[Kickbox_Integration] Admin CSS URL: ' . KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/css/admin.css' );
     }
 
     /**
@@ -147,7 +151,8 @@ class Kickbox_Integration_Admin {
 
             <div id="kickbox-integration-admin-app">
                 <p>Loading Kickbox Integration Settings...</p>
-                <p><em>If this message persists, there may be a JavaScript error. Please check the browser console.</em></p>
+                <p><em>If this message persists, there may be a JavaScript error. Please check the browser console.</em>
+                </p>
             </div>
 
             <form method="post" action="options.php" id="kickbox-integration-settings-form" style="display: none;">
@@ -179,7 +184,8 @@ class Kickbox_Integration_Admin {
                             <label for="kickbox_integration_sandbox_mode"><?php echo esc_html__( 'Sandbox Mode', 'kickbox-integration' ); ?></label>
                         </th>
                         <td>
-                            <input type="checkbox" id="kickbox_integration_sandbox_mode" name="kickbox_integration_sandbox_mode"
+                            <input type="checkbox" id="kickbox_integration_sandbox_mode"
+                                   name="kickbox_integration_sandbox_mode"
                                    value="yes" <?php checked( get_option( 'kickbox_integration_sandbox_mode', 'yes' ), 'yes' ); ?> />
                             <label for="kickbox_integration_sandbox_mode">
                                 <?php echo esc_html__( 'Enable sandbox mode for testing (recommended)', 'kickbox-integration' ); ?>
@@ -226,7 +232,8 @@ class Kickbox_Integration_Admin {
                             <label for="kickbox_integration_deliverable_action"><?php echo esc_html__( 'Deliverable Emails', 'kickbox-integration' ); ?></label>
                         </th>
                         <td>
-                            <select id="kickbox_integration_deliverable_action" name="kickbox_integration_deliverable_action">
+                            <select id="kickbox_integration_deliverable_action"
+                                    name="kickbox_integration_deliverable_action">
                                 <option value="allow" <?php selected( get_option( 'kickbox_integration_deliverable_action', 'allow' ), 'allow' ); ?>>
                                     <?php echo esc_html__( 'Allow checkout', 'kickbox-integration' ); ?>
                                 </option>
@@ -245,7 +252,8 @@ class Kickbox_Integration_Admin {
                             <label for="kickbox_integration_undeliverable_action"><?php echo esc_html__( 'Undeliverable Emails', 'kickbox-integration' ); ?></label>
                         </th>
                         <td>
-                            <select id="kickbox_integration_undeliverable_action" name="kickbox_integration_undeliverable_action">
+                            <select id="kickbox_integration_undeliverable_action"
+                                    name="kickbox_integration_undeliverable_action">
                                 <option value="allow" <?php selected( get_option( 'kickbox_integration_undeliverable_action', 'allow' ), 'allow' ); ?>>
                                     <?php echo esc_html__( 'Allow checkout', 'kickbox-integration' ); ?>
                                 </option>
@@ -478,18 +486,18 @@ class Kickbox_Integration_Admin {
         $has_balance_been_determined = $verification->has_balance_been_determined();
 
         $settings = array(
-                'apiKey'                     => $masked_api_key,
-                'deliverableAction'          => get_option( 'kickbox_integration_deliverable_action', 'allow' ),
-                'undeliverableAction'        => get_option( 'kickbox_integration_undeliverable_action', 'allow' ),
-                'riskyAction'                => get_option( 'kickbox_integration_risky_action', 'allow' ),
-                'unknownAction'              => get_option( 'kickbox_integration_unknown_action', 'allow' ),
-                'enableCheckoutVerification' => get_option( 'kickbox_integration_enable_checkout_verification', 'no' ) === 'yes',
+                'apiKey'                         => $masked_api_key,
+                'deliverableAction'              => get_option( 'kickbox_integration_deliverable_action', 'allow' ),
+                'undeliverableAction'            => get_option( 'kickbox_integration_undeliverable_action', 'allow' ),
+                'riskyAction'                    => get_option( 'kickbox_integration_risky_action', 'allow' ),
+                'unknownAction'                  => get_option( 'kickbox_integration_unknown_action', 'allow' ),
+                'enableCheckoutVerification'     => get_option( 'kickbox_integration_enable_checkout_verification', 'no' ) === 'yes',
                 'enableRegistrationVerification' => get_option( 'kickbox_integration_enable_registration_verification', 'no' ) === 'yes',
-                'balance'                    => $balance,
-                'balanceMessage'             => $balance_message,
-                'isBalanceLow'               => $is_balance_low,
-                'hasBalanceBeenDetermined'   => $has_balance_been_determined,
-                'allowList'                  => $this->get_allow_list()
+                'balance'                        => $balance,
+                'balanceMessage'                 => $balance_message,
+                'isBalanceLow'                   => $is_balance_low,
+                'hasBalanceBeenDetermined'       => $has_balance_been_determined,
+                'allowList'                      => $this->get_allow_list()
         );
 
         wp_send_json_success( $settings );
@@ -521,12 +529,12 @@ class Kickbox_Integration_Admin {
         }
 
         $settings = array(
-                'kickbox_integration_api_key'                      => $api_key,
-                'kickbox_integration_deliverable_action'           => $this->sanitize_deliverable_action( wp_unslash( $_POST['deliverableAction'] ?? 'allow' ) ),
-                'kickbox_integration_undeliverable_action'         => sanitize_text_field( wp_unslash( $_POST['undeliverableAction'] ?? 'allow' ) ),
-                'kickbox_integration_risky_action'                 => sanitize_text_field( wp_unslash( $_POST['riskyAction'] ?? 'allow' ) ),
-                'kickbox_integration_unknown_action'               => sanitize_text_field( wp_unslash( $_POST['unknownAction'] ?? 'allow' ) ),
-                'kickbox_integration_enable_checkout_verification' => sanitize_text_field( wp_unslash( $_POST['enableCheckoutVerification'] ?? 'no' ) ) === 'true' ? 'yes' : 'no',
+                'kickbox_integration_api_key'                          => $api_key,
+                'kickbox_integration_deliverable_action'               => $this->restrict_deliverable_action( sanitize_text_field( wp_unslash( $_POST['deliverableAction'] ?? 'allow' ) ) ),
+                'kickbox_integration_undeliverable_action'             => sanitize_text_field( wp_unslash( $_POST['undeliverableAction'] ?? 'allow' ) ),
+                'kickbox_integration_risky_action'                     => sanitize_text_field( wp_unslash( $_POST['riskyAction'] ?? 'allow' ) ),
+                'kickbox_integration_unknown_action'                   => sanitize_text_field( wp_unslash( $_POST['unknownAction'] ?? 'allow' ) ),
+                'kickbox_integration_enable_checkout_verification'     => sanitize_text_field( wp_unslash( $_POST['enableCheckoutVerification'] ?? 'no' ) ) === 'true' ? 'yes' : 'no',
                 'kickbox_integration_enable_registration_verification' => sanitize_text_field( wp_unslash( $_POST['enableRegistrationVerification'] ?? 'no' ) ) === 'true' ? 'yes' : 'no'
         );
 
@@ -683,7 +691,7 @@ class Kickbox_Integration_Admin {
      *
      * @return string Sanitized value
      */
-    public function sanitize_deliverable_action( $value ) {
+    public function restrict_deliverable_action( $value ) {
         // Only allow 'allow' or 'block' for deliverable emails
         if ( $value === 'review' ) {
             return 'allow'; // Default to 'allow' if 'review' is somehow submitted
@@ -708,9 +716,9 @@ class Kickbox_Integration_Admin {
         }
 
         // Only show if both checkout and registration verification are disabled
-        $checkout_verification_enabled = get_option( 'kickbox_integration_enable_checkout_verification', 'no' );
+        $checkout_verification_enabled     = get_option( 'kickbox_integration_enable_checkout_verification', 'no' );
         $registration_verification_enabled = get_option( 'kickbox_integration_enable_registration_verification', 'no' );
-        
+
         if ( $checkout_verification_enabled === 'yes' || $registration_verification_enabled === 'yes' ) {
             return;
         }
@@ -896,14 +904,14 @@ class Kickbox_Integration_Admin {
             $flagged_emails = new Kickbox_Integration_Flagged_Emails();
 
             $args = array(
-                    'page'     => intval( wp_unslash( $_POST['page'] ?? 1 ) ),
-                    'per_page' => intval( wp_unslash( $_POST['per_page'] ?? 20 ) ),
-                    'search'   => sanitize_text_field( wp_unslash( $_POST['search'] ?? '' ) ),
-                    'decision' => sanitize_text_field( wp_unslash( $_POST['decision'] ?? '' ) ),
-                    'origin'   => sanitize_text_field( wp_unslash( $_POST['origin'] ?? '' ) ),
+                    'page'                => intval( wp_unslash( $_POST['page'] ?? 1 ) ),
+                    'per_page'            => intval( wp_unslash( $_POST['per_page'] ?? 20 ) ),
+                    'search'              => sanitize_text_field( wp_unslash( $_POST['search'] ?? '' ) ),
+                    'decision'            => sanitize_text_field( wp_unslash( $_POST['decision'] ?? '' ) ),
+                    'origin'              => sanitize_text_field( wp_unslash( $_POST['origin'] ?? '' ) ),
                     'verification_action' => sanitize_text_field( wp_unslash( $_POST['verification_action'] ?? '' ) ),
-                    'orderby'  => sanitize_text_field( wp_unslash( $_POST['orderby'] ?? 'flagged_date' ) ),
-                    'order'    => sanitize_text_field( wp_unslash( $_POST['order'] ?? 'DESC' ) )
+                    'orderby'             => sanitize_text_field( wp_unslash( $_POST['orderby'] ?? 'flagged_date' ) ),
+                    'order'               => sanitize_text_field( wp_unslash( $_POST['order'] ?? 'DESC' ) )
             );
 
             $result = $flagged_emails->get_flagged_emails( $args );
