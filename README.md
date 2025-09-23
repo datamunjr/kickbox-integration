@@ -14,8 +14,8 @@ A WordPress plugin that integrates Kickbox email verification service with WooCo
 
 ## Requirements
 
-- WordPress 5.0 or higher
-- WooCommerce 5.0 or higher
+- WordPress 6.2 or higher
+- WooCommerce 10.2 or higher
 - PHP 7.4 or higher
 - Valid Kickbox API key
 

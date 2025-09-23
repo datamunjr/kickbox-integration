@@ -40,8 +40,43 @@ add_action( 'before_woocommerce_init', function () {
 add_action( 'plugins_loaded', 'kickbox_integration_check_woocommerce' );
 
 function kickbox_integration_check_woocommerce() {
+	// Check WordPress version compatibility
+	$required_wp_version = '6.2';
+	$current_wp_version = get_bloginfo( 'version' );
+	if ( version_compare( $current_wp_version, $required_wp_version, '<' ) ) {
+		add_action( 'admin_notices', 'kickbox_integration_wordpress_version_notice' );
+		
+		// If WordPress version is too old, deactivate the plugin
+		if ( is_plugin_active( plugin_basename( __FILE__ ) ) ) {
+			deactivate_plugins( plugin_basename( __FILE__ ) );
+			add_action( 'admin_notices', 'kickbox_integration_wordpress_version_deactivated_notice' );
+		}
+
+		return;
+	}
+
 	if ( ! class_exists( 'WooCommerce' ) ) {
 		add_action( 'admin_notices', 'kickbox_integration_woocommerce_missing_notice' );
+		
+		// If WooCommerce is not available, deactivate the plugin
+		if ( is_plugin_active( plugin_basename( __FILE__ ) ) ) {
+			deactivate_plugins( plugin_basename( __FILE__ ) );
+			add_action( 'admin_notices', 'kickbox_integration_woocommerce_deactivated_notice' );
+		}
+
+		return;
+	}
+
+	// Check WooCommerce version compatibility
+	$required_wc_version = '10.2';
+	if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, $required_wc_version, '<' ) ) {
+		add_action( 'admin_notices', 'kickbox_integration_woocommerce_version_notice' );
+		
+		// If WooCommerce version is too old, deactivate the plugin
+		if ( is_plugin_active( plugin_basename( __FILE__ ) ) ) {
+			deactivate_plugins( plugin_basename( __FILE__ ) );
+			add_action( 'admin_notices', 'kickbox_integration_woocommerce_version_deactivated_notice' );
+		}
 
 		return;
 	}
@@ -53,6 +88,43 @@ function kickbox_integration_check_woocommerce() {
 function kickbox_integration_woocommerce_missing_notice() {
 	echo '<div class="error"><p><strong>' . esc_html__( 'WooCommerce Kickbox Integration', 'kickbox-integration' ) . '</strong> ' .
 	     esc_html__( 'requires WooCommerce to be installed and active.', 'kickbox-integration' ) . '</p></div>';
+}
+
+function kickbox_integration_woocommerce_deactivated_notice() {
+	echo '<div class="error"><p><strong>' . esc_html__( 'Kickbox Integration', 'kickbox-integration' ) . '</strong> ' .
+	     esc_html__( 'has been deactivated because WooCommerce is no longer active.', 'kickbox-integration' ) . '</p></div>';
+}
+
+function kickbox_integration_woocommerce_version_notice() {
+	$required_wc_version = '5.0';
+	$current_version = defined( 'WC_VERSION' ) ? WC_VERSION : 'Unknown';
+	echo '<div class="error"><p><strong>' . esc_html__( 'WooCommerce Kickbox Integration', 'kickbox-integration' ) . '</strong> ' .
+	     sprintf( 
+		     esc_html__( 'requires WooCommerce version %s or higher. You are running version %s.', 'kickbox-integration' ),
+		     $required_wc_version,
+		     $current_version
+	     ) . '</p></div>';
+}
+
+function kickbox_integration_woocommerce_version_deactivated_notice() {
+	echo '<div class="error"><p><strong>' . esc_html__( 'Kickbox Integration', 'kickbox-integration' ) . '</strong> ' .
+	     esc_html__( 'has been deactivated because WooCommerce version is too old.', 'kickbox-integration' ) . '</p></div>';
+}
+
+function kickbox_integration_wordpress_version_notice() {
+	$required_wp_version = '6.2';
+	$current_wp_version = get_bloginfo( 'version' );
+	echo '<div class="error"><p><strong>' . esc_html__( 'WooCommerce Kickbox Integration', 'kickbox-integration' ) . '</strong> ' .
+	     sprintf( 
+		     esc_html__( 'requires WordPress version %s or higher. You are running version %s.', 'kickbox-integration' ),
+		     $required_wp_version,
+		     $current_wp_version
+	     ) . '</p></div>';
+}
+
+function kickbox_integration_wordpress_version_deactivated_notice() {
+	echo '<div class="error"><p><strong>' . esc_html__( 'Kickbox Integration', 'kickbox-integration' ) . '</strong> ' .
+	     esc_html__( 'has been deactivated because WordPress version is too old.', 'kickbox-integration' ) . '</p></div>';
 }
 
 function kickbox_integration_init() {
@@ -78,6 +150,56 @@ function kickbox_integration_init() {
 register_activation_hook( __FILE__, 'kickbox_integration_activate' );
 
 function kickbox_integration_activate() {
+	// Check WordPress version compatibility
+	$required_wp_version = '6.2';
+	$current_wp_version = get_bloginfo( 'version' );
+	if ( version_compare( $current_wp_version, $required_wp_version, '<' ) ) {
+		deactivate_plugins( plugin_basename( __FILE__ ) );
+		wp_die(
+			'<h1>' . esc_html__( 'Plugin Activation Error', 'kickbox-integration' ) . '</h1>' .
+			'<p>' . sprintf( 
+				esc_html__( 'Kickbox Integration requires WordPress version %s or higher. You are running version %s.', 'kickbox-integration' ),
+				$required_wp_version,
+				$current_wp_version
+			) . '</p>' .
+			'<p>' . esc_html__( 'Please update WordPress to the latest version and try again.', 'kickbox-integration' ) . '</p>' .
+			'<p><a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Return to Plugins page', 'kickbox-integration' ) . '</a></p>',
+			esc_html__( 'Plugin Activation Error', 'kickbox-integration' ),
+			array( 'back_link' => true )
+		);
+	}
+
+	// Check if WooCommerce is active before allowing activation
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		deactivate_plugins( plugin_basename( __FILE__ ) );
+		wp_die(
+			'<h1>' . esc_html__( 'Plugin Activation Error', 'kickbox-integration' ) . '</h1>' .
+			'<p>' . esc_html__( 'Kickbox Integration requires WooCommerce to be installed and active.', 'kickbox-integration' ) . '</p>' .
+			'<p>' . esc_html__( 'Please install and activate WooCommerce first, then try activating this plugin again.', 'kickbox-integration' ) . '</p>' .
+			'<p><a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Return to Plugins page', 'kickbox-integration' ) . '</a></p>',
+			esc_html__( 'Plugin Activation Error', 'kickbox-integration' ),
+			array( 'back_link' => true )
+		);
+	}
+
+	// Check WooCommerce version compatibility
+	$required_wc_version = '10.2';
+	if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, $required_wc_version, '<' ) ) {
+		deactivate_plugins( plugin_basename( __FILE__ ) );
+		wp_die(
+			'<h1>' . esc_html__( 'Plugin Activation Error', 'kickbox-integration' ) . '</h1>' .
+			'<p>' . sprintf( 
+				esc_html__( 'Kickbox Integration requires WooCommerce version %s or higher. You are running version %s.', 'kickbox-integration' ),
+				$required_wc_version,
+				WC_VERSION
+			) . '</p>' .
+			'<p>' . esc_html__( 'Please update WooCommerce to the latest version and try again.', 'kickbox-integration' ) . '</p>' .
+			'<p><a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Return to Plugins page', 'kickbox-integration' ) . '</a></p>',
+			esc_html__( 'Plugin Activation Error', 'kickbox-integration' ),
+			array( 'back_link' => true )
+		);
+	}
+
 	// Create database tables if needed
 	kickbox_integration_create_tables();
 
@@ -230,5 +352,10 @@ function kickbox_integration_set_default_options() {
 register_deactivation_hook( __FILE__, 'kickbox_integration_deactivate' );
 
 function kickbox_integration_deactivate() {
-	// Clean up if needed
+	// Clear any scheduled events or caches when plugin is deactivated
+	wp_cache_flush();
+	
+	// Clear any plugin-specific transients
+	delete_transient( 'kickbox_integration_balance_check' );
+	delete_transient( 'kickbox_integration_api_status' );
 }

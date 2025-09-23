@@ -43,8 +43,8 @@ For each verification result, you can configure the following actions:
 
 = Requirements =
 
-* WordPress 5.0 or higher
-* WooCommerce 5.0 or higher
+* WordPress 6.2 or higher
+* WooCommerce 10.2 or higher
 * PHP 7.4 or higher
 * Valid Kickbox API key
 
@@ -72,10 +72,6 @@ Yes! The plugin includes a sandbox mode that allows you to test the integration 
 = What happens if the API is unavailable? =
 
 If the Kickbox API is unavailable, the plugin will log the error but won't block the checkout process, ensuring your customers can still complete their purchases.
-
-= Can I verify emails in bulk? =
-
-Yes, the plugin includes batch verification functionality for existing customers. You can select multiple customers and verify their emails at once.
 
 == Screenshots ==
 
