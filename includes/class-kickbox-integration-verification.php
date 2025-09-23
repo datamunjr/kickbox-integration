@@ -42,7 +42,6 @@ class Kickbox_Integration_Verification {
 	 * Generate cache key for verification history
 	 *
 	 * @param string $email Email address
-	 *
 	 * @return string Cache key
 	 */
 	private function get_cache_key_for_history( $email ) {
@@ -284,10 +283,10 @@ class Kickbox_Integration_Verification {
 	 */
 	public function get_verification_history( $email ) {
 		$cache_key = $this->get_cache_key_for_history( $email );
-
+		
 		// Try to get from cache first
 		$results = wp_cache_get( $cache_key, $this->cache_group );
-
+		
 		if ( $results !== false ) {
 			return $results;
 		}
@@ -297,7 +296,7 @@ class Kickbox_Integration_Verification {
 		$table_name = $wpdb->prefix . 'kickbox_integration_verification_log';
 
 		$results = $wpdb->get_results( $wpdb->prepare(
-			"SELECT * FROM %s WHERE email = %s ORDER BY created_at DESC",
+			"SELECT * FROM %i WHERE email = %s ORDER BY created_at DESC",
 			$table_name,
 			$email
 		) );
@@ -315,10 +314,10 @@ class Kickbox_Integration_Verification {
 	 */
 	public function get_verification_stats() {
 		$cache_key = $this->get_cache_key_for_stats();
-
+		
 		// Try to get from cache first
 		$stats = wp_cache_get( $cache_key, $this->cache_group );
-
+		
 		if ( $stats !== false ) {
 			return $stats;
 		}
@@ -328,7 +327,7 @@ class Kickbox_Integration_Verification {
 		$table_name = $wpdb->prefix . 'kickbox_integration_verification_log';
 
 		$stats = $wpdb->get_results(
-			$wpdb->prepare( "SELECT verification_result, COUNT(*) as count FROM %s GROUP BY verification_result", $table_name )
+			$wpdb->prepare( "SELECT verification_result, COUNT(*) as count FROM %i GROUP BY verification_result", $table_name )
 		);
 
 		// Cache the result
@@ -341,14 +340,12 @@ class Kickbox_Integration_Verification {
 	 * Check if email verification is enabled
 	 *
 	 * @param string $type Verification type ('checkout' or 'registration')
-	 *
 	 * @return bool
 	 */
 	public function is_verification_enabled( $type = 'checkout' ) {
 		if ( $type === 'registration' ) {
 			return get_option( 'kickbox_integration_enable_registration_verification', 'no' ) === 'yes';
 		}
-
 		return get_option( 'kickbox_integration_enable_checkout_verification', 'no' ) === 'yes';
 	}
 

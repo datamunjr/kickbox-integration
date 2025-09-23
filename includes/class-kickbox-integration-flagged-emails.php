@@ -61,7 +61,6 @@ class Kickbox_Integration_Flagged_Emails {
 	 * Generate cache key for flagged email by ID
 	 *
 	 * @param int $id Flagged email ID
-	 *
 	 * @return string Cache key
 	 */
 	private function get_cache_key_by_id( $id ) {
@@ -72,7 +71,6 @@ class Kickbox_Integration_Flagged_Emails {
 	 * Generate cache key for flagged email by email address
 	 *
 	 * @param string $email Email address
-	 *
 	 * @return string Cache key
 	 */
 	private function get_cache_key_by_email( $email ) {
@@ -83,21 +81,19 @@ class Kickbox_Integration_Flagged_Emails {
 	 * Generate cache key for flagged emails list
 	 *
 	 * @param array $args Query arguments
-	 *
 	 * @return string Cache key
 	 */
 	private function get_cache_key_for_list( $args ) {
 		$key_data = array(
-			'page'                => $args['page'] ?? 1,
-			'per_page'            => $args['per_page'] ?? 20,
-			'search'              => $args['search'] ?? '',
-			'decision'            => $args['decision'] ?? '',
-			'origin'              => $args['origin'] ?? '',
+			'page' => $args['page'] ?? 1,
+			'per_page' => $args['per_page'] ?? 20,
+			'search' => $args['search'] ?? '',
+			'decision' => $args['decision'] ?? '',
+			'origin' => $args['origin'] ?? '',
 			'verification_action' => $args['verification_action'] ?? '',
-			'orderby'             => $args['orderby'] ?? 'flagged_date',
-			'order'               => $args['order'] ?? 'DESC'
+			'orderby' => $args['orderby'] ?? 'flagged_date',
+			'order' => $args['order'] ?? 'DESC'
 		);
-
 		return "flagged_emails_list_" . md5( serialize( $key_data ) );
 	}
 
@@ -183,16 +179,16 @@ class Kickbox_Integration_Flagged_Emails {
 	 */
 	public function get_flagged_email( $id ) {
 		$cache_key = $this->get_cache_key_by_id( $id );
-
+		
 		// Try to get from cache first
 		$result = wp_cache_get( $cache_key, $this->cache_group );
-
+		
 		if ( $result === false ) {
 			global $wpdb;
 
 			$result = $wpdb->get_row(
 				$wpdb->prepare(
-					"SELECT * FROM %s WHERE id = %d",
+					"SELECT * FROM %i WHERE id = %d",
 					$this->table_name,
 					$id
 				)
@@ -218,16 +214,16 @@ class Kickbox_Integration_Flagged_Emails {
 	 */
 	public function get_flagged_email_by_email( $email ) {
 		$cache_key = $this->get_cache_key_by_email( $email );
-
+		
 		// Try to get from cache first
 		$result = wp_cache_get( $cache_key, $this->cache_group );
-
+		
 		if ( $result === false ) {
 			global $wpdb;
 
 			$result = $wpdb->get_row(
 				$wpdb->prepare(
-					"SELECT * FROM %s WHERE email = %s ORDER BY flagged_date DESC LIMIT 1",
+					"SELECT * FROM %i WHERE email = %s ORDER BY flagged_date DESC LIMIT 1",
 					$this->table_name,
 					sanitize_email( $email )
 				)
@@ -256,23 +252,23 @@ class Kickbox_Integration_Flagged_Emails {
 		$this->ensure_table_exists();
 
 		$defaults = array(
-			'page'                => 1,
-			'per_page'            => 20,
-			'search'              => '',
-			'decision'            => '',
-			'origin'              => '',
+			'page'     => 1,
+			'per_page' => 20,
+			'search'   => '',
+			'decision' => '',
+			'origin'   => '',
 			'verification_action' => '',
-			'orderby'             => 'flagged_date',
-			'order'               => 'DESC'
+			'orderby'  => 'flagged_date',
+			'order'    => 'DESC'
 		);
 
 		$args = wp_parse_args( $args, $defaults );
 
 		$cache_key = $this->get_cache_key_for_list( $args );
-
+		
 		// Try to get from cache first
 		$result = wp_cache_get( $cache_key, $this->cache_group );
-
+		
 		if ( $result !== false ) {
 			return $result;
 		}
@@ -309,10 +305,10 @@ class Kickbox_Integration_Flagged_Emails {
 		$where_clause = implode( ' AND ', $where_conditions );
 
 		// Count total records
-		$count_query  = "SELECT COUNT(*) FROM %s WHERE {$where_clause}";
+		$count_query = "SELECT COUNT(*) FROM %i WHERE {$where_clause}";
 		$count_values = array_merge( array( $this->table_name ), $where_values );
-		$count_query  = $wpdb->prepare( $count_query, $count_values );
-		$total_items  = $wpdb->get_var( $count_query );
+		$count_query = $wpdb->prepare( $count_query, $count_values );
+		$total_items = $wpdb->get_var( $count_query );
 
 		// Calculate pagination
 		$offset      = ( $args['page'] - 1 ) * $args['per_page'];
@@ -320,7 +316,7 @@ class Kickbox_Integration_Flagged_Emails {
 
 		// Get records
 		$orderby = sanitize_sql_orderby( $args['orderby'] . ' ' . $args['order'] );
-		$query   = "SELECT * FROM %s WHERE {$where_clause} ORDER BY {$orderby} LIMIT %d OFFSET %d";
+		$query   = "SELECT * FROM %i WHERE {$where_clause} ORDER BY {$orderby} LIMIT %d OFFSET %d";
 
 		$query_values = array_merge( array( $this->table_name ), $where_values, array( $args['per_page'], $offset ) );
 		$query        = $wpdb->prepare( $query, $query_values );
@@ -462,10 +458,10 @@ class Kickbox_Integration_Flagged_Emails {
 	 */
 	public function get_statistics() {
 		$cache_key = $this->get_cache_key_for_stats();
-
+		
 		// Try to get from cache first
 		$stats = wp_cache_get( $cache_key, $this->cache_group );
-
+		
 		if ( $stats !== false ) {
 			return $stats;
 		}
@@ -475,26 +471,26 @@ class Kickbox_Integration_Flagged_Emails {
 		$stats = array();
 
 		// Total flagged emails
-		$stats['total'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %s", $this->table_name ) );
+		$stats['total'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i", $this->table_name ) );
 
 		// Pending reviews
-		$stats['pending'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %s WHERE admin_decision = %s", $this->table_name, 'pending' ) );
+		$stats['pending'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE admin_decision = %s", $this->table_name, 'pending' ) );
 
 		// Allowed emails
-		$stats['allowed'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %s WHERE admin_decision = %s", $this->table_name, 'allow' ) );
+		$stats['allowed'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE admin_decision = %s", $this->table_name, 'allow' ) );
 
 		// Blocked emails
-		$stats['blocked'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %s WHERE admin_decision = %s", $this->table_name, 'block' ) );
+		$stats['blocked'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE admin_decision = %s", $this->table_name, 'block' ) );
 
 		// By origin
 		$stats['by_origin'] = $wpdb->get_results(
-			$wpdb->prepare( "SELECT origin, COUNT(*) as count FROM %s GROUP BY origin", $this->table_name ),
+			$wpdb->prepare( "SELECT origin, COUNT(*) as count FROM %i GROUP BY origin", $this->table_name ),
 			OBJECT_K
 		);
 
 		// By Kickbox result
 		$stats['by_result'] = $wpdb->get_results(
-			$wpdb->prepare( "SELECT JSON_EXTRACT(kickbox_result, '$.result') as result, COUNT(*) as count FROM %s GROUP BY JSON_EXTRACT(kickbox_result, '$.result')", $this->table_name ),
+			$wpdb->prepare( "SELECT JSON_EXTRACT(kickbox_result, '$.result') as result, COUNT(*) as count FROM %i GROUP BY JSON_EXTRACT(kickbox_result, '$.result')", $this->table_name ),
 			OBJECT_K
 		);
 
