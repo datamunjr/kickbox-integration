@@ -283,6 +283,19 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                     </div>
 
                     <div className="kickbox_integration-filter-group">
+                        <label htmlFor="verification-action-filter">Action at time of Verification:</label>
+                        <select
+                            id="verification-action-filter"
+                            value={filters.verification_action}
+                            onChange={(e) => handleFilterChange('verification_action', e.target.value)}
+                        >
+                            <option value="">All Actions</option>
+                            <option value="block">Blocked</option>
+                            <option value="review">Flagged</option>
+                        </select>
+                    </div>
+
+                    <div className="kickbox_integration-filter-group">
                         <label htmlFor="decision-filter">Decision:</label>
                         <select
                             id="decision-filter"
@@ -306,19 +319,6 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                             <option value="">All Origins</option>
                             <option value="checkout">Checkout</option>
                             <option value="registration">Registration</option>
-                        </select>
-                    </div>
-
-                    <div className="kickbox_integration-filter-group">
-                        <label htmlFor="verification-action-filter">Action at time of Verification:</label>
-                        <select
-                            id="verification-action-filter"
-                            value={filters.verification_action}
-                            onChange={(e) => handleFilterChange('verification_action', e.target.value)}
-                        >
-                            <option value="">All Actions</option>
-                            <option value="block">Block</option>
-                            <option value="review">Review</option>
                         </select>
                     </div>
 
@@ -386,7 +386,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                                     <td>
                       <span
                           className={`kickbox_integration-badge ${getVerificationActionBadgeClass(email.verification_action)}`}>
-                        {email.verification_action || 'review'}
+                        {email.verification_action + 'ed' || 'unknown'}
                       </span>
                                     </td>
                                     <td>
