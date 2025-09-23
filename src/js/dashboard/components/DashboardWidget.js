@@ -24,14 +24,14 @@ const DashboardWidget = () => {
             setLoading(true);
             setError('');
 
-            const response = await fetch(wckb_dashboard.ajax_url, {
+            const response = await fetch(kickbox_integration_dashboard.ajax_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    action: 'wckb_dashboard_stats',
-                    nonce: wckb_dashboard.nonce
+                    action: 'kickbox_integration_dashboard_stats',
+                    nonce: kickbox_integration_dashboard.nonce
                 })
             });
 
@@ -39,10 +39,10 @@ const DashboardWidget = () => {
             if (data.success) {
                 setStats(data.data);
             } else {
-                setError(data.data?.message || wckb_dashboard.strings.error);
+                setError(data.data?.message || kickbox_integration_dashboard.strings.error);
             }
         } catch (error) {
-            setError(wckb_dashboard.strings.error);
+            setError(kickbox_integration_dashboard.strings.error);
         } finally {
             setLoading(false);
         }
@@ -60,10 +60,10 @@ const DashboardWidget = () => {
 
     const getResultLabel = (result) => {
         const labels = {
-            deliverable: wckb_dashboard.strings.deliverable,
-            undeliverable: wckb_dashboard.strings.undeliverable,
-            risky: wckb_dashboard.strings.risky,
-            unknown: wckb_dashboard.strings.unknown
+            deliverable: kickbox_integration_dashboard.strings.deliverable,
+            undeliverable: kickbox_integration_dashboard.strings.undeliverable,
+            risky: kickbox_integration_dashboard.strings.risky,
+            unknown: kickbox_integration_dashboard.strings.unknown
         };
         return labels[result] || result;
     };
@@ -124,23 +124,23 @@ const DashboardWidget = () => {
 
     if (loading) {
         return (
-            <div className="wckb-dashboard-loading">
+            <div className="kickbox_integration-dashboard-loading">
                 <span className="spinner is-active"></span>
-                {wckb_dashboard.strings.loading}
+                {kickbox_integration_dashboard.strings.loading}
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="wckb-dashboard-error">
+            <div className="kickbox_integration-dashboard-error">
                 <p>{error}</p>
                 <button
                     type="button"
                     className="button button-small"
                     onClick={loadStats}
                 >
-                    {wckb_dashboard.strings.retry || 'Retry'}
+                    {kickbox_integration_dashboard.strings.retry || 'Retry'}
                 </button>
             </div>
         );
@@ -151,47 +151,47 @@ const DashboardWidget = () => {
 
     if (totalVerifications === 0) {
         return (
-            <div className="wckb-dashboard-no-data">
-                <p>{wckb_dashboard.strings.no_data}</p>
+            <div className="kickbox_integration-dashboard-no-data">
+                <p>{kickbox_integration_dashboard.strings.no_data}</p>
             </div>
         );
     }
 
     return (
-        <div className="wckb-dashboard-widget">
-            <div className="wckb-dashboard-stats">
-                <div className="wckb-dashboard-stat">
-                    <span className="wckb-dashboard-stat-number">{totalVerifications}</span>
-                    <span className="wckb-dashboard-stat-label">{wckb_dashboard.strings.total}</span>
+        <div className="kickbox_integration-dashboard-widget">
+            <div className="kickbox_integration-dashboard-stats">
+                <div className="kickbox_integration-dashboard-stat">
+                    <span className="kickbox_integration-dashboard-stat-number">{totalVerifications}</span>
+                    <span className="kickbox_integration-dashboard-stat-label">{kickbox_integration_dashboard.strings.total}</span>
                 </div>
 
-                <div className="wckb-dashboard-stat">
-          <span className="wckb-dashboard-stat-number">
+                <div className="kickbox_integration-dashboard-stat">
+          <span className="kickbox_integration-dashboard-stat-number">
             {stats ? stats.find(item => item.verification_result === 'deliverable')?.count || 0 : 0}
           </span>
-                    <span className="wckb-dashboard-stat-label">{wckb_dashboard.strings.deliverable}</span>
+                    <span className="kickbox_integration-dashboard-stat-label">{kickbox_integration_dashboard.strings.deliverable}</span>
                 </div>
 
-                <div className="wckb-dashboard-stat">
-          <span className="wckb-dashboard-stat-number">
+                <div className="kickbox_integration-dashboard-stat">
+          <span className="kickbox_integration-dashboard-stat-number">
             {stats ? stats.find(item => item.verification_result === 'undeliverable')?.count || 0 : 0}
           </span>
-                    <span className="wckb-dashboard-stat-label">{wckb_dashboard.strings.undeliverable}</span>
+                    <span className="kickbox_integration-dashboard-stat-label">{kickbox_integration_dashboard.strings.undeliverable}</span>
                 </div>
             </div>
 
             {chartData && (
-                <div className="wckb-dashboard-chart">
+                <div className="kickbox_integration-dashboard-chart">
                     <Pie data={chartData} options={chartOptions}/>
                 </div>
             )}
 
-            <div className="wckb-dashboard-actions">
+            <div className="kickbox_integration-dashboard-actions">
                 <a
-                    href={wckb_dashboard.admin_url || '#'}
+                    href={kickbox_integration_dashboard.admin_url || '#'}
                     className="button button-small"
                 >
-                    {wckb_dashboard.strings.view_details}
+                    {kickbox_integration_dashboard.strings.view_details}
                 </a>
             </div>
         </div>

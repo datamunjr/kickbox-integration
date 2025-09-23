@@ -58,7 +58,7 @@ const EmailVerification = () => {
     }, []);
 
     // Don't render if verification is not enabled
-    if (!wckb_checkout || !wckb_checkout.verification_enabled) {
+    if (!kickbox_integration_checkout || !kickbox_integration_checkout.verification_enabled) {
         return null;
     }
 
@@ -72,19 +72,19 @@ const EmailVerification = () => {
     const getStatusMessage = (result) => {
         const messages = {
             deliverable: {
-                text: wckb_checkout.strings.deliverable,
+                text: kickbox_integration_checkout.strings.deliverable,
                 type: 'success'
             },
             undeliverable: {
-                text: wckb_checkout.strings.undeliverable,
+                text: kickbox_integration_checkout.strings.undeliverable,
                 type: 'error'
             },
             risky: {
-                text: wckb_checkout.strings.risky,
+                text: kickbox_integration_checkout.strings.risky,
                 type: 'warning'
             },
             unknown: {
-                text: wckb_checkout.strings.unknown,
+                text: kickbox_integration_checkout.strings.unknown,
                 type: 'info'
             }
         };
@@ -113,14 +113,14 @@ const EmailVerification = () => {
         setError('');
 
         try {
-            const response = await fetch(wckb_checkout.ajax_url, {
+            const response = await fetch(kickbox_integration_checkout.ajax_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    action: 'wckb_verify_email',
-                    nonce: wckb_checkout.nonce,
+                    action: 'kickbox_integration_verify_email',
+                    nonce: kickbox_integration_checkout.nonce,
                     email: email
                 })
             });
@@ -133,18 +133,18 @@ const EmailVerification = () => {
 
                 // Check if this result should block submission based on backend settings
                 const result = data.data.result;
-                const action = wckb_checkout.verification_actions[result] || 'allow';
+                const action = kickbox_integration_checkout.verification_actions[result] || 'allow';
                 const shouldBlock = action === 'block';
                 setShouldBlockSubmission(shouldBlock);
 
 
                 return !shouldBlock; // Return true if submission should proceed
             } else {
-                setError(data.data.message || wckb_checkout.strings.verification_error);
+                setError(data.data.message || kickbox_integration_checkout.strings.verification_error);
                 return true; // Allow submission on API error
             }
         } catch (error) {
-            setError(wckb_checkout.strings.verification_error);
+            setError(kickbox_integration_checkout.strings.verification_error);
             return true; // Allow submission on network error
         } finally {
             setLoading(false);
@@ -153,19 +153,19 @@ const EmailVerification = () => {
 
     // Make verifyEmailOnSubmit available globally for Place Order buttons
     useEffect(() => {
-        window.wckbVerifyEmailOnSubmit = verifyEmailOnSubmit;
+        window.kickboxIntegrationVerifyEmailOnSubmit = verifyEmailOnSubmit;
         return () => {
-            delete window.wckbVerifyEmailOnSubmit;
+            delete window.kickboxIntegrationVerifyEmailOnSubmit;
         };
     }, [email, lastVerifiedEmail, shouldBlockSubmission, verificationStatus]);
 
     // Show blocking banner if verification failed and should block
     if (shouldBlockSubmission && verificationStatus) {
         return (
-            <div className="wckb-checkout-blocked-banner">
-                <div className="wckb-banner-content">
-                    <span className="wckb-banner-icon">⚠️</span>
-                    <div className="wckb-banner-text">
+            <div className="kickbox_integration-checkout-blocked-banner">
+                <div className="kickbox_integration-banner-content">
+                    <span className="kickbox_integration-banner-icon">⚠️</span>
+                    <div className="kickbox_integration-banner-text">
                         <strong>Checkout cannot continue</strong>
                         <p>{getStatusMessage(verificationStatus.result).text}</p>
                         <p>Please use a different email address to complete your order.</p>
@@ -178,10 +178,10 @@ const EmailVerification = () => {
     // Show loading banner if verification is in progress
     if (loading) {
         return (
-            <div className="wckb-checkout-verifying-banner">
-                <div className="wckb-banner-content">
+            <div className="kickbox_integration-checkout-verifying-banner">
+                <div className="kickbox_integration-banner-content">
                     <span className="spinner is-active"></span>
-                    <div className="wckb-banner-text">
+                    <div className="kickbox_integration-banner-text">
                         <strong>Verifying email address...</strong>
                         <p>Please wait while we verify your email address.</p>
                     </div>
@@ -193,10 +193,10 @@ const EmailVerification = () => {
     // Show error banner if verification failed
     if (error) {
         return (
-            <div className="wckb-checkout-error-banner">
-                <div className="wckb-banner-content">
-                    <span className="wckb-banner-icon">❌</span>
-                    <div className="wckb-banner-text">
+            <div className="kickbox_integration-checkout-error-banner">
+                <div className="kickbox_integration-banner-content">
+                    <span className="kickbox_integration-banner-icon">❌</span>
+                    <div className="kickbox_integration-banner-text">
                         <strong>Email verification failed</strong>
                         <p>{error}</p>
                         <p>You can still proceed with checkout.</p>

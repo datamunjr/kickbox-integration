@@ -1,27 +1,27 @@
 /* Checkout Email Verification Styles */
-#wckb-checkout-verification {
+#kickbox_integration-checkout-verification {
   margin-top: 15px;
   margin-bottom: 15px;
 }
 
-.wckb-email-verification {
+.kickbox_integration-email-verification {
   margin-top: 10px;
   padding: 10px;
   border-radius: 4px;
   font-size: 14px;
 }
 
-.wckb-verification-loading {
+.kickbox_integration-verification-loading {
   display: flex;
   align-items: center;
   color: #666;
 }
 
-.wckb-verification-loading .spinner {
+.kickbox_integration-verification-loading .spinner {
   margin-right: 8px;
 }
 
-.wckb-verification-error {
+.kickbox_integration-verification-error {
   color: #dc3232;
   background: #fbeaea;
   border: 1px solid #dc3232;
@@ -29,7 +29,7 @@
   border-radius: 4px;
 }
 
-.wckb-verification-status {
+.kickbox_integration-verification-status {
   display: flex;
   align-items: center;
   padding: 8px 12px;
@@ -37,48 +37,48 @@
   font-weight: 500;
 }
 
-.wckb-verification-status.wckb-deliverable {
+.kickbox_integration-verification-status.kickbox_integration-deliverable {
   color: #46b450;
   background: #ecf7ed;
   border: 1px solid #46b450;
 }
 
-.wckb-verification-status.wckb-undeliverable {
+.kickbox_integration-verification-status.kickbox_integration-undeliverable {
   color: #dc3232;
   background: #fbeaea;
   border: 1px solid #dc3232;
 }
 
-.wckb-verification-status.wckb-risky {
+.kickbox_integration-verification-status.kickbox_integration-risky {
   color: #ffb900;
   background: #fff8e5;
   border: 1px solid #ffb900;
 }
 
-.wckb-verification-status.wckb-unknown {
+.kickbox_integration-verification-status.kickbox_integration-unknown {
   color: #00a0d2;
   background: #e5f6ff;
   border: 1px solid #00a0d2;
 }
 
-.wckb-status-icon {
+.kickbox_integration-status-icon {
   margin-right: 8px;
   font-weight: bold;
   font-size: 16px;
 }
 
-.wckb-status-message {
+.kickbox_integration-status-message {
   flex: 1;
 }
 
-.wckb-verification-details {
+.kickbox_integration-verification-details {
   margin-top: 5px;
   font-size: 12px;
   color: #666;
   font-style: italic;
 }
 
-.wckb-block-notice {
+.kickbox_integration-block-notice {
   margin-top: 8px;
   padding: 6px 10px;
   background: #fff3cd;
@@ -89,7 +89,7 @@
   font-weight: 500;
 }
 
-.wckb-review-notice {
+.kickbox_integration-review-notice {
   margin-top: 8px;
   padding: 6px 10px;
   background: #d1ecf1;
@@ -101,85 +101,85 @@
 }
 
 /* Checkout Banner Styles */
-.wckb-checkout-blocked-banner,
-.wckb-checkout-verifying-banner,
-.wckb-checkout-error-banner {
+.kickbox_integration-checkout-blocked-banner,
+.kickbox_integration-checkout-verifying-banner,
+.kickbox_integration-checkout-error-banner {
   margin: 20px 0;
   padding: 15px 20px;
   border-radius: 4px;
   border-left: 4px solid;
 }
 
-.wckb-checkout-blocked-banner {
+.kickbox_integration-checkout-blocked-banner {
   background: #fbeaea;
   border-left-color: #dc3232;
   color: #721c24;
 }
 
-.wckb-checkout-verifying-banner {
+.kickbox_integration-checkout-verifying-banner {
   background: #e5f6ff;
   border-left-color: #00a0d2;
   color: #004085;
 }
 
-.wckb-checkout-error-banner {
+.kickbox_integration-checkout-error-banner {
   background: #fff3cd;
   border-left-color: #ffb900;
   color: #856404;
 }
 
-.wckb-banner-content {
+.kickbox_integration-banner-content {
   display: flex;
   align-items: flex-start;
   gap: 12px;
 }
 
-.wckb-banner-icon {
+.kickbox_integration-banner-icon {
   font-size: 20px;
   line-height: 1;
   margin-top: 2px;
 }
 
-.wckb-banner-text {
+.kickbox_integration-banner-text {
   flex: 1;
 }
 
-.wckb-banner-text strong {
+.kickbox_integration-banner-text strong {
   display: block;
   margin-bottom: 5px;
   font-size: 14px;
 }
 
-.wckb-banner-text p {
+.kickbox_integration-banner-text p {
   margin: 0 0 5px 0;
   font-size: 13px;
   line-height: 1.4;
 }
 
-.wckb-banner-text p:last-child {
+.kickbox_integration-banner-text p:last-child {
   margin-bottom: 0;
 }
 
 /* Integration with WooCommerce checkout */
-.woocommerce-checkout .wckb-email-verification {
+.woocommerce-checkout .kickbox_integration-email-verification {
   margin-top: 5px;
 }
 
-.woocommerce-checkout .wckb-verification-status {
+.woocommerce-checkout .kickbox_integration-verification-status {
   margin-top: 5px;
 }
 
 /* Mobile responsive */
 @media (max-width: 768px) {
-  .wckb-email-verification {
+  .kickbox_integration-email-verification {
     font-size: 13px;
   }
   
-  .wckb-verification-status {
+  .kickbox_integration-verification-status {
     padding: 6px 10px;
   }
   
-  .wckb-status-icon {
+  .kickbox_integration-status-icon {
     font-size: 14px;
   }
 }

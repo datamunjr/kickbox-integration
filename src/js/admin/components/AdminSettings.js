@@ -71,14 +71,14 @@ const AdminSettings = () => {
 
     const loadSettings = async () => {
         try {
-            const response = await fetch(wckb_admin.ajax_url, {
+            const response = await fetch(kickbox_integration_admin.ajax_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    action: 'wckb_get_settings',
-                    nonce: wckb_admin.nonce
+                    action: 'kickbox_integration_get_settings',
+                    nonce: kickbox_integration_admin.nonce
                 })
             });
 
@@ -95,14 +95,14 @@ const AdminSettings = () => {
 
     const loadPendingCount = async () => {
         try {
-            const response = await fetch(wckb_admin.ajax_url, {
+            const response = await fetch(kickbox_integration_admin.ajax_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    action: 'wckb_get_pending_count',
-                    nonce: wckb_admin.nonce
+                    action: 'kickbox_integration_get_pending_count',
+                    nonce: kickbox_integration_admin.nonce
                 })
             });
 
@@ -122,8 +122,8 @@ const AdminSettings = () => {
         try {
             console.log(settings);
             const body = {
-                action: 'wckb_save_settings',
-                nonce: wckb_admin.nonce,
+                action: 'kickbox_integration_save_settings',
+                nonce: kickbox_integration_admin.nonce,
                 apiKey: settings.apiKey,
                 deliverableAction: settings.deliverableAction,
                 undeliverableAction: settings.undeliverableAction,
@@ -135,7 +135,7 @@ const AdminSettings = () => {
                 skipValidation: Boolean(!settings?.hasApiKeyChanged).toString()
             }
             console.log(body);
-            const response = await fetch(wckb_admin.ajax_url, {
+            const response = await fetch(kickbox_integration_admin.ajax_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -190,21 +190,21 @@ const AdminSettings = () => {
         setMessage({type: '', text: ''});
 
         try {
-            const response = await fetch(wckb_admin.ajax_url, {
+            const response = await fetch(kickbox_integration_admin.ajax_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    action: 'wckb_test_api',
-                    nonce: wckb_admin.nonce,
+                    action: 'kickbox_integration_test_api',
+                    nonce: kickbox_integration_admin.nonce,
                     api_key: settings.apiKey
                 })
             });
 
             const data = await response.json();
             if (data.success) {
-                setMessage({type: 'success', text: wckb_admin.strings.api_success, details: null, hasDetails: false});
+                setMessage({type: 'success', text: kickbox_integration_admin.strings.api_success, details: null, hasDetails: false});
                 // Call the success callback if provided
                 if (onSuccess) {
                     onSuccess();
@@ -212,13 +212,13 @@ const AdminSettings = () => {
             } else {
                 setMessage({
                     type: 'error',
-                    text: data.data.message || wckb_admin.strings.api_error,
+                    text: data.data.message || kickbox_integration_admin.strings.api_error,
                     details: data.data.details || null,
                     hasDetails: data.data.has_details || false
                 });
             }
         } catch (error) {
-            setMessage({type: 'error', text: wckb_admin.strings.api_error, details: null, hasDetails: false});
+            setMessage({type: 'error', text: kickbox_integration_admin.strings.api_error, details: null, hasDetails: false});
         } finally {
             setLoading(false);
         }
@@ -236,7 +236,7 @@ const AdminSettings = () => {
         if (!details) return null;
 
         return (
-            <div className="wckb-error-details" style={{
+            <div className="kickbox_integration-error-details" style={{
                 marginTop: '10px',
                 padding: '10px',
                 backgroundColor: '#f9f9f9',
@@ -282,11 +282,11 @@ const AdminSettings = () => {
     // Show loading state while initial data is being fetched
     if (initialLoading) {
         return (
-            <div className="wckb-admin-container">
-                <div className="wckb-header">
+            <div className="kickbox_integration-admin-container">
+                <div className="kickbox_integration-header">
                     <h2>Kickbox Integration Settings</h2>
                 </div>
-                <div className="wckb-loading" style={{
+                <div className="kickbox_integration-loading" style={{
                     textAlign: 'center',
                     padding: '40px 20px',
                     fontSize: '16px',
@@ -315,8 +315,8 @@ const AdminSettings = () => {
     }
 
     return (
-        <div className="wckb-admin-container">
-            <div className="wckb-header">
+        <div className="kickbox_integration-admin-container">
+            <div className="kickbox_integration-header">
                 <h2>Kickbox Integration Settings</h2>
                 {message.text && (
                     <div className={`notice notice-${message.type}`}>
@@ -340,16 +340,16 @@ const AdminSettings = () => {
                 )}
             </div>
 
-            <div className="wckb-tabs">
+            <div className="kickbox_integration-tabs">
                 {tabs.map(tab => (
                     <button
                         key={tab.id}
-                        className={`wckb-tab ${activeTab === tab.id ? 'active' : ''}`}
+                        className={`kickbox_integration-tab ${activeTab === tab.id ? 'active' : ''}`}
                         onClick={() => handleTabChange(tab.id)}
                     >
                         {tab.label}
                         {tab.id === 'flagged' && pendingCount > 0 && (
-                            <span className="wckb-pending-badge">
+                            <span className="kickbox_integration-pending-badge">
                                 {pendingCount}
                             </span>
                         )}
@@ -357,7 +357,7 @@ const AdminSettings = () => {
                 ))}
             </div>
 
-            <div className="wckb-tab-content">
+            <div className="kickbox_integration-tab-content">
                 {ActiveComponent && (
                     <ActiveComponent
                         settings={settings}
@@ -371,7 +371,7 @@ const AdminSettings = () => {
                 )}
             </div>
 
-            <div className="wckb-actions">
+            <div className="kickbox_integration-actions">
                 <button
                     type="button"
                     className="button button-primary"

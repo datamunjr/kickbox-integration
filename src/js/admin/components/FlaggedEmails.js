@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 
 // Custom debounce hook
 const useDebounce = (value, delay) => {
@@ -38,7 +38,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
     const [selectedEmail, setSelectedEmail] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [decisionNotes, setDecisionNotes] = useState('');
-    
+
     // Debounce search input with 500ms delay
     const debouncedSearch = useDebounce(filters.search, 500);
 
@@ -46,7 +46,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
     useEffect(() => {
         fetchFlaggedEmails();
     }, [pagination.current_page, filters.decision, filters.origin, filters.verification_action, filters.orderby, filters.order]);
-    
+
     // Separate effect for debounced search
     useEffect(() => {
         fetchFlaggedEmails();
@@ -55,12 +55,12 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
     const fetchFlaggedEmails = async () => {
         setLoading(true);
         try {
-            const response = await fetch(wckb_admin.ajax_url, {
+            const response = await fetch(kickbox_integration_admin.ajax_url, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: new URLSearchParams({
-                    action: 'wckb_get_flagged_emails',
-                    nonce: wckb_admin.nonce,
+                    action: 'kickbox_integration_get_flagged_emails',
+                    nonce: kickbox_integration_admin.nonce,
                     page: pagination.current_page,
                     per_page: pagination.per_page,
                     search: debouncedSearch,
@@ -102,12 +102,12 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
 
     const handleDecisionUpdate = async (id, decision) => {
         try {
-            const response = await fetch(wckb_admin.ajax_url, {
+            const response = await fetch(kickbox_integration_admin.ajax_url, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: new URLSearchParams({
-                    action: 'wckb_update_flagged_decision',
-                    nonce: wckb_admin.nonce,
+                    action: 'kickbox_integration_update_flagged_decision',
+                    nonce: kickbox_integration_admin.nonce,
                     id: id,
                     decision: decision,
                     notes: decisionNotes
@@ -135,12 +135,12 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
 
     const handleEditDecision = async (id, decision) => {
         try {
-            const response = await fetch(wckb_admin.ajax_url, {
+            const response = await fetch(kickbox_integration_admin.ajax_url, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: new URLSearchParams({
-                    action: 'wckb_edit_flagged_decision',
-                    nonce: wckb_admin.nonce,
+                    action: 'kickbox_integration_edit_flagged_decision',
+                    nonce: kickbox_integration_admin.nonce,
                     id: id,
                     decision: decision,
                     notes: decisionNotes
@@ -175,37 +175,37 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
     const getResultBadgeClass = (result) => {
         switch (result) {
             case 'undeliverable':
-                return 'wckb-badge-undeliverable';
+                return 'kickbox_integration-badge-undeliverable';
             case 'risky':
-                return 'wckb-badge-risky';
+                return 'kickbox_integration-badge-risky';
             case 'unknown':
-                return 'wckb-badge-unknown';
+                return 'kickbox_integration-badge-unknown';
             default:
-                return 'wckb-badge-default';
+                return 'kickbox_integration-badge-default';
         }
     };
 
     const getDecisionBadgeClass = (decision) => {
         switch (decision) {
             case 'pending':
-                return 'wckb-badge-pending';
+                return 'kickbox_integration-badge-pending';
             case 'allow':
-                return 'wckb-badge-allow';
+                return 'kickbox_integration-badge-allow';
             case 'block':
-                return 'wckb-badge-block';
+                return 'kickbox_integration-badge-block';
             default:
-                return 'wckb-badge-default';
+                return 'kickbox_integration-badge-default';
         }
     };
 
     const getVerificationActionBadgeClass = (action) => {
         switch (action) {
             case 'block':
-                return 'wckb-badge-block';
+                return 'kickbox_integration-badge-block';
             case 'review':
-                return 'wckb-badge-review';
+                return 'kickbox_integration-badge-review';
             default:
-                return 'wckb-badge-default';
+                return 'kickbox_integration-badge-default';
         }
     };
 
@@ -232,7 +232,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
         }
 
         return (
-            <div className="wckb-pagination">
+            <div className="kickbox_integration-pagination">
                 <button
                     className="button"
                     onClick={() => handlePageChange(pagination.current_page - 1)}
@@ -248,7 +248,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                 >
                     Next
                 </button>
-                <span className="wckb-pagination-info">
+                <span className="kickbox_integration-pagination-info">
           Page {pagination.current_page} of {pagination.total_pages}
                     ({pagination.total_items} total items)
         </span>
@@ -257,8 +257,8 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
     };
 
     return (
-        <div className="wckb-flagged-emails">
-            <div className="wckb-flagged-emails-header">
+        <div className="kickbox_integration-flagged-emails">
+            <div className="kickbox_integration-flagged-emails-header">
                 <h3>Review Flagged Emails</h3>
                 <p>Review emails that were flagged during checkout for admin decision.</p>
             </div>
@@ -269,9 +269,9 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                 </div>
             )}
 
-            <div className="wckb-flagged-emails-filters">
-                <div className="wckb-filter-row">
-                    <div className="wckb-filter-group">
+            <div className="kickbox_integration-flagged-emails-filters">
+                <div className="kickbox_integration-filter-row">
+                    <div className="kickbox_integration-filter-group">
                         <label htmlFor="search-filter">Search Email:</label>
                         <input
                             id="search-filter"
@@ -282,7 +282,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                         />
                     </div>
 
-                    <div className="wckb-filter-group">
+                    <div className="kickbox_integration-filter-group">
                         <label htmlFor="decision-filter">Decision:</label>
                         <select
                             id="decision-filter"
@@ -296,7 +296,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                         </select>
                     </div>
 
-                    <div className="wckb-filter-group">
+                    <div className="kickbox_integration-filter-group">
                         <label htmlFor="origin-filter">Origin:</label>
                         <select
                             id="origin-filter"
@@ -309,7 +309,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                         </select>
                     </div>
 
-                    <div className="wckb-filter-group">
+                    <div className="kickbox_integration-filter-group">
                         <label htmlFor="verification-action-filter">Action at time of Verification:</label>
                         <select
                             id="verification-action-filter"
@@ -322,7 +322,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                         </select>
                     </div>
 
-                    <div className="wckb-filter-group">
+                    <div className="kickbox_integration-filter-group">
                         <label htmlFor="orderby-filter">Sort By:</label>
                         <select
                             id="orderby-filter"
@@ -338,16 +338,16 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
             </div>
 
             {loading ? (
-                <div className="wckb-loading">
+                <div className="kickbox_integration-loading">
                     <p>Loading flagged emails...</p>
                 </div>
             ) : flaggedEmails.length === 0 ? (
-                <div className="wckb-empty-state">
+                <div className="kickbox_integration-empty-state">
                     <p>No flagged emails found.</p>
                 </div>
             ) : (
                 <>
-                    <div className="wckb-flagged-emails-table">
+                    <div className="kickbox_integration-flagged-emails-table">
                         <table className="wp-list-table widefat fixed striped">
                             <thead>
                             <tr>
@@ -367,28 +367,30 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                                     <td>
                                         <strong>{email.email}</strong>
                                         {email.user_id && (
-                                            <div className="wckb-user-info">
+                                            <div className="kickbox_integration-user-info">
                                                 User ID: {email.user_id}
                                             </div>
                                         )}
                                     </td>
                                     <td>
-                      <span className={`wckb-badge ${getResultBadgeClass(email.kickbox_result?.result)}`}>
+                      <span
+                          className={`kickbox_integration-badge ${getResultBadgeClass(email.kickbox_result?.result)}`}>
                         {email.kickbox_result?.result || 'Unknown'}
                       </span>
                                         {email.kickbox_result?.reason && (
-                                            <div className="wckb-reason">
+                                            <div className="kickbox_integration-reason">
                                                 {email.kickbox_result.reason}
                                             </div>
                                         )}
                                     </td>
                                     <td>
-                      <span className={`wckb-badge ${getVerificationActionBadgeClass(email.verification_action)}`}>
+                      <span
+                          className={`kickbox_integration-badge ${getVerificationActionBadgeClass(email.verification_action)}`}>
                         {email.verification_action || 'review'}
                       </span>
                                     </td>
                                     <td>
-                      <span className={`wckb-badge ${getDecisionBadgeClass(email.admin_decision)}`}>
+                      <span className={`kickbox_integration-badge ${getDecisionBadgeClass(email.admin_decision)}`}>
                         {email.admin_decision}
                       </span>
                                     </td>
@@ -411,15 +413,15 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                                                 Review
                                             </button>
                                         ) : (
-                                            <div className="wckb-reviewed-info">
+                                            <div className="kickbox_integration-reviewed-info">
                                                 <div>Reviewed: {formatDate(email.reviewed_date)}</div>
                                                 {email.admin_notes && (
-                                                    <div className="wckb-notes">
+                                                    <div className="kickbox_integration-notes">
                                                         <strong>Notes:</strong> {email.admin_notes}
                                                     </div>
                                                 )}
                                                 <button
-                                                    className="button button-secondary wckb-edit-button"
+                                                    className="button button-secondary kickbox_integration-edit-button"
                                                     onClick={() => openDecisionModal(email)}
                                                     style={{marginTop: '5px'}}
                                                 >
@@ -439,9 +441,9 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
             )}
 
             {showModal && selectedEmail && (
-                <div className="wckb-modal-overlay">
-                    <div className="wckb-modal">
-                        <div className="wckb-modal-header">
+                <div className="kickbox_integration-modal-overlay">
+                    <div className="kickbox_integration-modal">
+                        <div className="kickbox_integration-modal-header">
                             <h3>
                                 {selectedEmail.admin_decision === 'pending'
                                     ? `Review Flagged Email: ${selectedEmail.email}`
@@ -449,17 +451,17 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                                 }
                             </h3>
                             <button
-                                className="wckb-modal-close"
+                                className="kickbox_integration-modal-close"
                                 onClick={() => setShowModal(false)}
                             >
                                 ×
                             </button>
                         </div>
 
-                        <div className="wckb-modal-content">
-                            <div className="wckb-review-details">
+                        <div className="kickbox_integration-modal-content">
+                            <div className="kickbox_integration-review-details">
                                 <h4>Kickbox Verification Details</h4>
-                                <div className="wckb-kickbox-details">
+                                <div className="kickbox_integration-kickbox-details">
                                     <p><strong>Result:</strong> {selectedEmail.kickbox_result?.result}</p>
                                     <p><strong>Reason:</strong> {selectedEmail.kickbox_result?.reason || 'N/A'}</p>
                                     <p><strong>Sendex Score:</strong> {selectedEmail.kickbox_result?.sendex || 'N/A'}
@@ -478,11 +480,11 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                                 </div>
                             </div>
 
-                            <div className="wckb-decision-section">
+                            <div className="kickbox_integration-decision-section">
                                 <h4>{selectedEmail.admin_decision === 'pending' ? 'Admin Decision' : 'Edit Decision'}</h4>
-                                <div className="wckb-decision-options">
+                                <div className="kickbox_integration-decision-options">
                                     <button
-                                        className="button button-primary wckb-allow-button"
+                                        className="button button-primary kickbox_integration-allow-button"
                                         onClick={() => selectedEmail.admin_decision === 'pending'
                                             ? handleDecisionUpdate(selectedEmail.id, 'allow')
                                             : handleEditDecision(selectedEmail.id, 'allow')
@@ -491,7 +493,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                                         Allow Email
                                     </button>
                                     <button
-                                        className="button wckb-block-button"
+                                        className="button kickbox_integration-block-button"
                                         onClick={() => selectedEmail.admin_decision === 'pending'
                                             ? handleDecisionUpdate(selectedEmail.id, 'block')
                                             : handleEditDecision(selectedEmail.id, 'block')
@@ -501,7 +503,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
                                     </button>
                                 </div>
 
-                                <div className="wckb-notes-section">
+                                <div className="kickbox_integration-notes-section">
                                     <label htmlFor="decision-notes">Admin Notes (Optional):</label>
                                     <textarea
                                         id="decision-notes"

@@ -48,14 +48,14 @@ const ApiSettings = ({
     const fetchFullApiKey = async () => {
         setIsLoadingFullKey(true);
         try {
-            const response = await fetch(wckb_admin.ajax_url, {
+            const response = await fetch(kickbox_integration_admin.ajax_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    action: 'wckb_get_full_api_key',
-                    nonce: wckb_admin.nonce,
+                    action: 'kickbox_integration_get_full_api_key',
+                    nonce: kickbox_integration_admin.nonce,
                 }),
             });
 
@@ -114,18 +114,18 @@ const ApiSettings = ({
     };
 
     return (
-        <div className="wckb-api-settings">
+        <div className="kickbox_integration-api-settings">
             <table className="form-table">
                 <tbody>
                 <tr>
                     <th scope="row">
-                        <label htmlFor="wckb_api_key">API Key</label>
+                        <label htmlFor="kickbox_integration_api_key">API Key</label>
                     </th>
                     <td>
-                        <div className="wckb-api-key-container">
+                        <div className="kickbox_integration-api-key-container">
                             <input
                                 type="text"
-                                id="wckb_api_key"
+                                id="kickbox_integration_api_key"
                                 className="regular-text"
                                 value={settings.apiKey}
                                 onChange={(e) => handleApiKeyChange(e.target.value)}
@@ -135,7 +135,7 @@ const ApiSettings = ({
                             {settings.apiKey && (
                                 <button
                                     type="button"
-                                    className="wckb-toggle-visibility"
+                                    className="kickbox_integration-toggle-visibility"
                                     onClick={handleToggleVisibility}
                                     disabled={isLoadingFullKey}
                                     title={
@@ -175,7 +175,7 @@ const ApiSettings = ({
                             {loading ? 'Testing...' : 'Test API Connection'}
                         </button>
                         {settings.apiKey && isApiKeyValidated && (
-                            <div className="wckb-api-mode-notice">
+                            <div className="kickbox_integration-api-mode-notice">
                                 {settings.apiKey.startsWith('test_') ? (
                                     <div className="notice notice-info inline">
                                         <p><strong>Sandbox Mode:</strong> Using test API key. No credits will be
@@ -204,7 +204,7 @@ const ApiSettings = ({
                             <label>Account Balance</label>
                         </th>
                         <td>
-                            <div className={`wckb-balance-info ${settings.isBalanceLow ? 'low-balance' : ''}`}>
+                            <div className={`kickbox_integration-balance-info ${settings.isBalanceLow ? 'low-balance' : ''}`}>
                                 <p className={`balance-message ${settings.isBalanceLow ? 'low-balance-warning' : ''}`}>
                                     {settings.balanceMessage}
                                 </p>
@@ -233,16 +233,16 @@ const ApiSettings = ({
 
                 <tr>
                     <th scope="row">
-                        <label htmlFor="wckb_enable_checkout_verification">Checkout Verification</label>
+                        <label htmlFor="kickbox_integration_enable_checkout_verification">Checkout Verification</label>
                     </th>
                     <td>
                         <input
                             type="checkbox"
-                            id="wckb_enable_checkout_verification"
+                            id="kickbox_integration_enable_checkout_verification"
                             checked={settings.enableCheckoutVerification}
                             onChange={(e) => onSettingChange('enableCheckoutVerification', e.target.checked)}
                         />
-                        <label htmlFor="wckb_enable_checkout_verification">
+                        <label htmlFor="kickbox_integration_enable_checkout_verification">
                             Enable email verification during checkout
                         </label>
                     </td>
@@ -250,16 +250,16 @@ const ApiSettings = ({
 
                 <tr>
                     <th scope="row">
-                        <label htmlFor="wckb_enable_registration_verification">Registration Verification</label>
+                        <label htmlFor="kickbox_integration_enable_registration_verification">Registration Verification</label>
                     </th>
                     <td>
                         <input
                             type="checkbox"
-                            id="wckb_enable_registration_verification"
+                            id="kickbox_integration_enable_registration_verification"
                             checked={settings.enableRegistrationVerification}
                             onChange={(e) => onSettingChange('enableRegistrationVerification', e.target.checked)}
                         />
-                        <label htmlFor="wckb_enable_registration_verification">
+                        <label htmlFor="kickbox_integration_enable_registration_verification">
                             Enable email verification during user registration
                         </label>
                     </td>

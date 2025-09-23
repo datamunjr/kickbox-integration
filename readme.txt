@@ -50,7 +50,7 @@ For each verification result, you can configure the following actions:
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/wckb` directory, or install the plugin through the WordPress plugins screen directly.
+1. Upload the plugin files to the `/wp-content/plugins/kickbox-integration` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
 3. Go to WooCommerce > Kickbox Integration to configure your API key
 4. Set up your verification actions and enable the features you need
@@ -104,7 +104,7 @@ Initial release of WooCommerce Kickbox Integration.
 
 == Support ==
 
-For support, please visit the [plugin support forum](https://wordpress.org/support/plugin/wckb) or contact the plugin author.
+For support, please visit the [plugin support forum](https://wordpress.org/support/plugin/kickbox-integration) or contact the plugin author.
 
 == Privacy Policy ==
 

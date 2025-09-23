@@ -5,11 +5,11 @@ import '../../css/checkout.css';
 
 // Initialize the checkout email verification React app
 function initCheckoutVerification() {
-  const container = document.getElementById('wckb-checkout-verification');
-  if (container && !container.hasAttribute('data-wckb-initialized')) {
+  const container = document.getElementById('kickbox_integration-checkout-verification');
+  if (container && !container.hasAttribute('data-kickbox_integration-initialized')) {
     const root = createRoot(container);
     root.render(<EmailVerification />);
-    container.setAttribute('data-wckb-initialized', 'true');
+    container.setAttribute('data-kickbox_integration-initialized', 'true');
   }
 }
 
@@ -17,4 +17,4 @@ function initCheckoutVerification() {
 document.addEventListener('DOMContentLoaded', initCheckoutVerification);
 
 // Make function globally available for blocks checkout
-window.wckbInitCheckoutVerification = initCheckoutVerification;
+window.kickboxIntegrationInitCheckoutVerification = initCheckoutVerification;

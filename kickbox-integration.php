@@ -8,7 +8,7 @@
  * Author URI: https://munjr.com
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: wckb
+ * Text Domain: kickbox-integration
  * Domain Path: /languages
  * Requires at least: 5.0
  * Tested up to: 6.8
@@ -24,11 +24,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants
-define( 'WCKB_VERSION', '1.0.0' );
-define( 'WCKB_PLUGIN_FILE', __FILE__ );
-define( 'WCKB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'WCKB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'WCKB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'KICKBOX_INTEGRATION_VERSION', '1.0.0' );
+define( 'KICKBOX_INTEGRATION_PLUGIN_FILE', __FILE__ );
+define( 'KICKBOX_INTEGRATION_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'KICKBOX_INTEGRATION_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'KICKBOX_INTEGRATION_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 // Declare HPOS compatibility
 add_action( 'before_woocommerce_init', function () {
@@ -38,67 +38,67 @@ add_action( 'before_woocommerce_init', function () {
 } );
 
 // Check if WooCommerce is active
-add_action( 'plugins_loaded', 'wckb_check_woocommerce' );
+add_action( 'plugins_loaded', 'kickbox_integration_check_woocommerce' );
 
-function wckb_check_woocommerce() {
+function kickbox_integration_check_woocommerce() {
 	if ( ! class_exists( 'WooCommerce' ) ) {
-		add_action( 'admin_notices', 'wckb_woocommerce_missing_notice' );
+		add_action( 'admin_notices', 'kickbox_integration_woocommerce_missing_notice' );
 
 		return;
 	}
 
 	// Initialize the plugin
-	wckb_init();
+	kickbox_integration_init();
 }
 
-function wckb_woocommerce_missing_notice() {
-	echo '<div class="error"><p><strong>' . esc_html__( 'WooCommerce Kickbox Integration', 'wckb' ) . '</strong> ' .
-	     esc_html__( 'requires WooCommerce to be installed and active.', 'wckb' ) . '</p></div>';
+function kickbox_integration_woocommerce_missing_notice() {
+	echo '<div class="error"><p><strong>' . esc_html__( 'WooCommerce Kickbox Integration', 'kickbox-integration' ) . '</strong> ' .
+	     esc_html__( 'requires WooCommerce to be installed and active.', 'kickbox-integration' ) . '</p></div>';
 }
 
-function wckb_init() {
+function kickbox_integration_init() {
 	// Load plugin textdomain
-	load_plugin_textdomain( 'wckb', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	load_plugin_textdomain( 'kickbox-integration', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
 // Include required files
-	require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-verification.php';
-	require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-admin.php';
-	require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-checkout.php';
-	require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-registration.php';
-	require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-dashboard-widget.php';
-	require_once WCKB_PLUGIN_DIR . 'includes/class-wckb-flagged-emails.php';
+	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-verification.php';
+	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-admin.php';
+	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-checkout.php';
+	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-registration.php';
+	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-dashboard-widget.php';
+	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails.php';
 
 // Initialize classes
-	new WCKB_Verification();
-	new WCKB_Admin();
-	new WCKB_Checkout();
-	new WCKB_Registration();
-	new WCKB_Dashboard_Widget();
-	new WCKB_Flagged_Emails();
+	new Kickbox_Integration_Verification();
+	new Kickbox_Integration_Admin();
+	new Kickbox_Integration_Checkout();
+	new Kickbox_Integration_Registration();
+	new Kickbox_Integration_Dashboard_Widget();
+	new Kickbox_Integration_Flagged_Emails();
 }
 
 // Activation hook
-register_activation_hook( __FILE__, 'wckb_activate' );
+register_activation_hook( __FILE__, 'kickbox_integration_activate' );
 
-function wckb_activate() {
+function kickbox_integration_activate() {
 	// Create database tables if needed
-	wckb_create_tables();
+	kickbox_integration_create_tables();
 
 	// Add origin column to existing verification log table if it doesn't exist
-	wckb_add_origin_column_to_verification_log();
+	kickbox_integration_add_origin_column_to_verification_log();
 
 	// Add performance indexes to existing tables
-	wckb_add_performance_indexes();
+	kickbox_integration_add_performance_indexes();
 
 	// Set default options
-	wckb_set_default_options();
+	kickbox_integration_set_default_options();
 }
 
-function wckb_create_tables() {
+function kickbox_integration_create_tables() {
 	global $wpdb;
 
-	$verification_log_table = $wpdb->prefix . 'wckb_verification_log';
-	$flagged_emails_table   = $wpdb->prefix . 'wckb_flagged_emails';
+	$verification_log_table = $wpdb->prefix . 'kickbox_integration_verification_log';
+	$flagged_emails_table   = $wpdb->prefix . 'kickbox_integration_flagged_emails';
 
 	$charset_collate = $wpdb->get_charset_collate();
 
@@ -155,10 +155,10 @@ function wckb_create_tables() {
 	dbDelta( $sql_flagged );
 }
 
-function wckb_add_origin_column_to_verification_log() {
+function kickbox_integration_add_origin_column_to_verification_log() {
 	global $wpdb;
 
-	$verification_log_table = $wpdb->prefix . 'wckb_verification_log';
+	$verification_log_table = $wpdb->prefix . 'kickbox_integration_verification_log';
 
 	// Check if origin column exists
 	$column_exists = $wpdb->get_results( "SHOW COLUMNS FROM $verification_log_table LIKE 'origin'" );
@@ -174,11 +174,11 @@ function wckb_add_origin_column_to_verification_log() {
 	}
 }
 
-function wckb_add_performance_indexes() {
+function kickbox_integration_add_performance_indexes() {
 	global $wpdb;
 
-	$verification_log_table = $wpdb->prefix . 'wckb_verification_log';
-	$flagged_emails_table   = $wpdb->prefix . 'wckb_flagged_emails';
+	$verification_log_table = $wpdb->prefix . 'kickbox_integration_verification_log';
+	$flagged_emails_table   = $wpdb->prefix . 'kickbox_integration_flagged_emails';
 
 	// Add composite indexes to verification log table
 	$verification_indexes = array(
@@ -210,16 +210,16 @@ function wckb_add_performance_indexes() {
 	}
 }
 
-function wckb_set_default_options() {
+function kickbox_integration_set_default_options() {
 	$default_options = array(
-		'wckb_api_key'                          => '',
-		'wckb_deliverable_action'               => 'allow',
-		'wckb_undeliverable_action'             => 'allow',
-		'wckb_risky_action'                     => 'allow',
-		'wckb_unknown_action'                   => 'allow',
-		'wckb_enable_checkout_verification'     => 'no',
-		'wckb_enable_registration_verification' => 'no',
-		'wckb_allow_list'                       => array()
+		'kickbox_integration_api_key'                          => '',
+		'kickbox_integration_deliverable_action'               => 'allow',
+		'kickbox_integration_undeliverable_action'             => 'allow',
+		'kickbox_integration_risky_action'                     => 'allow',
+		'kickbox_integration_unknown_action'                   => 'allow',
+		'kickbox_integration_enable_checkout_verification'     => 'no',
+		'kickbox_integration_enable_registration_verification' => 'no',
+		'kickbox_integration_allow_list'                       => array()
 	);
 
 	foreach ( $default_options as $option => $value ) {
@@ -230,8 +230,8 @@ function wckb_set_default_options() {
 }
 
 // Deactivation hook
-register_deactivation_hook( __FILE__, 'wckb_deactivate' );
+register_deactivation_hook( __FILE__, 'kickbox_integration_deactivate' );
 
-function wckb_deactivate() {
+function kickbox_integration_deactivate() {
 	// Clean up if needed
 }

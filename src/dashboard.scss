@@ -1,25 +1,25 @@
 /* Dashboard Widget Styles */
-.wckb-dashboard-widget {
+.kickbox_integration-dashboard-widget {
   padding: 0;
 }
 
-.wckb-dashboard-loading,
-.wckb-dashboard-error,
-.wckb-dashboard-no-data {
+.kickbox_integration-dashboard-loading,
+.kickbox_integration-dashboard-error,
+.kickbox_integration-dashboard-no-data {
   text-align: center;
   padding: 20px;
   color: #666;
 }
 
-.wckb-dashboard-error {
+.kickbox_integration-dashboard-error {
   color: #dc3232;
 }
 
-.wckb-dashboard-error .button {
+.kickbox_integration-dashboard-error .button {
   margin-top: 10px;
 }
 
-.wckb-dashboard-stats {
+.kickbox_integration-dashboard-stats {
   display: flex;
   justify-content: space-around;
   margin-bottom: 20px;
@@ -27,12 +27,12 @@
   border-bottom: 1px solid #eee;
 }
 
-.wckb-dashboard-stat {
+.kickbox_integration-dashboard-stat {
   text-align: center;
   flex: 1;
 }
 
-.wckb-dashboard-stat-number {
+.kickbox_integration-dashboard-stat-number {
   display: block;
   font-size: 24px;
   font-weight: bold;
@@ -40,7 +40,7 @@
   line-height: 1;
 }
 
-.wckb-dashboard-stat-label {
+.kickbox_integration-dashboard-stat-label {
   display: block;
   font-size: 11px;
   color: #666;
@@ -49,19 +49,19 @@
   line-height: 1;
 }
 
-.wckb-dashboard-chart {
+.kickbox_integration-dashboard-chart {
   position: relative;
   height: 200px;
   margin: 15px 0;
 }
 
-.wckb-dashboard-actions {
+.kickbox_integration-dashboard-actions {
   text-align: center;
   padding-top: 15px;
   border-top: 1px solid #eee;
 }
 
-.wckb-dashboard-actions .button {
+.kickbox_integration-dashboard-actions .button {
   font-size: 11px;
   padding: 4px 8px;
   height: auto;
@@ -69,12 +69,12 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .wckb-dashboard-stats {
+  .kickbox_integration-dashboard-stats {
     flex-direction: column;
     gap: 10px;
   }
   
-  .wckb-dashboard-stat {
+  .kickbox_integration-dashboard-stat {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -82,15 +82,15 @@
     border-bottom: 1px solid #f0f0f0;
   }
   
-  .wckb-dashboard-stat:last-child {
+  .kickbox_integration-dashboard-stat:last-child {
     border-bottom: none;
   }
   
-  .wckb-dashboard-stat-number {
+  .kickbox_integration-dashboard-stat-number {
     font-size: 18px;
   }
   
-  .wckb-dashboard-stat-label {
+  .kickbox_integration-dashboard-stat-label {
     font-size: 12px;
     margin-top: 0;
     text-transform: none;

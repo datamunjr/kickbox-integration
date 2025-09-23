@@ -53,7 +53,7 @@ const VerificationActions = ({settings, onSettingChange}) => {
     }, []);
 
     return (
-        <div className="wckb-verification-actions">
+        <div className="kickbox_integration-verification-actions">
             <p>Configure what action to take for each verification result:</p>
             <p className="description">
                 For detailed information about each verification result type, see the{' '}
@@ -67,14 +67,14 @@ const VerificationActions = ({settings, onSettingChange}) => {
                 {verificationTypes.map(type => (
                     <tr key={type.key}>
                         <th scope="row">
-                            <label htmlFor={`wckb_${type.key}`}>
+                            <label htmlFor={`kickbox_integration_${type.key}`}>
                                 {type.label}
                                 <span className="woocommerce-help-tip" data-tip={type.description}></span>
                             </label>
                         </th>
                         <td>
                             <select
-                                id={`wckb_${type.key}`}
+                                id={`kickbox_integration_${type.key}`}
                                 value={settings[type.key]}
                                 onChange={(e) => onSettingChange(type.key, e.target.value)}
                             >
@@ -85,7 +85,7 @@ const VerificationActions = ({settings, onSettingChange}) => {
                                 ))}
                             </select>
                              {type.key === 'deliverableAction' && settings[type.key] === 'block' && (
-                                 <div className="wckb-deliverable-block-warning">
+                                 <div className="kickbox_integration-deliverable-block-warning">
                                      <p>
                                          <strong>⚠️ Warning:</strong> Blocking deliverable emails will prevent almost all
                                          users from proceeding
@@ -101,7 +101,7 @@ const VerificationActions = ({settings, onSettingChange}) => {
                 </tbody>
             </table>
 
-            <div className="wckb-action-info">
+            <div className="kickbox_integration-action-info">
                 <h4>Action Explanations:</h4>
                 <ul>
                     <li><strong>Allow:</strong> The user can proceed regardless of verification result.</li>

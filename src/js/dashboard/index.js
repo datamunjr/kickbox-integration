@@ -4,7 +4,7 @@ import DashboardWidget from './components/DashboardWidget';
 import '../../css/dashboard.css';
 
 document.addEventListener('DOMContentLoaded', function() {
-  const container = document.getElementById('wckb-dashboard-widget');
+  const container = document.getElementById('kickbox_integration-dashboard-widget');
   if (container) {
     const root = createRoot(container);
     root.render(<DashboardWidget />);
