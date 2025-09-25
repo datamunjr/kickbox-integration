@@ -131,6 +131,7 @@ class Kickbox_Integration_Admin {
 
         wp_localize_script( 'kickbox-integration-admin', 'kickbox_integration_admin', array(
                 'ajax_url' => admin_url( 'admin-ajax.php' ),
+                'plugin_url' => KICKBOX_INTEGRATION_PLUGIN_URL,
                 'nonce'    => wp_create_nonce( 'kickbox_integration_admin' ),
                 'strings'  => array(
                         'testing_api'  => __( 'Testing API connection...', 'kickbox-integration' ),
@@ -147,7 +148,29 @@ class Kickbox_Integration_Admin {
     public function admin_page() {
         ?>
         <div class="wrap">
-            <h1><?php echo esc_html__( 'Kickbox Integration Settings', 'kickbox-integration' ); ?></h1>
+            <style>
+                .kickbox-admin-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin-bottom: 20px;
+                }
+                .kickbox-admin-header img {
+                    width: 32px;
+                    height: 32px;
+                    vertical-align: middle;
+                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+                }
+                .kickbox-admin-header h1 {
+                    margin: 0;
+                    color: #1d2327;
+                }
+            </style>
+            <div class="kickbox-admin-header">
+                <img src="<?php echo esc_url( KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/images/kickbox-logo-icon-255x255.svg' ); ?>" 
+                     alt="Kickbox Logo" />
+                <h1><?php echo esc_html__( 'Kickbox Integration Settings', 'kickbox-integration' ); ?></h1>
+            </div>
 
             <div id="kickbox-integration-admin-app">
                 <p>Loading Kickbox Integration Settings...</p>

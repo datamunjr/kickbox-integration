@@ -204,7 +204,12 @@ const AdminSettings = () => {
 
             const data = await response.json();
             if (data.success) {
-                setMessage({type: 'success', text: kickbox_integration_admin.strings.api_success, details: null, hasDetails: false});
+                setMessage({
+                    type: 'success',
+                    text: kickbox_integration_admin.strings.api_success,
+                    details: null,
+                    hasDetails: false
+                });
                 // Call the success callback if provided
                 if (onSuccess) {
                     onSuccess();
@@ -218,7 +223,12 @@ const AdminSettings = () => {
                 });
             }
         } catch (error) {
-            setMessage({type: 'error', text: kickbox_integration_admin.strings.api_error, details: null, hasDetails: false});
+            setMessage({
+                type: 'error',
+                text: kickbox_integration_admin.strings.api_error,
+                details: null,
+                hasDetails: false
+            });
         } finally {
             setLoading(false);
         }
@@ -279,13 +289,24 @@ const AdminSettings = () => {
 
     const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
 
+    const kickboxIntegrationAdminHeadertitle = () => {
+        return <div className="kickbox_integration-header-title">
+            <h2 style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                Configure your Kickbox Integration Settings here!
+            </h2>
+            <p className="description">
+                For more information on how to get started with kickbox, visit <a
+                target="_blank"
+                href="https://docs.kickbox.com/docs/getting-started">https://docs.kickbox.com/docs/getting-started</a>.
+            </p>
+        </div>
+    }
+
     // Show loading state while initial data is being fetched
     if (initialLoading) {
         return (
             <div className="kickbox_integration-admin-container">
-                <div className="kickbox_integration-header">
-                    <h2>Kickbox Integration Settings</h2>
-                </div>
+                {kickboxIntegrationAdminHeadertitle()}
                 <div className="kickbox_integration-loading" style={{
                     textAlign: 'center',
                     padding: '40px 20px',
@@ -317,7 +338,7 @@ const AdminSettings = () => {
     return (
         <div className="kickbox_integration-admin-container">
             <div className="kickbox_integration-header">
-                <h2>Kickbox Integration Settings</h2>
+                {kickboxIntegrationAdminHeadertitle()}
                 {message.text && (
                     <div className={`notice notice-${message.type}`}>
                         <p>
