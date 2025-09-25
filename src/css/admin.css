@@ -1,742 +1,765 @@
 /* Admin Settings Styles */
 .kickbox_integration-admin-container {
-  max-width: 1200px;
+    max-width: 1200px;
 }
 
 .kickbox_integration-header {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .kickbox_integration-tabs {
-  display: flex;
-  border-bottom: 1px solid #ccd0d4;
-  margin-bottom: 20px;
+    display: flex;
+    border-bottom: 1px solid #ccd0d4;
+    margin-bottom: 20px;
 }
 
 .kickbox_integration-tab {
-  background: none;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  font-size: 14px;
-  color: #666;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  position: relative;
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    font-size: 14px;
+    color: #666;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
 }
 
 .kickbox_integration-tab:hover {
-  color: #0073aa;
-  background: rgba(0, 115, 170, 0.05);
+    color: #0073aa;
+    background: rgba(0, 115, 170, 0.05);
 }
 
 .kickbox_integration-tab.active {
-  color: #0073aa;
-  border-bottom-color: #0073aa;
-  background: rgba(0, 115, 170, 0.1);
-  font-weight: 500;
+    color: #0073aa;
+    border-bottom-color: #0073aa;
+    background: rgba(0, 115, 170, 0.1);
+    font-weight: 500;
 }
 
 .kickbox_integration-tab {
-  position: relative;
+    position: relative;
 }
 
 .kickbox_integration-pending-badge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: #dc3545;
-  color: white;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: bold;
-  line-height: 1;
-  min-width: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 1;
+    min-width: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .kickbox_integration-tab-content {
-  min-height: 400px;
+    min-height: 400px;
 }
 
 .kickbox_integration-actions {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #ccd0d4;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ccd0d4;
 }
 
 /* API Settings */
 .kickbox_integration-api-settings .form-table th {
-  width: 200px;
+    width: 200px;
 }
 
 .kickbox_integration-api-settings .description {
-  font-style: italic;
-  color: #666;
-  margin-top: 5px;
+    font-style: italic;
+    color: #666;
+    margin-top: 5px;
 }
 
 .kickbox_integration-api-mode-notice {
-  margin-top: 10px;
+    margin-top: 10px;
 }
 
 .kickbox_integration-api-mode-notice .notice {
-  margin: 5px 0;
-  padding: 8px 12px;
+    margin: 5px 0;
+    padding: 8px 12px;
 }
 
 .kickbox_integration-api-mode-notice .notice.inline {
-  display: inline-block;
-  margin-left: 0;
+    display: inline-block;
+    margin-left: 0;
 }
 
 /* API Key Container */
 .kickbox_integration-api-key-container {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-  max-width: 400px;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 400px;
 }
 
 .kickbox_integration-api-key-container input {
-  padding-right: 35px;
-  width: 100%;
+    padding-right: 35px;
+    width: 100%;
 }
 
 .kickbox_integration-toggle-visibility {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  color: #666;
-  transition: color 0.2s ease;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #666;
+    transition: color 0.2s ease;
 }
 
 .kickbox_integration-toggle-visibility:hover {
-  color: #0073aa;
+    color: #0073aa;
 }
 
 .kickbox_integration-toggle-visibility .dashicons {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
 }
 
 .kickbox_integration-api-key-masked {
-  margin-top: 5px;
-  color: #666;
-  font-family: monospace;
-  background: #f9f9f9;
-  padding: 4px 8px;
-  border-radius: 3px;
-  display: inline-block;
+    margin-top: 5px;
+    color: #666;
+    font-family: monospace;
+    background: #f9f9f9;
+    padding: 4px 8px;
+    border-radius: 3px;
+    display: inline-block;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Verification Actions */
 .kickbox_integration-verification-actions .form-table th {
-  width: 200px;
+    width: 200px;
 }
 
 .kickbox_integration-action-info {
-  margin-top: 30px;
-  padding: 20px;
-  background: #f9f9f9;
-  border-left: 4px solid #0073aa;
+    margin-top: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-left: 4px solid #0073aa;
 }
 
 .kickbox_integration-action-info h4 {
-  margin-top: 0;
+    margin-top: 0;
 }
 
 .kickbox_integration-action-info ul {
-  margin: 10px 0;
+    margin: 10px 0;
 }
 
 .kickbox_integration-action-info li {
-  margin-bottom: 8px;
+    margin-bottom: 8px;
 }
 
 /* Statistics */
 .kickbox_integration-verification-stats {
-  padding: 20px 0;
+    padding: 20px 0;
 }
 
 .kickbox_integration-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
 }
 
 .kickbox_integration-stat-card {
-  background: #fff;
-  border: 1px solid #ccd0d4;
-  border-radius: 4px;
-  padding: 20px;
-  text-align: center;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
 }
 
 .kickbox_integration-stat-card h3 {
-  margin: 0 0 10px 0;
-  font-size: 14px;
-  color: #666;
-  text-transform: uppercase;
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #666;
+    text-transform: uppercase;
 }
 
 .kickbox_integration-stat-number {
-  font-size: 32px;
-  font-weight: bold;
-  color: #0073aa;
+    font-size: 32px;
+    font-weight: bold;
+    color: #0073aa;
 }
 
 .kickbox_integration-results-breakdown {
-  margin-top: 30px;
+    margin-top: 30px;
 }
 
 .kickbox_integration-results-breakdown h3 {
-  margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 .kickbox_integration-results-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .kickbox_integration-result-item {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  background: #f9f9f9;
-  border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
 }
 
 .kickbox_integration-result-color {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  margin-right: 15px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 15px;
 }
 
 .kickbox_integration-result-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
 }
 
 .kickbox_integration-result-label {
-  font-weight: 500;
+    font-weight: 500;
 }
 
 .kickbox_integration-result-count {
-  font-weight: bold;
-  color: #0073aa;
+    font-weight: bold;
+    color: #0073aa;
 }
 
 .kickbox_integration-stats-actions {
-  margin-top: 20px;
-  text-align: center;
+    margin-top: 20px;
+    text-align: center;
 }
 
 /* Pie Chart Styles */
 .kickbox_integration-pie-chart-container {
-  margin-top: 30px;
-  background: #fff;
-  border: 1px solid #ccd0d4;
-  border-radius: 4px;
-  padding: 20px;
+    margin-top: 30px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
 }
 
 .kickbox_integration-pie-chart-container h3 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
 .kickbox_integration-pie-chart {
-  position: relative;
-  height: 400px;
-  max-width: 500px;
-  margin: 0 auto;
+    position: relative;
+    height: 400px;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
 /* Balance Information Styles */
 .kickbox_integration-balance-info {
-  padding: 10px 0;
+    padding: 10px 0;
 }
 
 .balance-message {
-  margin: 0 0 10px 0;
-  font-size: 14px;
-  color: #333;
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #333;
 }
 
 .balance-message.low-balance-warning {
-  color: #d63638;
-  font-weight: 600;
+    color: #d63638;
+    font-weight: 600;
 }
 
 .balance-warning {
-  background: #fbeaea;
-  border: 1px solid #f1aeb5;
-  border-radius: 4px;
-  padding: 12px;
-  margin-top: 10px;
+    background: #fbeaea;
+    border: 1px solid #f1aeb5;
+    border-radius: 4px;
+    padding: 12px;
+    margin-top: 10px;
 }
 
 .balance-warning p {
-  margin: 0 0 10px 0;
-  color: #721c24;
+    margin: 0 0 10px 0;
+    color: #721c24;
 }
 
 .balance-warning p:last-child {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 .balance-warning .button {
-  margin-right: 8px;
+    margin-right: 8px;
 }
 
 /* Deliverable Block Warning */
 .kickbox_integration-deliverable-block-warning {
-  background: #fff3cd;
-  border: 1px solid #ffb900;
-  border-radius: 4px;
-  padding: 12px;
-  margin-top: 10px;
+    background: #fff3cd;
+    border: 1px solid #ffb900;
+    border-radius: 4px;
+    padding: 12px;
+    margin-top: 10px;
 }
 
 .kickbox_integration-deliverable-block-warning p {
-  margin: 0;
-  color: #856404;
-  font-size: 13px;
-  line-height: 1.4;
+    margin: 0;
+    color: #856404;
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 /* Allow List Styles */
 .kickbox_integration-allow-list {
-  max-width: 800px;
+    max-width: 800px;
 }
 
 .kickbox_integration-allow-list-header h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 10px;
 }
 
 .kickbox_integration-allow-list-header .description {
-  margin-bottom: 20px;
-  color: #666;
-  font-style: italic;
+    margin-bottom: 20px;
+    color: #666;
+    font-style: italic;
 }
 
 .kickbox_integration-add-email-section {
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 20px;
-  margin-bottom: 30px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 30px;
 }
 
 .kickbox_integration-add-email-section h4 {
-  margin-top: 0;
-  margin-bottom: 15px;
+    margin-top: 0;
+    margin-bottom: 15px;
 }
 
 .kickbox_integration-add-email-form {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
 }
 
 .kickbox_integration-add-email-form input {
-  flex: 1;
-  max-width: 300px;
+    flex: 1;
+    max-width: 300px;
 }
 
 .kickbox_integration-allow-list-section h4 {
-  margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 .kickbox_integration-empty-allow-list {
-  background: #f0f0f1;
-  border: 1px solid #c3c4c7;
-  border-radius: 4px;
-  padding: 20px;
-  text-align: center;
-  color: #666;
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    color: #666;
 }
 
 .kickbox_integration-allow-list-items {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
 }
 
 .kickbox_integration-allow-list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 15px;
-  border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
 }
 
 .kickbox_integration-allow-list-item:last-child {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .kickbox_integration-allow-list-item:hover {
-  background: #f9f9f9;
+    background: #f9f9f9;
 }
 
 .kickbox_integration-email-address {
-  font-family: monospace;
-  font-size: 14px;
-  color: #333;
+    font-family: monospace;
+    font-size: 14px;
+    color: #333;
 }
 
 .kickbox_integration-allow-list-info {
-  background: #e5f6ff;
-  border: 1px solid #b8daff;
-  border-radius: 4px;
-  padding: 20px;
-  margin-top: 30px;
+    background: #e5f6ff;
+    border: 1px solid #b8daff;
+    border-radius: 4px;
+    padding: 20px;
+    margin-top: 30px;
 }
 
 .kickbox_integration-allow-list-info h4 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #004085;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #004085;
 }
 
 .kickbox_integration-allow-list-info ul {
-  margin: 0;
-  padding-left: 20px;
+    margin: 0;
+    padding-left: 20px;
 }
 
 .kickbox_integration-allow-list-info li {
-  margin-bottom: 8px;
-  color: #004085;
+    margin-bottom: 8px;
+    color: #004085;
 }
 
 .kickbox_integration-allow-list-info li:last-child {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 .kickbox_integration-no-data {
-  text-align: center;
-  padding: 40px;
-  color: #666;
-  background: #f9f9f9;
-  border-radius: 4px;
-  margin-top: 20px;
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    background: #f9f9f9;
+    border-radius: 4px;
+    margin-top: 20px;
 }
 
 /* Loading and Error States */
 .kickbox_integration-loading {
-  text-align: center;
-  padding: 40px;
-  color: #666;
+    text-align: center;
+    padding: 40px;
+    color: #666;
 }
 
 .kickbox_integration-error {
-  text-align: center;
-  padding: 40px;
-  color: #dc3232;
+    text-align: center;
+    padding: 40px;
+    color: #dc3232;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .kickbox_integration-tabs {
-    flex-direction: column;
-  }
-  
-  .kickbox_integration-tab {
-    border-bottom: 1px solid #ccd0d4;
-    border-right: none;
-  }
-  
-  .kickbox_integration-stats-grid {
-    grid-template-columns: 1fr;
-  }
+    .kickbox_integration-tabs {
+        flex-direction: column;
+    }
+
+    .kickbox_integration-tab {
+        border-bottom: 1px solid #ccd0d4;
+        border-right: none;
+    }
+
+    .kickbox_integration-stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Flagged Emails Styles */
 .kickbox_integration-flagged-emails {
-  max-width: 1200px;
+    max-width: 1200px;
 }
 
 .kickbox_integration-flagged-emails-header {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .kickbox_integration-flagged-emails-header h3 {
-  margin-top: 0;
+    margin-top: 0;
 }
 
 .kickbox_integration-flagged-emails-filters {
-  background: #f9f9f9;
-  padding: 20px;
-  border-radius: 4px;
-  margin-bottom: 20px;
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
 }
 
 .kickbox_integration-filter-row {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  align-items: end;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: end;
 }
 
 .kickbox_integration-filter-group {
-  display: flex;
-  flex-direction: column;
-  min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
 }
 
 .kickbox_integration-filter-group label {
-  margin-bottom: 5px;
-  font-weight: 600;
+    margin-bottom: 5px;
+    font-weight: 600;
 }
 
 .kickbox_integration-filter-group input,
 .kickbox_integration-filter-group select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 .kickbox_integration-flagged-emails-table {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .kickbox_integration-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
 }
 
 .kickbox_integration-badge-undeliverable {
-  background: #f8d7da;
-  color: #721c24;
+    background: #f8d7da;
+    color: #721c24;
 }
 
 .kickbox_integration-badge-risky {
-  background: #fff3cd;
-  color: #856404;
+    background: #fff3cd;
+    color: #856404;
 }
 
 .kickbox_integration-badge-unknown {
-  background: #d1ecf1;
-  color: #0c5460;
+    background: #d1ecf1;
+    color: #0c5460;
 }
 
 .kickbox_integration-badge-pending {
-  background: #ffeaa7;
-  color: #6c5ce7;
+    background: #ffeaa7;
+    color: #6c5ce7;
 }
 
 .kickbox_integration-badge-allow {
-  background: #d4edda;
-  color: #155724;
+    background: #d4edda;
+    color: #155724;
 }
 
 .kickbox_integration-badge-block {
-  background: #f8d7da;
-  color: #721c24;
+    background: #f8d7da;
+    color: #721c24;
 }
 
 .kickbox_integration-badge-review {
-  background: #cce5ff;
-  color: #004085;
+    background: #cce5ff;
+    color: #004085;
 }
 
 .kickbox_integration-badge-default {
-  background: #e9ecef;
-  color: #495057;
+    background: #e9ecef;
+    color: #495057;
 }
 
 .kickbox_integration-reason {
-  font-size: 12px;
-  color: #666;
-  margin-top: 2px;
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
 }
 
 .kickbox_integration-user-info {
-  font-size: 12px;
-  color: #666;
-  margin-top: 2px;
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
 }
 
 .kickbox_integration-reviewed-info {
-  font-size: 12px;
+    font-size: 12px;
 }
 
 .kickbox_integration-notes {
-  margin-top: 5px;
-  font-style: italic;
+    margin-top: 5px;
+    font-style: italic;
 }
 
 .kickbox_integration-edit-button {
-  font-size: 11px;
-  padding: 4px 8px;
-  height: auto;
-  line-height: 1.2;
+    font-size: 11px;
+    padding: 4px 8px;
+    height: auto;
+    line-height: 1.2;
 }
 
 .kickbox_integration-pagination {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
 }
 
 .kickbox_integration-pagination-info {
-  margin-left: 20px;
-  color: #666;
-  font-size: 14px;
+    margin-left: 20px;
+    color: #666;
+    font-size: 14px;
 }
 
 .kickbox_integration-loading,
 .kickbox_integration-empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: #666;
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
 }
 
 /* Modal Styles */
 .kickbox_integration-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
 }
 
 .kickbox_integration-modal {
-  background: white;
-  border-radius: 4px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: white;
+    border-radius: 4px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .kickbox_integration-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
 }
 
 .kickbox_integration-modal-header h3 {
-  margin: 0;
+    margin: 0;
 }
 
 .kickbox_integration-modal-close {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .kickbox_integration-modal-close:hover {
-  color: #000;
+    color: #000;
 }
 
 .kickbox_integration-modal-content {
-  padding: 20px;
+    padding: 20px;
 }
 
 .kickbox_integration-review-details {
-  margin-bottom: 30px;
+    margin-bottom: 30px;
 }
 
 .kickbox_integration-review-details h4 {
-  margin-top: 0;
-  color: #0073aa;
+    margin-top: 0;
+    color: #0073aa;
 }
 
 .kickbox_integration-kickbox-details {
-  background: #f9f9f9;
-  padding: 15px;
-  border-radius: 4px;
-  margin-top: 10px;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 10px;
 }
 
 .kickbox_integration-kickbox-details p {
-  margin: 5px 0;
+    margin: 5px 0;
 }
 
 .kickbox_integration-decision-section h4 {
-  margin-top: 0;
-  color: #0073aa;
+    margin-top: 0;
+    color: #0073aa;
 }
 
 .kickbox_integration-decision-options {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
 .kickbox_integration-allow-button {
-  background: #28a745 !important;
-  border-color: #28a745 !important;
+    background: #28a745 !important;
+    border-color: #28a745 !important;
 }
 
 .kickbox_integration-block-button {
-  background: #dc3545 !important;
-  border-color: #dc3545 !important;
-  color: white !important;
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
 }
 
 .kickbox_integration-notes-section label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
 }
 
 .kickbox_integration-notes-section textarea {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  resize: vertical;
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
 }
 
 /* WooCommerce Help Tip Integration */
 .woocommerce-help-tip {
-  margin-left: 8px;
+    margin-left: 8px;
+}
+
+.kickbox-admin-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.kickbox-admin-header img {
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    margin-top: 5px;
+}
+
+.kickbox-admin-header h1 {
+    margin: 0;
+    color: #1d2327;
 }
