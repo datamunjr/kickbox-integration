@@ -39,7 +39,7 @@ function _manually_load_woocommerce() {
 		'/tmp/wordpress/wp-content/plugins/woocommerce/woocommerce.php',
 		'/var/www/html/wp-content/plugins/woocommerce/woocommerce.php'
 	);
-	
+
 	$woocommerce_path = null;
 	foreach ( $possible_paths as $path ) {
 		if ( file_exists( $path ) ) {
@@ -47,7 +47,7 @@ function _manually_load_woocommerce() {
 			break;
 		}
 	}
-	
+
 	if ( $woocommerce_path ) {
 		// Set up WooCommerce constants
 		if ( ! defined( 'WC_ABSPATH' ) ) {
@@ -58,6 +58,11 @@ function _manually_load_woocommerce() {
 		// Initialize WooCommerce
 		if ( class_exists( 'WooCommerce' ) ) {
 			WC();
+
+			// Ensure WooCommerce database tables are created
+			if ( class_exists( 'WC_Install' ) ) {
+				WC_Install::install();
+			}
 		}
 	}
 }
