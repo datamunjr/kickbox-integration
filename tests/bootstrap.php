@@ -61,7 +61,7 @@ function _manually_load_woocommerce() {
 
 			// Ensure WooCommerce database tables are created
 			if ( class_exists( 'WC_Install' ) ) {
-				WC_Install::install();
+				WC_Install::create_tables();
 			}
 		}
 	}
