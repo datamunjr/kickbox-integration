@@ -80,8 +80,8 @@ jobs:
           # Create plugin directory in the WordPress installation
           mkdir -p /tmp/wordpress/wp-content/plugins/kickbox-integration
           
-          # Copy plugin files (excluding .git, node_modules, etc.)
-          rsync -av . /tmp/wordpress/wp-content/plugins/kickbox-integration/
+          # Copy all plugin files
+          cp -r . /tmp/wordpress/wp-content/plugins/kickbox-integration/
           
           # Set proper permissions
           chmod -R 755 /tmp/wordpress/wp-content/plugins/kickbox-integration
