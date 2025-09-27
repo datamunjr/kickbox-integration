@@ -41,3 +41,6 @@ wp-content/wp-cache-config.php
 
 # Logs
 *.log
+
+# PHPUnit
+.phpunit.result.cache
