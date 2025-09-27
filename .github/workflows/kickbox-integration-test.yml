@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      db:
+      mysql:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
@@ -26,18 +26,6 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
-
-    container:
-      image: wordpress:6.8.2-php8.1-apache
-      env:
-        WORDPRESS_DB_HOST: db:3306
-        WORDPRESS_DB_USER: wordpress
-        WORDPRESS_DB_PASSWORD: wordpress
-        WORDPRESS_DB_NAME: wordpress_test
-        WORDPRESS_DEBUG: 1
-        WORDPRESS_CONFIG_EXTRA: "define('WP_DEBUG_LOG', true);"
-      ports:
-        - 80:80
 
     steps:
 
@@ -58,39 +46,39 @@ jobs:
           curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
           composer --version
 
-      - name: Install SVN, MySQL client, and WP-CLI
+      - name: Install dependencies
         run: |
-          # Install SVN and MySQL client utilities needed by WordPress test suite
-          apt-get update && apt-get install -y subversion default-mysql-client
+          # Install PHP, MySQL client, SVN, and other dependencies
+          sudo apt-get update
+          sudo apt-get install -y php php-mysql php-xml php-mbstring php-curl php-zip subversion default-mysql-client
           
           # Install WP-CLI
           curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
           chmod +x wp-cli.phar
-          mv wp-cli.phar /usr/local/bin/wp
+          sudo mv wp-cli.phar /usr/local/bin/wp
           
-          # Verify WP-CLI installation
-          wp --version --allow-root
+          # Verify installations
+          php --version
+          wp --version
 
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Copy plugin to WordPress plugins directory
-        run: |
-          # Create plugin directory
-          mkdir -p /var/www/html/wp-content/plugins/kickbox-integration
-          
-          # Copy plugin files
-          cp -r . /var/www/html/wp-content/plugins/kickbox-integration/
-          
-          # Set proper permissions
-          chown -R www-data:www-data /var/www/html/wp-content/plugins/kickbox-integration
-          chmod -R 755 /var/www/html/wp-content/plugins/kickbox-integration
-
       - name: Install WordPress test suite with WooCommerce
         run: |
-          # Install WordPress test suite with WooCommerce
-          export WP_CORE_DIR=/var/www/html
-          /var/www/html/wp-content/plugins/kickbox-integration/bin/install-wp-tests.sh wordpress_test wordpress wordpress db latest true 10.2
+          # Install WordPress test suite with WooCommerce (this will create /tmp/wordpress)
+          bash bin/install-wp-tests.sh wordpress_test wordpress wordpress localhost latest false 10.2
+
+      - name: Copy plugin to WordPress plugins directory
+        run: |
+          # Create plugin directory in the WordPress installation
+          mkdir -p /tmp/wordpress/wp-content/plugins/kickbox-integration
+          
+          # Copy plugin files (excluding .git, node_modules, etc.)
+          rsync -av . /tmp/wordpress/wp-content/plugins/kickbox-integration/
+          
+          # Set proper permissions
+          chmod -R 755 /tmp/wordpress/wp-content/plugins/kickbox-integration
 
       - name: Debug environment
         run: |
@@ -101,13 +89,16 @@ jobs:
           
           # Debug: Check plugin files
           echo "Checking plugin files..."
-          ls -la /var/www/html/wp-content/plugins/kickbox-integration/includes/ || echo "Plugin includes directory not found"
+          ls -la /tmp/wordpress/wp-content/plugins/kickbox-integration/includes/ || echo "Plugin includes directory not found"
+          
+          # Debug: Check WordPress installation
+          echo "WordPress installation structure:"
+          ls -la /tmp/wordpress/
 
       - name: Run PHPUnit tests
         run: |
           # Set up test environment variables and run tests
-          export WP_TESTS_DIR=/tmp/wordpress-tests-lib &&
-          export WP_CORE_DIR=/tmp/wordpress/ &&
-          export WP_TESTS_PHPUNIT_POLYFILLS_PATH=/var/www/html/wp-content/plugins/kickbox-integration/vendor/yoast/phpunit-polyfills &&
-          cd /var/www/html/wp-content/plugins/kickbox-integration &&
+          export WP_TESTS_DIR=/tmp/wordpress-tests-lib
+          export WP_CORE_DIR=/tmp/wordpress
+          export WP_TESTS_PHPUNIT_POLYFILLS_PATH=$PWD/vendor/yoast/phpunit-polyfills
           ./vendor/bin/phpunit --testdox --verbose
