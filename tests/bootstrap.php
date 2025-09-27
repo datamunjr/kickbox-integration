@@ -30,26 +30,25 @@ if ( ! file_exists( "{$_tests_dir}/includes/functions.php" ) ) {
 // Give access to tests_add_filter() function.
 require_once "{$_tests_dir}/includes/functions.php";
 
-/**
- * Manually load the plugin being tested.
- */
-function _manually_load_kickbox_integration() {
-	// Load our plugin directly
-	require dirname( __FILE__, 2 ) . '/kickbox-integration.php';
-	
-	// Manually create tables since we're not going through activation
-	if ( function_exists( 'kickbox_integration_create_tables' ) ) {
-		kickbox_integration_create_tables();
-	}
-}
 
 // Load WooCommerce first
 function _manually_load_woocommerce() {
-	// Note: the TMPDIR directory is used by the isntall-wp-tests.sh shell script to install a temporary
-	// Wordpress instance as well as install woocommerce (and activate it). See the install-wp-tests.sh shell script
-	// for more details.
-	$woocommerce_path = getenv( 'TMPDIR' ) . 'wordpress/wp-content/plugins/woocommerce/woocommerce.php';
-	if ( file_exists( $woocommerce_path ) ) {
+	// Try multiple possible paths for WooCommerce
+	$possible_paths = array(
+		getenv( 'TMPDIR' ) . 'wordpress/wp-content/plugins/woocommerce/woocommerce.php',
+		'/tmp/wordpress/wp-content/plugins/woocommerce/woocommerce.php',
+		'/var/www/html/wp-content/plugins/woocommerce/woocommerce.php'
+	);
+	
+	$woocommerce_path = null;
+	foreach ( $possible_paths as $path ) {
+		if ( file_exists( $path ) ) {
+			$woocommerce_path = $path;
+			break;
+		}
+	}
+	
+	if ( $woocommerce_path ) {
 		// Set up WooCommerce constants
 		if ( ! defined( 'WC_ABSPATH' ) ) {
 			define( 'WC_ABSPATH', dirname( $woocommerce_path ) . '/' );
@@ -60,6 +59,19 @@ function _manually_load_woocommerce() {
 		if ( class_exists( 'WooCommerce' ) ) {
 			WC();
 		}
+	}
+}
+
+/**
+ * Manually load the Kickbox plugin.
+ */
+function _manually_load_kickbox_integration() {
+	// Load our plugin directly
+	require dirname( __FILE__, 2 ) . '/kickbox-integration.php';
+
+	// Manually create tables since we're not going through activation
+	if ( function_exists( 'kickbox_integration_create_tables' ) ) {
+		kickbox_integration_create_tables();
 	}
 }
 

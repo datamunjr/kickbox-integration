@@ -78,10 +78,21 @@ jobs:
           chown -R www-data:www-data /var/www/html/wp-content/plugins/kickbox-integration
           chmod -R 755 /var/www/html/wp-content/plugins/kickbox-integration
 
-      - name: Install WordPress test suite
+      - name: Install WordPress test suite with WooCommerce
         run: |
-          # Install WordPress test suite
-          /var/www/html/wp-content/plugins/kickbox-integration/bin/install-wp-tests.sh wordpress_test wordpress wordpress db latest true
+          # Install WordPress test suite with WooCommerce
+          /var/www/html/wp-content/plugins/kickbox-integration/bin/install-wp-tests.sh wordpress_test wordpress wordpress db latest true 10.2
+
+      - name: Debug environment
+        run: |
+          # Debug: Check if WooCommerce is installed
+          echo "Checking WooCommerce installation..."
+          ls -la /tmp/wordpress/wp-content/plugins/ || echo "WordPress plugins directory not found"
+          ls -la /tmp/wordpress/wp-content/plugins/woocommerce/ || echo "WooCommerce not found"
+          
+          # Debug: Check plugin files
+          echo "Checking plugin files..."
+          ls -la /var/www/html/wp-content/plugins/kickbox-integration/includes/ || echo "Plugin includes directory not found"
 
       - name: Run PHPUnit tests
         run: |
@@ -90,4 +101,4 @@ jobs:
           export WP_CORE_DIR=/tmp/wordpress/ &&
           export WP_TESTS_PHPUNIT_POLYFILLS_PATH=/var/www/html/wp-content/plugins/kickbox-integration/vendor/yoast/phpunit-polyfills &&
           cd /var/www/html/wp-content/plugins/kickbox-integration &&
-          ./vendor/bin/phpunit --testdox
+          ./vendor/bin/phpunit --testdox --verbose
