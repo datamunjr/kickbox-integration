@@ -107,4 +107,4 @@ jobs:
           export WP_TESTS_DIR=/tmp/wordpress-tests-lib
           export WP_CORE_DIR=/tmp/wordpress
           export WP_TESTS_PHPUNIT_POLYFILLS_PATH=$PWD/vendor/yoast/phpunit-polyfills
-          ./vendor/bin/phpunit --testdox --verbose
+          ./vendor/bin/phpunit --testdox
