@@ -73,7 +73,7 @@ jobs:
       - name: Install WordPress test suite with WooCommerce
         run: |
           # Install WordPress test suite with WooCommerce (this will create /tmp/wordpress)
-          bash bin/install-wp-tests.sh wordpress_test wordpress wordpress localhost latest true 10.2
+          bash bin/install-wp-tests.sh wordpress_test wordpress wordpress mysql latest true 10.2
 
       - name: Copy plugin to WordPress plugins directory
         run: |
