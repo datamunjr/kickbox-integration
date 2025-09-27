@@ -38,6 +38,8 @@ echo "Cleaning up submission copy..."
 echo "Removing development directories..."
 rm -rf node_modules/
 rm -rf src/
+rm -rf vendor/
+rm -rf tests/
 rm -rf .git/
 rm -rf .idea/
 rm -rf .vscode/
@@ -47,6 +49,11 @@ echo "Removing development files..."
 rm -f webpack.config.js
 rm -f package.json
 rm -f package-lock.json
+rm -f composer.json
+rm -f composer.lock
+rm -f phpunit.xml
+rm -f phpunit.xml.dist
+rm -f .phpunit.result.cache
 rm -f install.sh
 rm -f prepare-submission.sh
 rm -f .eslintrc.js
@@ -89,7 +96,9 @@ echo ""
 echo "📦 Zip file created: $ZIP_FILE"
 echo ""
 echo "🗑️  Files removed from submission copy:"
-echo "   - node_modules/ (development dependencies)"
+echo "   - node_modules/ (npm development dependencies)"
+echo "   - vendor/ (Composer dependencies)"
+echo "   - tests/ (test files and directories)"
 echo "   - src/ (source files)"
 echo "   - .git/ (git repository)"
 echo "   - .idea/ (IntelliJ IDEA settings)"
@@ -97,6 +106,11 @@ echo "   - .vscode/ (VS Code settings)"
 echo "   - webpack.config.js (build configuration)"
 echo "   - package.json (npm configuration)"
 echo "   - package-lock.json (npm lock file)"
+echo "   - composer.json (Composer configuration)"
+echo "   - composer.lock (Composer lock file)"
+echo "   - phpunit.xml (PHPUnit configuration)"
+echo "   - phpunit.xml.dist (PHPUnit distribution config)"
+echo "   - .phpunit.result.cache (PHPUnit cache)"
 echo "   - .eslintrc.js (linting configuration)"
 echo "   - .prettierrc.json (formatting configuration)"
 echo "   - .gitignore (git ignore rules)"

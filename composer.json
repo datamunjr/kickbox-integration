@@ -1,0 +1,28 @@
+{
+    "name": "munjr/kickbox-integration",
+    "description": "WordPress plugin for Kickbox email verification integration with WooCommerce",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "munjr llc",
+            "email": "info@munjr.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "yoast/phpunit-polyfills": "^2.0",
+        "phpunit/phpunit": "^9.6"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-install": "bash bin/install-wp-tests.sh wordpress_test root '' localhost latest"
+    },
+    "config": {
+        "allow-plugins": {
+            "yoast/phpunit-polyfills": true
+        }
+    }
+}
