@@ -331,9 +331,9 @@ function kickbox_integration_set_default_options() {
     $default_options = array(
             'kickbox_integration_api_key'                          => '',
             'kickbox_integration_deliverable_action'               => 'allow',
-            'kickbox_integration_undeliverable_action'             => 'allow',
-            'kickbox_integration_risky_action'                     => 'allow',
-            'kickbox_integration_unknown_action'                   => 'allow',
+            'kickbox_integration_undeliverable_action'             => 'block',
+            'kickbox_integration_risky_action'                     => 'block',
+            'kickbox_integration_unknown_action'                   => 'block',
             'kickbox_integration_enable_checkout_verification'     => 'no',
             'kickbox_integration_enable_registration_verification' => 'no',
             'kickbox_integration_allow_list'                       => array()

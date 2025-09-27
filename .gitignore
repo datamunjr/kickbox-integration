@@ -41,9 +41,3 @@ wp-content/wp-cache-config.php
 
 # Logs
 *.log
-
-# Test files and directories
-tests/
-phpunit.xml
-phpunit.xml.dist
-.phpunit.result.cache
