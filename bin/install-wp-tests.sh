@@ -207,10 +207,6 @@ install_woocommerce() {
 
 	# Install WordPress core and WooCommerce using WP-CLI
 	cd "$WP_CORE_DIR"
-
-  #	Export the core dir so we can use it for unit tests
-  echo "WP_CORE_DIR is $WP_CORE_DIR"
-	export WP_CORE_DIR=$WP_CORE_DIR
 	
 	# Install WooCommerce
 	if [[ $WC_VERSION == 'latest' ]]; then
