@@ -263,6 +263,29 @@ install_woocommerce() {
 	echo "WooCommerce $WC_VERSION installed successfully"
 }
 
+update_woocommerce_database() {
+	if [ -z "$WC_VERSION" ]; then
+		return
+	fi
+
+	echo "Updating WooCommerce database schema..."
+
+	# Check if WP-CLI is available
+	if ! command -v wp &> /dev/null; then
+		echo "WP-CLI not found. Skipping WooCommerce database update."
+		return 1
+	fi
+
+	cd "$WP_CORE_DIR"
+
+	# Run WooCommerce database updates
+	wp wc update --allow-root
+	
+	cd - > /dev/null
+	
+	echo "WooCommerce database schema updated successfully"
+}
+
 install_woocommerce_test_data() {
 	if [ -z "$WC_VERSION" ]; then
 		return
@@ -332,4 +355,5 @@ install_db
 create_wp_config
 install_wp_core
 install_woocommerce
+update_woocommerce_database
 install_woocommerce_test_data
