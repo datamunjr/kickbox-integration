@@ -65,7 +65,7 @@ jobs:
           
           # Verify installations
           php --version
-          wp --version
+          wp --version --allow-root
 
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
