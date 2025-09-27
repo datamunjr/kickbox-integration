@@ -190,6 +190,24 @@ install_db() {
 	fi
 }
 
+create_wp_config() {
+	echo "Creating WordPress configuration..."
+
+	# Check if WP-CLI is available
+	if ! command -v wp &> /dev/null; then
+		echo "WP-CLI not found. Please install WP-CLI to use WordPress configuration creation."
+		echo "Visit: https://wp-cli.org/#installing"
+		return 1
+	fi
+
+	# Create wp-config.php using WP-CLI
+	cd "$WP_CORE_DIR"
+	wp config create --dbname="$DB_NAME" --dbuser="$DB_USER" --dbpass="$DB_PASS" --dbhost="$DB_HOST" --allow-root
+	cd - > /dev/null
+	
+	echo "WordPress configuration created successfully"
+}
+
 install_woocommerce() {
 	if [ -z "$WC_VERSION" ]; then
 		echo "Skipping WooCommerce installation (no version specified)"
@@ -293,5 +311,6 @@ install_woocommerce_test_data() {
 install_wp
 install_test_suite
 install_db
+create_wp_config
 install_woocommerce
 install_woocommerce_test_data
