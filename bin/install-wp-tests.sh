@@ -208,6 +208,24 @@ create_wp_config() {
 	echo "WordPress configuration created successfully"
 }
 
+install_wp_core() {
+	echo "Installing WordPress core..."
+
+	# Check if WP-CLI is available
+	if ! command -v wp &> /dev/null; then
+		echo "WP-CLI not found. Please install WP-CLI to use WordPress core installation."
+		echo "Visit: https://wp-cli.org/#installing"
+		return 1
+	fi
+
+	# Install WordPress core using WP-CLI
+	cd "$WP_CORE_DIR"
+	wp core install --url="http://example.org" --title="Test Site" --admin_user="admin" --admin_password="password" --admin_email="admin@example.org" --skip-email --allow-root
+	cd - > /dev/null
+	
+	echo "WordPress core installed successfully"
+}
+
 install_woocommerce() {
 	if [ -z "$WC_VERSION" ]; then
 		echo "Skipping WooCommerce installation (no version specified)"
@@ -312,5 +330,6 @@ install_wp
 install_test_suite
 install_db
 create_wp_config
+install_wp_core
 install_woocommerce
 install_woocommerce_test_data
