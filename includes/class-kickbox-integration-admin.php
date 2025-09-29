@@ -64,7 +64,8 @@ class Kickbox_Integration_Admin {
     public function register_settings() {
         register_setting( 'kickbox_integration_settings', 'kickbox_integration_api_key', array(
                 'type'              => 'string',
-                'sanitize_callback' => 'sanitize_text_field'
+                'sanitize_callback' => 'sanitize_text_field',
+                'default'           => ''
         ) );
 
         register_setting( 'kickbox_integration_settings', 'kickbox_integration_sandbox_mode', array(
@@ -80,17 +81,17 @@ class Kickbox_Integration_Admin {
 
         register_setting( 'kickbox_integration_settings', 'kickbox_integration_undeliverable_action', array(
                 'type'    => 'string',
-                'default' => 'allow'
+                'default' => 'block'
         ) );
 
         register_setting( 'kickbox_integration_settings', 'kickbox_integration_risky_action', array(
                 'type'    => 'string',
-                'default' => 'allow'
+                'default' => 'block'
         ) );
 
         register_setting( 'kickbox_integration_settings', 'kickbox_integration_unknown_action', array(
                 'type'    => 'string',
-                'default' => 'allow'
+                'default' => 'block'
         ) );
 
         register_setting( 'kickbox_integration_settings', 'kickbox_integration_enable_checkout_verification', array(

@@ -29,6 +29,8 @@ define( 'KICKBOX_INTEGRATION_PLUGIN_FILE', __FILE__ );
 define( 'KICKBOX_INTEGRATION_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'KICKBOX_INTEGRATION_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'KICKBOX_INTEGRATION_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'KICKBOX_INTEGRATION_REQUIRED_WP_VERSION', 6.2 );
+define( 'KICKBOX_INTEGRATION_REQUIRED_WC_VERSION', 10.2 );
 
 // Check if WooCommerce is active
 add_action( 'plugins_loaded', 'kickbox_integration_check_woocommerce' );
@@ -110,19 +112,21 @@ function kickbox_integration_woocommerce_version_deactivated_notice() {
 }
 
 function kickbox_integration_wordpress_version_notice() {
-    $required_wp_version = '6.2';
-    $current_wp_version  = get_bloginfo( 'version' );
-    echo '<div class="error"><p><strong>' . esc_html__( 'WooCommerce Kickbox Integration', 'kickbox-integration' ) . '</strong> ' .
+    $current_wp_version = get_bloginfo( 'version' );
+    echo '<div class="error"><p><strong>The ' . esc_html__( 'Kickbox Integration', 'kickbox-integration' ) . ' Extension</strong> ' .
          sprintf(
                  esc_html__( 'requires WordPress version %s or higher. You are running version %s.', 'kickbox-integration' ),
-                 $required_wp_version,
+                 KICKBOX_INTEGRATION_REQUIRED_WP_VERSION,
                  $current_wp_version
          ) . '</p></div>';
 }
 
 function kickbox_integration_wordpress_version_deactivated_notice() {
-    echo '<div class="error"><p><strong>' . esc_html__( 'Kickbox Integration', 'kickbox-integration' ) . '</strong> ' .
-         esc_html__( 'has been deactivated because WordPress version is too old.', 'kickbox-integration' ) . '</p></div>';
+    echo '<div class="error"><p><strong>The ' . esc_html__( 'Kickbox Integration', 'kickbox-integration' ) . ' Extension</strong> ' .
+         esc_html__(
+                 "has been deactivated because the WordPress version is too old. Please upgrade your Wordpress version " .
+                 "to at least " . KICKBOX_INTEGRATION_REQUIRED_WP_VERSION . '.', 'kickbox-integration'
+         ) . '</p></div>';
 }
 
 function kickbox_integration_init() {
