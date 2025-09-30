@@ -38,7 +38,7 @@ define( 'KICKBOX_INTEGRATION_REQUIRED_WC_VERSION', '10.2' );
  * @class Kickbox_Integration
  * @version 1.0.0
  */
-final class Kickbox_Integration {
+class Kickbox_Integration {
 
     /**
      * The single instance of the class
@@ -251,32 +251,47 @@ final class Kickbox_Integration {
     }
 
     /**
+     * Get WooCommerce dependency status
+     *
+     * @return array Array with 'active' and 'version_ok' keys
+     * @since 1.0.0
+     */
+    protected function get_woocommerce_dependency_status() {
+        $woocommerce_active     = self::is_woocommerce_active();
+        $woocommerce_version_ok = false;
+
+        if ( $woocommerce_active ) {
+            $woocommerce_version_ok = version_compare( WC()->version, KICKBOX_INTEGRATION_REQUIRED_WC_VERSION, '>=' );
+        }
+
+        return array(
+                'active'     => $woocommerce_active,
+                'version_ok' => $woocommerce_version_ok
+        );
+    }
+
+    /**
      * Display dependency notice below plugin row
      *
      * @since 1.0.0
      */
     public function plugin_row_dependency_notice() {
-        $woocommerce_active     = class_exists( 'WooCommerce' );
-        $woocommerce_version_ok = false;
-
-        if ( self::is_woocommerce_active() ) {
-            $woocommerce_version_ok = version_compare( WC()->version, KICKBOX_INTEGRATION_REQUIRED_WC_VERSION, '>=' );
-        }
+        $status = $this->get_woocommerce_dependency_status();
 
         // Only show notice if there are dependency issues
-        if ( ! $woocommerce_active || ! $woocommerce_version_ok ) {
+        if ( ! $status['active'] || ! $status['version_ok'] ) {
             ?>
             <tr class="plugin-update-tr">
                 <td colspan="3" class="plugin-update">
                     <div class="update-message notice inline notice-warning notice-alt">
                         <p>
                             <strong><?php esc_html_e( 'Dependencies:', 'kickbox-integration' ); ?></strong>
-                            <?php if ( ! $woocommerce_active ) : ?>
+                            <?php if ( ! $status['active'] ) : ?>
                                 <?php esc_html_e( 'WooCommerce is required but not active.', 'kickbox-integration' ); ?>
                                 <a href="<?php echo esc_url( admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' ) ); ?>">
                                     <?php esc_html_e( 'Install WooCommerce', 'kickbox-integration' ); ?>
                                 </a>
-                            <?php elseif ( ! $woocommerce_version_ok ) : ?>
+                            <?php elseif ( ! $status['version_ok'] ) : ?>
                                 <?php
                                 printf(
                                         esc_html__( 'WooCommerce version %s is required. You have version %s.', 'kickbox-integration' ),

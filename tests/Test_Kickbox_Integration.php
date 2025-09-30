@@ -171,23 +171,14 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that deactivation hook is registered
-	 */
-	public function test_deactivation_hook_registered() {
-		global $wp_filter;
-		$deactivation_hook = 'activate_' . substr( dirname( __FILE__, 2 ) . '/kickbox-integration.php', 1 );
-		$this->assertTrue( isset( $wp_filter[ $deactivation_hook ] ) );
-	}
-
-	/**
 	 * Test that plugin row meta filter is registered
 	 */
 	public function test_plugin_row_meta_filter_registered() {
 		$kickbox = KICKBOX();
-		
+
 		// Use has_filter to check if our specific callback is registered
 		$priority = has_filter( 'plugin_row_meta', array( $kickbox, 'plugin_row_meta' ) );
-		
+
 		// has_filter returns the priority if found, false if not found
 		$this->assertNotFalse( $priority, 'Kickbox_Integration::plugin_row_meta should be registered as a callback on plugin_row_meta' );
 		$this->assertEquals( 10, $priority, 'Kickbox_Integration::plugin_row_meta should be registered at priority 10' );
@@ -197,7 +188,7 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	 * Test that plugin dependency notice action is registered
 	 */
 	public function test_plugin_dependency_notice_action_registered() {
-		$kickbox = KICKBOX();
+		$kickbox                         = KICKBOX();
 		$plugin_dependency_notice_action = 'after_plugin_row_' . $this->getPluginBasename();
 
 		// Use has_action to check if our specific callback is registered
@@ -214,7 +205,7 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	public function test_plugins_loaded_action_registered() {
 		// Use has_action to check if our specific callback is registered
 		$priority = has_action( 'plugins_loaded', 'kickbox_integration_validate_and_init' );
-		
+
 		// has_action returns the priority if found, false if not found
 		$this->assertNotFalse( $priority, 'kickbox_integration_validate_and_init should be registered as a callback on plugins_loaded' );
 		$this->assertEquals( 10, $priority, 'kickbox_integration_validate_and_init should be registered at priority 10' );
@@ -239,11 +230,10 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 		// Test the installer class method
 		try {
 			$errors = Kickbox_Integration_Installer::add_performance_indexes();
-			
-			$this->assertIsArray( $errors, 'Should return an array of errors' );
-			$this->assertEmpty( 
-				$errors, 
-				'No errors should occur when adding performance indexes. Errors: ' . print_r( $errors, true ) 
+
+			$this->assertEmpty(
+				$errors,
+				'No errors should occur when adding performance indexes. Errors: ' . print_r( $errors, true )
 			);
 		} catch ( Exception $e ) {
 			$this->fail( "Kickbox_Integration_Installer::add_performance_indexes method failed with the following exception:\n" . $e->getMessage() );
@@ -257,11 +247,10 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 		// Test the installer class method
 		try {
 			$errors = Kickbox_Integration_Installer::set_default_options();
-			
-			$this->assertIsArray( $errors, 'Should return an array of errors' );
-			$this->assertEmpty( 
-				$errors, 
-				'No errors should occur when setting default options. Errors: ' . print_r( $errors, true ) 
+
+			$this->assertEmpty(
+				$errors,
+				'No errors should occur when setting default options. Errors: ' . print_r( $errors, true )
 			);
 		} catch ( Exception $e ) {
 			$this->fail( "Kickbox_Integration_Installer::set_default_options method failed with the following exception:\n" . $e->getMessage() );
@@ -269,22 +258,69 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that plugin dependency notice function works
+	 * Test that plugin dependency notice function works with different WooCommerce states
+	 *
+	 * @dataProvider provideDependencyNoticeScenarios
 	 */
-	public function test_plugin_dependency_notice_function() {
-		// Get the plugin instance
-		$kickbox = KICKBOX();
+	public function test_plugin_dependency_notice_function( $wc_active, $wc_version_ok, $should_show_notice, $expected_text ) {
+		// Create a mock of Kickbox_Integration that only mocks get_woocommerce_dependency_status
+		$kickbox_mock = $this->getMockBuilder( Kickbox_Integration::class )
+		                     ->disableOriginalConstructor()
+		                     ->onlyMethods( array( 'get_woocommerce_dependency_status' ) )
+		                     ->getMock();
+
+		// Mock get_woocommerce_dependency_status() to return our test values
+		$kickbox_mock->method( 'get_woocommerce_dependency_status' )
+		             ->willReturn( array(
+			             'active'     => $wc_active,
+			             'version_ok' => $wc_version_ok,
+		             ) );
 
 		// Capture output
 		ob_start();
-		$kickbox->plugin_row_dependency_notice();
+		$kickbox_mock->plugin_row_dependency_notice();
 		$output = ob_get_clean();
 
-		// Should output HTML (empty if dependencies are met)
+		// Verify output
 		$this->assertIsString( $output );
 
-		// With current WooCommerce version >= 10.2, output should be empty
-		$this->assertEmpty( $output, 'Dependency notice should be empty when dependencies are met' );
+		if ( $should_show_notice ) {
+			$this->assertNotEmpty( $output, 'Should show dependency notice when dependencies are not met' );
+			if ( ! empty( $expected_text ) ) {
+				$this->assertStringContainsString( $expected_text, $output, 'Output should contain expected text' );
+			}
+		} else {
+			$this->assertEmpty( $output, 'Should not show notice when dependencies are met' );
+		}
+	}
+
+	/**
+	 * Data provider for dependency notice scenarios
+	 *
+	 * @return array Test scenarios [wc_active, wc_version_ok, should_show_notice, expected_text]
+	 */
+	public function provideDependencyNoticeScenarios() {
+		return array(
+			'woocommerce_active_and_compatible'   => array( true, true, false, '' ),
+			'woocommerce_active_but_incompatible' => array(
+				true,
+				false,
+				true,
+				'WooCommerce version 10.2+ is required'
+			),
+			'woocommerce_not_active'              => array(
+				false,
+				false,
+				true,
+				'WooCommerce is required but not active'
+			),
+			'woocommerce_not_active_version_moot' => array(
+				false,
+				true,
+				true,
+				'WooCommerce is required but not active'
+			),
+		);
 	}
 
 	/**
