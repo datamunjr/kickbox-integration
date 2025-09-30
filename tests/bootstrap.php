@@ -75,8 +75,9 @@ function _manually_load_kickbox_integration() {
 	require dirname( __FILE__, 2 ) . '/kickbox-integration.php';
 
 	// Manually create tables since we're not going through activation
-	if ( function_exists( 'kickbox_integration_create_tables' ) ) {
-		kickbox_integration_create_tables();
+	// Use the new installer class
+	if ( class_exists( 'Kickbox_Integration_Installer' ) ) {
+		Kickbox_Integration_Installer::create_tables();
 	}
 }
 

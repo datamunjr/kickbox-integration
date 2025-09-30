@@ -50,21 +50,35 @@ npm run dev
 
 ```
 wckb/
-├── wckb.php                          # Main plugin file
-├── includes/                         # PHP classes
-│   ├── class-wckb-verification.php   # Core verification logic
-│   ├── class-wckb-admin.php          # Admin functionality
-│   ├── class-wckb-checkout.php       # Checkout integration
-│   └── class-wckb-customer-management.php # Customer management
-├── src/                              # Source files
-│   ├── js/                           # JavaScript/React components
-│   │   ├── admin/                    # Admin interface
-│   │   ├── checkout/                 # Checkout verification
-│   │   └── customer/                 # Customer management
-│   └── css/                          # Stylesheets
-├── assets/                           # Built assets (generated)
-├── webpack.config.js                 # Webpack configuration
-└── package.json                      # Dependencies
+├── kickbox-integration.php                        # Main plugin file & Kickbox_Integration class
+├── includes/                                      # PHP classes
+│   ├── class-kickbox-integration.php              # Main plugin class (singleton)
+│   ├── class-kickbox-integration-installer.php    # Installation & database setup
+│   ├── class-kickbox-integration-verification.php # Core verification logic
+│   ├── class-kickbox-integration-admin.php        # Admin functionality
+│   ├── class-kickbox-integration-checkout.php     # Checkout integration
+│   ├── class-kickbox-integration-registration.php # Registration integration
+│   ├── class-kickbox-integration-dashboard-widget.php # Dashboard widget
+│   └── class-kickbox-integration-flagged-emails.php   # Flagged emails management
+├── src/                                           # Source files
+│   ├── js/                                        # JavaScript/React components
+│   │   ├── admin/                                 # Admin interface
+│   │   ├── checkout/                              # Checkout verification
+│   │   └── dashboard/                             # Dashboard widget
+│   └── scss/                                      # Stylesheets
+├── assets/                                        # Built assets (generated)
+│   ├── css/                                       # Compiled CSS
+│   └── js/                                        # Compiled JavaScript
+├── tests/                                         # PHPUnit tests
+│   ├── bootstrap.php                              # Test bootstrap
+│   ├── Test_Kickbox_Setup.php                     # Setup tests
+│   └── Test_Kickbox_Integration.php               # Main class tests
+├── bin/                                           # Utility scripts
+│   └── install-wp-tests.sh                        # WordPress test suite installer
+├── webpack.config.js                              # Webpack configuration
+├── package.json                                   # Node.js dependencies
+├── composer.json                                  # PHP dependencies
+└── phpunit.xml.dist                               # PHPUnit configuration
 ```
 
 ## Configuration
@@ -126,6 +140,53 @@ The plugin integrates with Kickbox's API endpoints:
 
 - Single verification: `GET https://api.kickbox.com/v2/verify`
 - Batch verification: `PUT https://api.kickbox.com/v2/verify-batch`
+
+## Plugin Architecture
+
+### Main Classes
+
+#### `Kickbox_Integration` (Singleton)
+The main plugin class that manages all components and dependencies.
+
+**Access the instance:**
+```php
+$kickbox = KICKBOX();
+```
+
+**Available components:**
+```php
+$kickbox->verification      // Kickbox_Integration_Verification
+$kickbox->admin             // Kickbox_Integration_Admin
+$kickbox->checkout          // Kickbox_Integration_Checkout
+$kickbox->registration      // Kickbox_Integration_Registration
+$kickbox->dashboard_widget  // Kickbox_Integration_Dashboard_Widget
+$kickbox->flagged_emails    // Kickbox_Integration_Flagged_Emails
+```
+
+#### `Kickbox_Integration_Installer`
+Handles plugin installation, database table creation, and default option setup.
+
+**Static methods:**
+```php
+Kickbox_Integration_Installer::install()              // Run full installation
+Kickbox_Integration_Installer::create_tables()         // Create database tables
+Kickbox_Integration_Installer::add_performance_indexes() // Add database indexes
+Kickbox_Integration_Installer::set_default_options()   // Set default options
+```
+
+### Dependency Checking
+
+```php
+// Check if all dependencies are met
+if ( Kickbox_Integration::check_dependencies() ) {
+    // WordPress and WooCommerce requirements met
+}
+
+// Check if WooCommerce is active
+if ( Kickbox_Integration::is_woocommerce_active() ) {
+    // WooCommerce is active and WC_VERSION is defined
+}
+```
 
 ## Error Handling
 

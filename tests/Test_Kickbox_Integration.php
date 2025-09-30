@@ -7,6 +7,11 @@
 
 class Test_Kickbox_Integration extends WP_UnitTestCase {
 
+	private function getPluginBasename() {
+		return substr( dirname( __FILE__, 2 ) . '/kickbox-integration.php', 1 );
+	}
+
+
 	/**
 	 * Test that plugin constants are defined correctly
 	 */
@@ -161,7 +166,7 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	 */
 	public function test_activation_hook_registered() {
 		global $wp_filter;
-		$activation_hook = 'activate_' . substr( dirname( __FILE__, 2 ) . '/kickbox-integration.php', 1 );
+		$activation_hook = 'activate_' . $this->getPluginBasename();
 		$this->assertTrue( isset( $wp_filter[ $activation_hook ] ) );
 	}
 
@@ -178,81 +183,108 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	 * Test that plugin row meta filter is registered
 	 */
 	public function test_plugin_row_meta_filter_registered() {
-		global $wp_filter;
-		$this->assertTrue( isset( $wp_filter['plugin_row_meta'] ) );
-		$this->assertTrue( isset( $wp_filter['plugin_row_meta']->callbacks[10]['kickbox_integration_plugin_row_meta'] ) );
+		$kickbox = KICKBOX();
+		
+		// Use has_filter to check if our specific callback is registered
+		$priority = has_filter( 'plugin_row_meta', array( $kickbox, 'plugin_row_meta' ) );
+		
+		// has_filter returns the priority if found, false if not found
+		$this->assertNotFalse( $priority, 'Kickbox_Integration::plugin_row_meta should be registered as a callback on plugin_row_meta' );
+		$this->assertEquals( 10, $priority, 'Kickbox_Integration::plugin_row_meta should be registered at priority 10' );
 	}
 
 	/**
 	 * Test that plugin dependency notice action is registered
 	 */
 	public function test_plugin_dependency_notice_action_registered() {
-		global $wp_filter;
-		$plugin_dependency_notice_action = 'after_plugin_row_' . substr( dirname( __FILE__, 2 ) . '/kickbox-integration.php', 1 );
-		$this->assertTrue( isset( $wp_filter[ $plugin_dependency_notice_action ] ) );
+		$kickbox = KICKBOX();
+		$plugin_dependency_notice_action = 'after_plugin_row_' . $this->getPluginBasename();
+
+		// Use has_action to check if our specific callback is registered
+		$priority = has_action( $plugin_dependency_notice_action, array( $kickbox, 'plugin_row_dependency_notice' ) );
+
+		// has_action returns the priority if found, false if not found
+		$this->assertNotFalse( $priority, 'Kickbox_Integration::plugin_row_dependency_notice should be registered as a callback on after_plugin_row' );
+		$this->assertEquals( 10, $priority, 'Kickbox_Integration::plugin_row_dependency_notice should be registered at priority 10' );
 	}
 
 	/**
-	 * Test that the check_woocommerce
+	 * Test that plugins_loaded action is registered
 	 */
 	public function test_plugins_loaded_action_registered() {
-		global $wp_filter;
-
-		$this->assertTrue( isset( $wp_filter['plugins_loaded'] ) );
-
+		// Use has_action to check if our specific callback is registered
+		$priority = has_action( 'plugins_loaded', 'kickbox_integration_validate_and_init' );
+		
+		// has_action returns the priority if found, false if not found
+		$this->assertNotFalse( $priority, 'kickbox_integration_validate_and_init should be registered as a callback on plugins_loaded' );
+		$this->assertEquals( 10, $priority, 'kickbox_integration_validate_and_init should be registered at priority 10' );
 	}
 
 	/**
 	 * Test that database table creation function works
 	 */
 	public function test_create_tables_function() {
-		// This should not throw any errors
-		$this->assertNull( kickbox_integration_create_tables() );
-	}
-
-	/**
-	 * Test that origin column addition function works
-	 */
-	public function test_add_origin_column_function() {
-		// This should not throw any errors
-		$this->assertNull( kickbox_integration_add_origin_column_to_verification_log() );
+		// Test the installer class method
+		try {
+			$this->assertNull( Kickbox_Integration_Installer::create_tables() );
+		} catch ( Exception $e ) {
+			$this->fail( "Kickbox_Integration_Installer::create_tables method failed with the following exception:\n" . $e->getMessage() );
+		}
 	}
 
 	/**
 	 * Test that performance indexes function works
 	 */
 	public function test_add_performance_indexes_function() {
-		// This should not throw any errors
-		$this->assertNull( kickbox_integration_add_performance_indexes() );
+		// Test the installer class method
+		try {
+			$errors = Kickbox_Integration_Installer::add_performance_indexes();
+			
+			$this->assertIsArray( $errors, 'Should return an array of errors' );
+			$this->assertEmpty( 
+				$errors, 
+				'No errors should occur when adding performance indexes. Errors: ' . print_r( $errors, true ) 
+			);
+		} catch ( Exception $e ) {
+			$this->fail( "Kickbox_Integration_Installer::add_performance_indexes method failed with the following exception:\n" . $e->getMessage() );
+		}
 	}
 
 	/**
 	 * Test that default options function works
 	 */
 	public function test_set_default_options_function() {
-		// This should not throw any errors
-		$this->assertNull( kickbox_integration_set_default_options() );
-	}
-
-	/**
-	 * Test that deactivation function works
-	 */
-	public function test_deactivate_function() {
-		// This should not throw any errors
-		$this->assertNull( kickbox_integration_deactivate() );
+		// Test the installer class method
+		try {
+			$errors = Kickbox_Integration_Installer::set_default_options();
+			
+			$this->assertIsArray( $errors, 'Should return an array of errors' );
+			$this->assertEmpty( 
+				$errors, 
+				'No errors should occur when setting default options. Errors: ' . print_r( $errors, true ) 
+			);
+		} catch ( Exception $e ) {
+			$this->fail( "Kickbox_Integration_Installer::set_default_options method failed with the following exception:\n" . $e->getMessage() );
+		}
 	}
 
 	/**
 	 * Test that plugin dependency notice function works
 	 */
 	public function test_plugin_dependency_notice_function() {
+		// Get the plugin instance
+		$kickbox = KICKBOX();
+
 		// Capture output
 		ob_start();
-		kickbox_integration_plugin_dependency_notice();
+		$kickbox->plugin_row_dependency_notice();
 		$output = ob_get_clean();
 
-		// Should output HTML (empty if no issues)
+		// Should output HTML (empty if dependencies are met)
 		$this->assertIsString( $output );
+
+		// With current WooCommerce version >= 10.2, output should be empty
+		$this->assertEmpty( $output, 'Dependency notice should be empty when dependencies are met' );
 	}
 
 	/**
@@ -261,56 +293,79 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	public function test_admin_notice_functions_output() {
 		// Test WooCommerce missing notice
 		ob_start();
-		kickbox_integration_woocommerce_missing_notice();
+		Kickbox_Integration::display_woocommerce_missing_notice();
 		$output = ob_get_clean();
 		$this->assertStringContainsString( 'WooCommerce', $output );
 		$this->assertStringContainsString( 'requires', $output );
 
 		// Test WooCommerce deactivated notice
 		ob_start();
-		kickbox_integration_woocommerce_deactivated_notice();
+		Kickbox_Integration::display_woocommerce_deactivated_notice();
 		$output = ob_get_clean();
 		$this->assertStringContainsString( 'deactivated', $output );
 
 		// Test WooCommerce version notice
 		ob_start();
-		kickbox_integration_woocommerce_version_notice();
+		Kickbox_Integration::display_woocommerce_version_notice();
 		$output = ob_get_clean();
 		$this->assertStringContainsString( 'version', $output );
 
 		// Test WordPress version notice
 		ob_start();
-		kickbox_integration_wordpress_version_notice();
+		Kickbox_Integration::display_wordpress_version_notice();
 		$output = ob_get_clean();
 		$this->assertStringContainsString( 'WordPress', $output );
 		$this->assertStringContainsString( 'version', $output );
 	}
 
 	/**
-	 * Test that plugin initialization function works
+	 * Test that KICKBOX() function returns singleton instance
 	 */
-	public function test_init_function() {
-		// This should not throw any errors
-		$this->assertNull( kickbox_integration_init() );
+	public function test_kickbox_singleton_function() {
+		$instance1 = KICKBOX();
+		$instance2 = KICKBOX();
+
+		// Should return the same instance
+		$this->assertSame( $instance1, $instance2, 'KICKBOX() should return the same singleton instance' );
+		$this->assertInstanceOf( 'Kickbox_Integration', $instance1 );
 	}
 
 	/**
-	 * Test that WooCommerce check function works
+	 * Test that plugin components are initialized
 	 */
-	public function test_check_woocommerce_function() {
-		// This should not throw any errors
-		$this->assertNull( kickbox_integration_check_woocommerce() );
+	public function test_plugin_components_initialized() {
+		$kickbox = KICKBOX();
+
+		// Trigger component initialization
+		$kickbox->init_components();
+
+		// Check that all components are initialized
+		$this->assertInstanceOf( 'Kickbox_Integration_Verification', $kickbox->verification );
+		$this->assertInstanceOf( 'Kickbox_Integration_Admin', $kickbox->admin );
+		$this->assertInstanceOf( 'Kickbox_Integration_Checkout', $kickbox->checkout );
+		$this->assertInstanceOf( 'Kickbox_Integration_Registration', $kickbox->registration );
+		$this->assertInstanceOf( 'Kickbox_Integration_Dashboard_Widget', $kickbox->dashboard_widget );
+		$this->assertInstanceOf( 'Kickbox_Integration_Flagged_Emails', $kickbox->flagged_emails );
 	}
 
 	/**
-	 * Test that plugins_loaded action triggers WooCommerce check
+	 * Test dependency checking methods
 	 */
-	public function test_plugins_loaded_action_triggers_check() {
+	public function test_dependency_checking() {
+		// Should return true since dependencies are met in test environment
+		$this->assertTrue( Kickbox_Integration::check_dependencies(), 'Dependencies should be met in test environment' );
+		$this->assertTrue( Kickbox_Integration::is_woocommerce_active(), 'WooCommerce should be active in test environment' );
+	}
+
+	/**
+	 * Test that plugins_loaded action triggers validation and initialization
+	 */
+	public function test_plugins_loaded_action_triggers_validation() {
 		// Clear any existing actions
 		remove_all_actions( 'plugins_loaded' );
 
 		// Re-add the action
-		add_action( 'plugins_loaded', 'kickbox_integration_check_woocommerce' );
+		add_action( 'plugins_loaded', 'kickbox_integration_validate_and_init' );
 
 		// Trigger the action
 		do_action( 'plugins_loaded' );
@@ -325,14 +380,6 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	public function test_activation_hook_execution() {
 		// Test that activation function can be called
 		$this->assertNull( kickbox_integration_activate() );
-	}
-
-	/**
-	 * Test that deactivation hook works
-	 */
-	public function test_deactivation_hook_execution() {
-		// Test that deactivation function can be called
-		$this->assertNull( kickbox_integration_deactivate() );
 	}
 
 	/**
