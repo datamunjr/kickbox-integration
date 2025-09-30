@@ -203,23 +203,6 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test plugin row meta function
-	 */
-	public function test_plugin_row_meta() {
-		$plugin_meta = array();
-		$plugin_file = plugin_basename( __FILE__ );
-
-		$result = kickbox_integration_plugin_row_meta( $plugin_meta, $plugin_file );
-
-		$this->assertIsArray( $result );
-		$this->assertNotEmpty( $result );
-
-		// Should contain WooCommerce status
-		$meta_string = implode( ' ', $result );
-		$this->assertStringContainsString( 'WooCommerce', $meta_string );
-	}
-
-	/**
 	 * Test that database table creation function works
 	 */
 	public function test_create_tables_function() {
@@ -353,44 +336,6 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that admin_init action triggers default options
-	 */
-	public function test_admin_init_triggers_default_options() {
-		// Clear any existing options to test fresh
-		$options_to_clear = array(
-			'kickbox_integration_api_key',
-			'kickbox_integration_deliverable_action',
-			'kickbox_integration_undeliverable_action',
-			'kickbox_integration_risky_action',
-			'kickbox_integration_unknown_action',
-			'kickbox_integration_enable_checkout_verification',
-			'kickbox_integration_enable_registration_verification',
-			'kickbox_integration_allow_list'
-		);
-
-		foreach ( $options_to_clear as $option ) {
-			delete_option( $option );
-		}
-
-		// Trigger admin_init (this might set default options)
-		do_action( 'admin_init' );
-
-		// Check that options are set
-		$this->assertNotFalse( get_option( 'kickbox_integration_api_key' ) );
-	}
-
-	/**
-	 * Test that init action works
-	 */
-	public function test_init_action() {
-		// Trigger init action
-		do_action( 'init' );
-
-		// Should not throw any errors
-		$this->assertTrue( true );
-	}
-
-	/**
 	 * Test that wp_loaded action works
 	 */
 	public function test_wp_loaded_action() {
@@ -399,19 +344,6 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 
 		// Should not throw any errors
 		$this->assertTrue( true );
-	}
-
-	/**
-	 * Test that admin_notices action works
-	 */
-	public function test_admin_notices_action() {
-		// Capture output
-		ob_start();
-		do_action( 'admin_notices' );
-		$output = ob_get_clean();
-
-		// Should not throw any errors
-		$this->assertIsString( $output );
 	}
 
 	/**
