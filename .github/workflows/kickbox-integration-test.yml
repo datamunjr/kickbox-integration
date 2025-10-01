@@ -1,4 +1,4 @@
-name: Kickbox Integration Plugin Tests!
+name: Kickbox Integration Plugin Tests
 
 on:
   push:
