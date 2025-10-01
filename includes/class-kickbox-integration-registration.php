@@ -107,7 +107,7 @@ class Kickbox_Integration_Registration {
      * @param WP_Error $validation_error The validation error object
      * @param string $result The verification result
      */
-    private function add_registration_error( $validation_error, $result ) {
+    protected function add_registration_error( $validation_error, $result ) {
         $messages = array(
             'undeliverable' => esc_html__( 'This email address does not exist or is invalid. Please use a different email address.', 'kickbox-integration' ),
             'risky'         => esc_html__( 'This email address has quality issues and may result in bounces. Please use a different email address.', 'kickbox-integration' ),

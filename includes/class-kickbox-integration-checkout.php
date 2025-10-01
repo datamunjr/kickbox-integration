@@ -31,8 +31,6 @@ class Kickbox_Integration_Checkout {
                 'add_verification_errors_to_contact_field'
         ), 10, 3 );
 
-//        add_action( 'woocommerce_checkout_process', array( $this, 'validate_email_in_address_fields' ), 10, 3 );
-
         add_filter( 'woocommerce_form_field_email', array( $this, 'add_checkout_verification_to_email_field' ), 10, 4 );
         add_action( 'wp_footer', array( $this, 'add_blocks_checkout_support' ) );
     }
