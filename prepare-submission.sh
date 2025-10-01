@@ -45,6 +45,10 @@ rm -rf .git/
 rm -rf .idea/
 rm -rf .vscode/
 
+# Remove React test directories
+echo "Removing React test directories..."
+find . -name "__tests__" -type d -exec rm -rf {} + 2>/dev/null || true
+
 # Remove development files
 echo "Removing development files..."
 rm -f webpack.config.js
@@ -60,6 +64,8 @@ rm -f prepare-submission.sh
 rm -f .eslintrc.js
 rm -f .prettierrc.json
 rm -f .gitignore
+rm -f babel.config.js
+rm -f jest.config.js
 
 # Remove build artifacts
 echo "Removing build artifacts..."
@@ -100,6 +106,7 @@ echo "🗑️  Files removed from submission copy:"
 echo "   - node_modules/ (npm development dependencies)"
 echo "   - vendor/ (Composer dependencies)"
 echo "   - tests/ (test files and directories)"
+echo "   - __tests__/ (React test directories)"
 echo "   - bin/ (development scripts)"
 echo "   - src/ (source files)"
 echo "   - .git/ (git repository)"
@@ -113,6 +120,8 @@ echo "   - composer.lock (Composer lock file)"
 echo "   - phpunit.xml (PHPUnit configuration)"
 echo "   - phpunit.xml.dist (PHPUnit distribution config)"
 echo "   - .phpunit.result.cache (PHPUnit cache)"
+echo "   - babel.config.js (Babel configuration)"
+echo "   - jest.config.js (Jest test configuration)"
 echo "   - .eslintrc.js (linting configuration)"
 echo "   - .prettierrc.json (formatting configuration)"
 echo "   - .gitignore (git ignore rules)"
