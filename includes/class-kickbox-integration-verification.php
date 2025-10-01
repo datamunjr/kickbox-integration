@@ -150,6 +150,31 @@ class Kickbox_Integration_Verification {
 		}
 
 		// If there is no admin decision, then the email has been verified yet.
+		$kickbox_result = $this->get_kickbox_verification_results_for_email( $email );
+
+		if ( is_wp_error( $kickbox_result ) ) {
+			return $kickbox_result;
+		}
+
+		// Track balance from response headers
+		$this->update_balance_from_response( $kickbox_result['response'] );
+
+		// Log the verification
+		$this->log_verification( $email, $kickbox_result['data'], $meta_data['user_id'] ?? null, $meta_data['order_id'] ?? null, $meta_data['origin'] ?? null );
+
+		// Check if we should flag this email for review
+		$this->check_and_flag_for_review( $email, $kickbox_result['data'], $meta_data );
+
+		return $kickbox_result['data'];
+	}
+
+	/**
+	 * Get Kickbox verification results for an email address
+	 *
+	 * @param string $email Email address to verify
+	 * @return array|WP_Error Array with 'response' and 'data' keys, or WP_Error on failure
+	 */
+	protected function get_kickbox_verification_results_for_email( $email ) {
 		$url = add_query_arg( array(
 			'email'  => urlencode( $email ),
 			'apikey' => $this->api_key
@@ -172,18 +197,11 @@ class Kickbox_Integration_Verification {
 			return new WP_Error( 'invalid_response', __( 'Invalid response from Kickbox API.', 'kickbox-integration' ) );
 		}
 
-		// Track balance from response headers
-		$this->update_balance_from_response( $response );
-
-		// Log the verification
-		$this->log_verification( $email, $data, $meta_data['user_id'] ?? null, $meta_data['order_id'] ?? null, $meta_data['origin'] ?? null );
-
-		// Check if we should flag this email for review
-		$this->check_and_flag_for_review( $email, $data, $meta_data );
-
-		return $data;
+		return array(
+			'response' => $response,
+			'data'     => $data
+		);
 	}
-
 
 	/**
 	 * Check if email should be flagged for review and flag it if necessary
@@ -192,11 +210,11 @@ class Kickbox_Integration_Verification {
 	 * @param array $kickbox_result Kickbox API result
 	 * @param array $options Verification options
 	 */
-	private function check_and_flag_for_review( $email, $kickbox_result, $options = array() ) {
+	protected function check_and_flag_for_review( $email, $kickbox_result, $options = array() ) {
 		$result = $kickbox_result['result'] ?? '';
 
-		// Only flag emails that are undeliverable, risky, or unknown
-		if ( ! in_array( $result, array( 'undeliverable', 'risky', 'unknown' ), true ) ) {
+		// Only flag emails that are undeliverable, risky, unknown, or deliverable
+		if ( ! in_array( $result, array( 'undeliverable', 'risky', 'unknown', 'deliverable' ), true ) ) {
 			return;
 		}
 
@@ -250,7 +268,7 @@ class Kickbox_Integration_Verification {
 	 * @param int $order_id Order ID (optional)
 	 * @param string $origin Origin of verification (checkout, registration)
 	 */
-	private function log_verification( $email, $result, $user_id = null, $order_id = null, $origin = null ) {
+	protected function log_verification( $email, $result, $user_id = null, $order_id = null, $origin = null ) {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'kickbox_integration_verification_log';
@@ -378,7 +396,7 @@ class Kickbox_Integration_Verification {
 	 *
 	 * @param array $response WordPress HTTP response
 	 */
-	private function update_balance_from_response( $response ) {
+	protected function update_balance_from_response( $response ) {
 
 		$headers = wp_remote_retrieve_headers( $response );
 

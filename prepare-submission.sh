@@ -40,6 +40,7 @@ rm -rf node_modules/
 rm -rf src/
 rm -rf vendor/
 rm -rf tests/
+rm -rf bin/
 rm -rf .git/
 rm -rf .idea/
 rm -rf .vscode/
@@ -99,6 +100,7 @@ echo "🗑️  Files removed from submission copy:"
 echo "   - node_modules/ (npm development dependencies)"
 echo "   - vendor/ (Composer dependencies)"
 echo "   - tests/ (test files and directories)"
+echo "   - bin/ (development scripts)"
 echo "   - src/ (source files)"
 echo "   - .git/ (git repository)"
 echo "   - .idea/ (IntelliJ IDEA settings)"
