@@ -158,6 +158,9 @@ class Kickbox_Integration {
      * @since 1.0.0
      */
     private function init_hooks() {
+        // Declare HPOS compatibility
+        add_action( 'before_woocommerce_init', array( $this, 'declare_hpos_compatibility' ) );
+
         // Initialize components
         add_action( 'plugins_loaded', array( $this, 'init_components' ) );
 
@@ -167,6 +170,21 @@ class Kickbox_Integration {
                 $this,
                 'plugin_row_dependency_notice'
         ) );
+    }
+
+    /**
+     * Declare compatibility with WooCommerce High-Performance Order Storage (HPOS)
+     *
+     * @since 1.0.0
+     */
+    public function declare_hpos_compatibility() {
+        if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+                'custom_order_tables',
+                KICKBOX_INTEGRATION_PLUGIN_FILE,
+                true
+            );
+        }
     }
 
     /**
