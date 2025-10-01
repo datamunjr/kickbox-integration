@@ -122,6 +122,7 @@ class Kickbox_Integration {
         $this->define_constants();
         $this->includes();
         $this->init_hooks();
+        $this->init_components();
     }
 
     /**
@@ -161,8 +162,8 @@ class Kickbox_Integration {
         // Declare HPOS compatibility
         add_action( 'before_woocommerce_init', array( $this, 'declare_hpos_compatibility' ) );
 
-        // Initialize components
-        add_action( 'plugins_loaded', array( $this, 'init_components' ) );
+        // Plugin action links
+        add_filter( 'plugin_action_links_' . KICKBOX_INTEGRATION_PLUGIN_BASENAME, array( $this, 'plugin_action_links' ) );
 
         // Plugin row meta
         add_filter( 'plugin_row_meta', array( $this, 'plugin_row_meta' ), 10, 2 );
@@ -185,6 +186,22 @@ class Kickbox_Integration {
                 true
             );
         }
+    }
+
+    /**
+     * Add plugin action links
+     *
+     * @since 1.0.0
+     * @param array $links Plugin action links
+     * @return array Modified plugin action links
+     */
+    public function plugin_action_links( $links ) {
+        $settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=kickbox-integration-settings' ) ) . '">' . esc_html__( 'Settings', 'kickbox-integration' ) . '</a>';
+        
+        // Add settings link at the beginning of the array
+        array_unshift( $links, $settings_link );
+        
+        return $links;
     }
 
     /**

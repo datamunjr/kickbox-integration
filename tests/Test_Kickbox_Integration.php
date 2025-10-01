@@ -162,6 +162,39 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that plugin action links filter is registered
+	 */
+	public function test_plugin_action_links_filter_registered() {
+		$kickbox = KICKBOX();
+		$action_links_hook = 'plugin_action_links_' . KICKBOX_INTEGRATION_PLUGIN_BASENAME;
+
+		// Use has_filter to check if our specific callback is registered
+		$priority = has_filter( $action_links_hook, array( $kickbox, 'plugin_action_links' ) );
+
+		// has_filter returns the priority if found, false if not found
+		$this->assertNotFalse( $priority, 'Kickbox_Integration::plugin_action_links should be registered as a callback' );
+		$this->assertEquals( 10, $priority, 'Kickbox_Integration::plugin_action_links should be registered at priority 10' );
+	}
+
+	/**
+	 * Test that plugin action links function works
+	 */
+	public function test_plugin_action_links_function() {
+		$kickbox = KICKBOX();
+		$links = array( 'deactivate' => '<a href="#">Deactivate</a>' );
+
+		$result = $kickbox->plugin_action_links( $links );
+
+		$this->assertIsArray( $result );
+		$this->assertCount( 2, $result, 'Should have 2 links after adding Settings link' );
+		
+		// Settings link should be first
+		$first_link = reset( $result );
+		$this->assertStringContainsString( 'Settings', $first_link );
+		$this->assertStringContainsString( 'kickbox-integration-settings', $first_link );
+	}
+
+	/**
 	 * Test that plugin row meta filter is registered
 	 */
 	public function test_plugin_row_meta_filter_registered() {
@@ -368,16 +401,30 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	public function test_plugin_components_initialized() {
 		$kickbox = KICKBOX();
 
-		// Trigger component initialization
-		$kickbox->init_components();
-
-		// Check that all components are initialized
+		// Components should already be initialized in constructor
 		$this->assertInstanceOf( 'Kickbox_Integration_Verification', $kickbox->verification );
 		$this->assertInstanceOf( 'Kickbox_Integration_Admin', $kickbox->admin );
 		$this->assertInstanceOf( 'Kickbox_Integration_Checkout', $kickbox->checkout );
 		$this->assertInstanceOf( 'Kickbox_Integration_Registration', $kickbox->registration );
 		$this->assertInstanceOf( 'Kickbox_Integration_Dashboard_Widget', $kickbox->dashboard_widget );
 		$this->assertInstanceOf( 'Kickbox_Integration_Flagged_Emails', $kickbox->flagged_emails );
+	}
+
+	/**
+	 * Test that admin menu hook is registered
+	 */
+	public function test_admin_menu_hook_registered() {
+		$kickbox = KICKBOX();
+		
+		// Verify the admin component exists and has the add_admin_menu method
+		$this->assertNotNull( $kickbox->admin, 'Admin component should be initialized' );
+		$this->assertTrue( method_exists( $kickbox->admin, 'add_admin_menu' ), 'Admin class should have add_admin_menu method' );
+		
+		// Use has_action to check if admin menu callback is registered
+		$priority = has_action( 'admin_menu', array( $kickbox->admin, 'add_admin_menu' ) );
+		
+		$this->assertNotFalse( $priority, 'Admin menu callback should be registered on admin_menu hook' );
+		$this->assertEquals( 10, $priority, 'Admin menu callback should be registered at priority 10' );
 	}
 
 	/**
