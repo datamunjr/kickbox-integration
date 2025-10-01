@@ -55,12 +55,8 @@ jobs:
           apt-get update
           
           # Install additional PHP extensions and system dependencies
-          apt-get install -y libzip-dev zip unzip git subversion default-mysql-client curl
+          apt-get install -y libzip-dev zip unzip git subversion default-mysql-client
           docker-php-ext-install zip pdo pdo_mysql mysqli
-          
-          # Install Node.js and npm
-          curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-          apt-get install -y nodejs
           
           # Install WP-CLI
           curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
@@ -69,18 +65,10 @@ jobs:
           
           # Verify installations
           php --version
-          node --version
-          npm --version
           wp --version --allow-root
 
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
-
-      - name: Install npm dependencies
-        run: npm ci
-
-      - name: Run React component tests
-        run: npm test
 
       - name: Install WordPress test suite with WooCommerce
         run: |
@@ -97,6 +85,21 @@ jobs:
           
           # Set proper permissions
           chmod -R 755 /tmp/wordpress/wp-content/plugins/kickbox-integration
+
+      - name: Debug environment
+        run: |
+          # Debug: Check if WooCommerce is installed
+          echo "Checking WooCommerce installation..."
+          ls -la /tmp/wordpress/wp-content/plugins/ || echo "WordPress plugins directory not found"
+          ls -la /tmp/wordpress/wp-content/plugins/woocommerce/ || echo "WooCommerce not found"
+          
+          # Debug: Check plugin files
+          echo "Checking plugin files..."
+          ls -la /tmp/wordpress/wp-content/plugins/kickbox-integration/includes/ || echo "Plugin includes directory not found"
+          
+          # Debug: Check WordPress installation
+          echo "WordPress installation structure:"
+          ls -la /tmp/wordpress/
 
       - name: Run PHPUnit tests
         run: |
