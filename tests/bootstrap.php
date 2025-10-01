@@ -74,10 +74,16 @@ function _manually_load_kickbox_integration() {
 	// Load our plugin directly
 	require dirname( __FILE__, 2 ) . '/kickbox-integration.php';
 
+	// Initialize the singleton to load all includes
+	if ( function_exists( 'KICKBOX' ) ) {
+		KICKBOX();
+	}
+
 	// Manually create tables since we're not going through activation
-	// Use the new installer class
 	if ( class_exists( 'Kickbox_Integration_Installer' ) ) {
 		Kickbox_Integration_Installer::create_tables();
+	} else {
+		echo "Warning: Kickbox_Integration_Installer class not found!\n";
 	}
 }
 
