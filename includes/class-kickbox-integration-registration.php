@@ -32,6 +32,16 @@ class Kickbox_Integration_Registration {
     }
 
     /**
+     * Get the allow list
+     *
+     * @since 1.0.0
+     * @return array
+     */
+    protected function get_allow_list() {
+        return get_option( 'kickbox_integration_allow_list', array() );
+    }
+
+    /**
      * Validate email during WooCommerce registration
      *
      * @param WP_Error $validation_error The validation error object
@@ -52,7 +62,7 @@ class Kickbox_Integration_Registration {
         }
 
         // Check if email is in allow list
-        $allow_list = get_option( 'kickbox_integration_allow_list', array() );
+        $allow_list = $this->get_allow_list();
         if ( in_array( $email, $allow_list, true ) ) {
             return $validation_error; // Skip verification for allowed emails
         }
