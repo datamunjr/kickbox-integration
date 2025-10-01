@@ -673,4 +673,127 @@ class Test_Kickbox_Verification extends WP_UnitTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test log_verification method with various verification scenarios
+	 *
+	 * @dataProvider provideLogVerificationScenarios
+	 */
+	public function test_log_verification( $email, $verification_result, $user_id, $order_id, $origin, $description ) {
+		// Create an instance of the Verification class
+		$verification_instance = new Kickbox_Integration_Verification();
+
+		// Create a reflection to access the protected method
+		$reflection = new ReflectionClass( Kickbox_Integration_Verification::class );
+		$method     = $reflection->getMethod( 'log_verification' );
+		$method->setAccessible( true );
+
+		// Count existing verification logs before the test
+		global $wpdb;
+		$verification_log_table = $wpdb->prefix . 'kickbox_integration_verification_log';
+		$initial_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$verification_log_table}" );
+
+		// Call the log_verification method
+		$method->invoke( $verification_instance, $email, $verification_result, $user_id, $order_id, $origin );
+
+		// Check if a new verification log was created
+		$final_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$verification_log_table}" );
+		$was_logged = ( $final_count > $initial_count );
+
+		// Verify that a log entry was created
+		$this->assertTrue( $was_logged, "Verification should have been logged for {$description}" );
+
+		// If logged, verify the details
+		if ( $was_logged ) {
+			$log_entry = $wpdb->get_row( $wpdb->prepare(
+				"SELECT * FROM {$verification_log_table} WHERE email = %s ORDER BY created_at DESC LIMIT 1",
+				$email
+			) );
+
+			$this->assertNotNull( $log_entry, "Log entry should exist for {$description}" );
+			$this->assertEquals( $email, $log_entry->email, "Email should match for {$description}" );
+			$this->assertEquals( $verification_result['result'], $log_entry->verification_result, "Verification result should match for {$description}" );
+			$this->assertEquals( $user_id, $log_entry->user_id, "User ID should match for {$description}" );
+			$this->assertEquals( $order_id, $log_entry->order_id, "Order ID should match for {$description}" );
+			$this->assertEquals( $origin, $log_entry->origin, "Origin should match for {$description}" );
+			$this->assertNotEmpty( $log_entry->created_at, "Created at should not be empty for {$description}" );
+
+			// Verify the verification_data JSON
+			$verification_data = json_decode( $log_entry->verification_data, true );
+			$this->assertIsArray( $verification_data, "Verification data should be valid JSON for {$description}" );
+			$this->assertEquals( $verification_result, $verification_data, "Verification data should match for {$description}" );
+		}
+
+		// Clean up - remove any verification logs created during the test
+		$wpdb->delete( $verification_log_table, array( 'email' => $email ) );
+	}
+
+	/**
+	 * Data provider for log verification scenarios
+	 *
+	 * @return array Test scenarios [email, verification_result, user_id, order_id, origin, description]
+	 */
+	public function provideLogVerificationScenarios() {
+		return array(
+			'deliverable_checkout' => array(
+				'test@example.com',
+				array(
+					'result' => 'deliverable',
+					'reason' => 'accepted_email',
+					'sendex' => 1.0
+				),
+				123,
+				456,
+				'checkout',
+				'deliverable email from checkout'
+			),
+			'undeliverable_registration' => array(
+				'invalid@example.com',
+				array(
+					'result' => 'undeliverable',
+					'reason' => 'invalid_smtp',
+					'sendex' => 0.0
+				),
+				789,
+				null,
+				'registration',
+				'undeliverable email from registration'
+			),
+			'risky_checkout' => array(
+				'risky@example.com',
+				array(
+					'result' => 'risky',
+					'reason' => 'low_quality',
+					'sendex' => 0.5
+				),
+				null,
+				999,
+				'checkout',
+				'risky email from checkout'
+			),
+			'unknown_registration' => array(
+				'unknown@example.com',
+				array(
+					'result' => 'unknown',
+					'reason' => 'timeout',
+					'sendex' => 0.3
+				),
+				555,
+				null,
+				'registration',
+				'unknown email from registration'
+			),
+			'minimal_data' => array(
+				'minimal@example.com',
+				array(
+					'result' => 'deliverable',
+					'reason' => 'accepted_email'
+				),
+				null,
+				null,
+				null,
+				'email with minimal data'
+			),
+		);
+	}
 }
