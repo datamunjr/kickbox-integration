@@ -119,5 +119,106 @@ class Test_Kickbox_Registration extends WP_UnitTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test that verify_email is not called when registration verification is disabled
+	 */
+	public function test_validate_registration_email_when_verification_disabled() {
+		// Create a mock verification instance
+		$verification_mock = $this->getMockBuilder( Kickbox_Integration_Verification::class )
+		                          ->onlyMethods( array( 'is_verification_enabled', 'verify_email' ) )
+		                          ->getMock();
+
+		// Mock is_verification_enabled to return false (registration verification is DISABLED)
+		$verification_mock->method( 'is_verification_enabled' )
+		                  ->with( 'registration' )
+		                  ->willReturn( false );
+
+		// SPY: verify_email should NEVER be called when verification is disabled
+		$verification_mock->expects( $this->never() )
+		                  ->method( 'verify_email' );
+
+		// Create registration instance
+		$registration = new Kickbox_Integration_Registration();
+
+		// Use reflection to set the verification property
+		$reflection = new ReflectionClass( Kickbox_Integration_Registration::class );
+		$property   = $reflection->getProperty( 'verification' );
+		$property->setAccessible( true );
+		$property->setValue( $registration, $verification_mock );
+
+		// Call validate_registration_email
+		$validation_error = new WP_Error();
+		$result = $registration->validate_registration_email(
+			$validation_error,
+			'testuser',
+			'password123',
+			'test@example.com'
+		);
+
+		// Verify result is a WP_Error object with no errors added
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertEmpty( $result->get_error_codes(), 'No errors should be added when verification is disabled' );
+	}
+
+	/**
+	 * Test that verify_email is not called when email is empty or invalid format
+	 *
+	 * @dataProvider provideInvalidEmailScenarios
+	 */
+	public function test_validate_registration_email_with_invalid_email( $email, $scenario_description ) {
+		// Create a mock verification instance
+		$verification_mock = $this->getMockBuilder( Kickbox_Integration_Verification::class )
+		                          ->onlyMethods( array( 'is_verification_enabled', 'verify_email' ) )
+		                          ->getMock();
+
+		// Mock is_verification_enabled to return true (verification is enabled)
+		$verification_mock->method( 'is_verification_enabled' )
+		                  ->with( 'registration' )
+		                  ->willReturn( true );
+
+		// SPY: verify_email should NEVER be called for invalid/empty emails
+		$verification_mock->expects( $this->never() )
+		                  ->method( 'verify_email' );
+
+		// Create registration instance
+		$registration = new Kickbox_Integration_Registration();
+
+		// Use reflection to set the verification property
+		$reflection = new ReflectionClass( Kickbox_Integration_Registration::class );
+		$property   = $reflection->getProperty( 'verification' );
+		$property->setAccessible( true );
+		$property->setValue( $registration, $verification_mock );
+
+		// Call validate_registration_email
+		$validation_error = new WP_Error();
+		$result = $registration->validate_registration_email(
+			$validation_error,
+			'testuser',
+			'password123',
+			$email
+		);
+
+		// Verify result is a WP_Error object with no errors added
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertEmpty( $result->get_error_codes(), "No errors should be added for $scenario_description" );
+	}
+
+	/**
+	 * Data provider for invalid email scenarios
+	 *
+	 * @return array Test scenarios [email, scenario_description]
+	 */
+	public function provideInvalidEmailScenarios() {
+		return array(
+			'empty_email'           => array( '', 'empty email' ),
+			'invalid_format_no_at'  => array( 'notanemail', 'email without @ symbol' ),
+			'invalid_format_no_domain' => array( 'test@', 'email without domain' ),
+			'invalid_format_spaces' => array( 'test @example.com', 'email with spaces' ),
+			'invalid_format_no_local' => array( '@example.com', 'email without local part' ),
+		);
+	}
 }
+
+
 
