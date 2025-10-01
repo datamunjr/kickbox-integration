@@ -42,6 +42,7 @@ class Kickbox_Integration_Verification {
 	 * Generate cache key for verification history
 	 *
 	 * @param string $email Email address
+	 *
 	 * @return string Cache key
 	 */
 	private function get_cache_key_for_history( $email ) {
@@ -148,6 +149,7 @@ class Kickbox_Integration_Verification {
 			return $cached_kickbox_result;
 		}
 
+		// If there is no admin decision, then the email has been verified yet.
 		$url = add_query_arg( array(
 			'email'  => urlencode( $email ),
 			'apikey' => $this->api_key
@@ -283,10 +285,10 @@ class Kickbox_Integration_Verification {
 	 */
 	public function get_verification_history( $email ) {
 		$cache_key = $this->get_cache_key_for_history( $email );
-		
+
 		// Try to get from cache first
 		$results = wp_cache_get( $cache_key, $this->cache_group );
-		
+
 		if ( $results !== false ) {
 			return $results;
 		}
@@ -314,10 +316,10 @@ class Kickbox_Integration_Verification {
 	 */
 	public function get_verification_stats() {
 		$cache_key = $this->get_cache_key_for_stats();
-		
+
 		// Try to get from cache first
 		$stats = wp_cache_get( $cache_key, $this->cache_group );
-		
+
 		if ( $stats !== false ) {
 			return $stats;
 		}
@@ -340,12 +342,14 @@ class Kickbox_Integration_Verification {
 	 * Check if email verification is enabled
 	 *
 	 * @param string $type Verification type ('checkout' or 'registration')
+	 *
 	 * @return bool
 	 */
 	public function is_verification_enabled( $type = 'checkout' ) {
 		if ( $type === 'registration' ) {
 			return get_option( 'kickbox_integration_enable_registration_verification', 'no' ) === 'yes';
 		}
+
 		return get_option( 'kickbox_integration_enable_checkout_verification', 'no' ) === 'yes';
 	}
 

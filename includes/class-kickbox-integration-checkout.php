@@ -235,7 +235,7 @@ class Kickbox_Integration_Checkout {
 
     /**
      * There's a weird UX experience where the error banner shows up above the Billing Address section, which we
-     * don't want it to show there. Instead, we want it to show over the "contact" section or "additional_fields"
+     * don't want to show it there. Instead, we want it to show over the "contact" section or "additional_fields"
      * section.
      *
      * @param $errors
