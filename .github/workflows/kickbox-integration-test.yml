@@ -98,21 +98,6 @@ jobs:
           # Set proper permissions
           chmod -R 755 /tmp/wordpress/wp-content/plugins/kickbox-integration
 
-      - name: Debug environment
-        run: |
-          # Debug: Check if WooCommerce is installed
-          echo "Checking WooCommerce installation..."
-          ls -la /tmp/wordpress/wp-content/plugins/ || echo "WordPress plugins directory not found"
-          ls -la /tmp/wordpress/wp-content/plugins/woocommerce/ || echo "WooCommerce not found"
-          
-          # Debug: Check plugin files
-          echo "Checking plugin files..."
-          ls -la /tmp/wordpress/wp-content/plugins/kickbox-integration/includes/ || echo "Plugin includes directory not found"
-          
-          # Debug: Check WordPress installation
-          echo "WordPress installation structure:"
-          ls -la /tmp/wordpress/
-
       - name: Run PHPUnit tests
         run: |
           # Set up test environment variables and run tests
