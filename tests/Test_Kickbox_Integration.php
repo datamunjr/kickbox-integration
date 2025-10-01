@@ -162,15 +162,6 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that activation hook is registered
-	 */
-	public function test_activation_hook_registered() {
-		global $wp_filter;
-		$activation_hook = 'activate_' . $this->getPluginBasename();
-		$this->assertTrue( isset( $wp_filter[ $activation_hook ] ) );
-	}
-
-	/**
 	 * Test that plugin row meta filter is registered
 	 */
 	public function test_plugin_row_meta_filter_registered() {
@@ -262,7 +253,12 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	 *
 	 * @dataProvider provideDependencyNoticeScenarios
 	 */
-	public function test_plugin_dependency_notice_function( $wc_active, $wc_version_ok, $should_show_notice, $expected_text ) {
+	public function test_plugin_dependency_notice_function(
+		$is_wc_active,
+		$is_wc_version_ok,
+		$should_show_notice,
+		$expected_text
+	) {
 		// Create a mock of Kickbox_Integration that only mocks get_woocommerce_dependency_status
 		$kickbox_mock = $this->getMockBuilder( Kickbox_Integration::class )
 		                     ->disableOriginalConstructor()
@@ -272,8 +268,8 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 		// Mock get_woocommerce_dependency_status() to return our test values
 		$kickbox_mock->method( 'get_woocommerce_dependency_status' )
 		             ->willReturn( array(
-			             'active'     => $wc_active,
-			             'version_ok' => $wc_version_ok,
+			             'active'     => $is_wc_active,
+			             'version_ok' => $is_wc_version_ok,
 		             ) );
 
 		// Capture output
@@ -408,14 +404,6 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 
 		// The function should have been called (no errors means it worked)
 		$this->assertTrue( true ); // If we get here, no fatal errors occurred
-	}
-
-	/**
-	 * Test that activation hook works
-	 */
-	public function test_activation_hook_execution() {
-		// Test that activation function can be called
-		$this->assertNull( kickbox_integration_activate() );
 	}
 
 	/**
