@@ -626,7 +626,7 @@ class Test_Kickbox_Checkout extends WP_UnitTestCase {
 		// SPY on get_action_for_result - should be called with 'unknown' result
 		$verification_mock->expects( $this->once() )
 		                  ->method( 'get_action_for_result' )
-		                  ->with( 'deliverable' )
+		                  ->with( 'unknown' )
 		                  ->willReturn( 'allow' );
 
 		// Create checkout instance
