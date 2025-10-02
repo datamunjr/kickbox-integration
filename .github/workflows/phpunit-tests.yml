@@ -62,7 +62,7 @@ jobs:
           mv wp-cli.phar /usr/local/bin/wp
           
           # Verify installations
-          php --versionn
+          php --version
           wp --version --allow-root
 
       - name: Install Composer dependencies
