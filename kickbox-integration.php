@@ -134,24 +134,24 @@ class Kickbox_Integration {
         // Additional constants can be defined here if needed
     }
 
-	/**
-	 * Include required core files
-	 *
-	 * @since 1.0.0
-	 */
-	private function includes() {
-		// Include installer and activator classes
-		require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-installer.php';
-		require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-activator.php';
+    /**
+     * Include required core files
+     *
+     * @since 1.0.0
+     */
+    private function includes() {
+        // Include installer and activator classes
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-installer.php';
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-activator.php';
 
-		// Include core classes
-		require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-verification.php';
-		require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-admin.php';
-		require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-checkout.php';
-		require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-registration.php';
-		require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-dashboard-widget.php';
-		require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails.php';
-	}
+        // Include core classes
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-verification.php';
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-admin.php';
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-checkout.php';
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-registration.php';
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-dashboard-widget.php';
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails.php';
+    }
 
     /**
      * Hook into actions and filters
@@ -163,7 +163,10 @@ class Kickbox_Integration {
         add_action( 'before_woocommerce_init', array( $this, 'declare_hpos_compatibility' ) );
 
         // Plugin action links
-        add_filter( 'plugin_action_links_' . KICKBOX_INTEGRATION_PLUGIN_BASENAME, array( $this, 'plugin_action_links' ) );
+        add_filter( 'plugin_action_links_' . KICKBOX_INTEGRATION_PLUGIN_BASENAME, array(
+                $this,
+                'plugin_action_links'
+        ) );
 
         // Plugin row meta
         add_filter( 'plugin_row_meta', array( $this, 'plugin_row_meta' ), 10, 2 );
@@ -181,9 +184,9 @@ class Kickbox_Integration {
     public function declare_hpos_compatibility() {
         if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
             \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
-                'custom_order_tables',
-                KICKBOX_INTEGRATION_PLUGIN_FILE,
-                true
+                    'custom_order_tables',
+                    KICKBOX_INTEGRATION_PLUGIN_FILE,
+                    true
             );
         }
     }
@@ -191,16 +194,17 @@ class Kickbox_Integration {
     /**
      * Add plugin action links
      *
-     * @since 1.0.0
      * @param array $links Plugin action links
+     *
      * @return array Modified plugin action links
+     * @since 1.0.0
      */
     public function plugin_action_links( $links ) {
         $settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=kickbox-integration-settings' ) ) . '">' . esc_html__( 'Settings', 'kickbox-integration' ) . '</a>';
-        
+
         // Add settings link at the beginning of the array
         array_unshift( $links, $settings_link );
-        
+
         return $links;
     }
 
@@ -276,8 +280,8 @@ class Kickbox_Integration {
             if ( class_exists( 'WooCommerce' ) && defined( 'WC_VERSION' ) ) {
                 $current_wc_version = WC_VERSION;
                 $version_status     = version_compare( $current_wc_version, KICKBOX_INTEGRATION_REQUIRED_WC_VERSION, '>=' )
-                        ? '<span style="color: #46b450;">✓ WC ' . $current_wc_version . '</span>'
-                        : '<span style="color: #dc3232;">✗ WC ' . $current_wc_version . ' (Requires ' . KICKBOX_INTEGRATION_REQUIRED_WC_VERSION . '+)</span>';
+                        ? esc_html__( '<span style="color: #46b450;">✓ WC ' . $current_wc_version . '</span>' )
+                        : esc_html__( '<span style="color: #dc3232;">✗ WC ' . $current_wc_version . ' (Requires ' . KICKBOX_INTEGRATION_REQUIRED_WC_VERSION . '+)</span>' );
 
                 $plugin_meta[] = $version_status;
             }
@@ -534,21 +538,21 @@ function kickbox_integration_validate_and_init() {
  * @since 1.0.0
  */
 function kickbox_integration_activate() {
-	require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-activator.php';
-	
-	$result = Kickbox_Integration_Activator::activate();
-	
-	// If activation failed, display error and die
-	if ( true !== $result && is_array( $result ) ) {
-		wp_die(
-			'<h1>' . esc_html__( 'Plugin Activation Error', 'kickbox-integration' ) . '</h1>' .
-			'<p>' . esc_html( $result['message'] ) . '</p>' .
-			'<p>' . esc_html__( 'Please resolve the issue and try activating the plugin again.', 'kickbox-integration' ) . '</p>' .
-			'<p><a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Return to Plugins page', 'kickbox-integration' ) . '</a></p>',
-			esc_html__( 'Plugin Activation Error', 'kickbox-integration' ),
-			array( 'back_link' => true )
-		);
-	}
+    require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-activator.php';
+
+    $result = Kickbox_Integration_Activator::activate();
+
+    // If activation failed, display error and die
+    if ( true !== $result && is_array( $result ) ) {
+        wp_die(
+                '<h1>' . esc_html__( 'Plugin Activation Error', 'kickbox-integration' ) . '</h1>' .
+                '<p>' . esc_html( $result['message'] ) . '</p>' .
+                '<p>' . esc_html__( 'Please resolve the issue and try activating the plugin again.', 'kickbox-integration' ) . '</p>' .
+                '<p><a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Return to Plugins page', 'kickbox-integration' ) . '</a></p>',
+                esc_html__( 'Plugin Activation Error', 'kickbox-integration' ),
+                array( 'back_link' => true )
+        );
+    }
 }
 
 /**
@@ -557,8 +561,8 @@ function kickbox_integration_activate() {
  * @since 1.0.0
  */
 function kickbox_integration_deactivate() {
-	// Clear any caches when plugin is deactivated
-	wp_cache_flush();
+    // Clear any caches when plugin is deactivated
+    wp_cache_flush();
 }
 
 // Register activation and deactivation hooks
