@@ -6,6 +6,7 @@ on:
 
 jobs:
   test-kickbox-react:
+    name: React Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -31,7 +32,7 @@ jobs:
         run: npx prettier --check src/js/
 
   test-kickbox-integration:
-    name: Test KickBox integration Plugin
+    name: PHPUnit Tests
     runs-on: ubuntu-latest
 
     services:
