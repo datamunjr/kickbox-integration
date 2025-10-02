@@ -5,6 +5,27 @@ on:
   pull_request:
 
 jobs:
+  qit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install PHP & Composer
+        run: sudo apt-get update && sudo apt-get install -y php-cli php-zip unzip
+
+      - name: Install QIT CLI
+        run: composer global require woocommerce/qit-cli
+
+      - name: Authenticate QIT
+        run: qit partner:add --user='${{ secrets.QIT_USER }}' --application_password='${{ secrets.QIT_APP_PASS }}'
+
+      - name: Run Activation Test
+        run: qit run:activation your-extension --wait
+
+      - name: Run Security Test
+        run: qit run:security your-extension --wait
+
   test-kickbox-react:
     name: React Tests
     runs-on: ubuntu-latest
