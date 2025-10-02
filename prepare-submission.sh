@@ -21,13 +21,13 @@ if [ -f "$ZIP_FILE" ]; then
     rm -f "$ZIP_FILE"
 fi
 
-# Create temp directory
+# Create temp directory with plugin slug as parent directory
 echo "Creating temp directory: $TEMP_DIR"
-mkdir -p "$TEMP_DIR"
+mkdir -p "$TEMP_DIR/kickbox-integration"
 
-# Copy all files to temp directory
+# Copy all files to temp directory under the plugin slug folder
 echo "Copying plugin files to temp directory..."
-cp -r . "$TEMP_DIR/"
+cp -r . "$TEMP_DIR/kickbox-integration/"
 
 # Change to temp directory
 cd "$TEMP_DIR"
@@ -84,10 +84,10 @@ rmdir wckb/ 2>/dev/null || true
 # Go back to parent directory to create zip
 cd ".."
 
-# Create zip file from temp directory contents (not the directory itself)
+# Create zip file from temp directory (which contains kickbox-integration folder)
 echo "Creating zip file: $CURRENT_DIR/$ZIP_FILE"
 cd "$(basename "$TEMP_DIR")"
-zip -r "../$CURRENT_DIR/$ZIP_FILE" . -x "*.DS_Store" "*/.*"
+zip -r "../$CURRENT_DIR/$ZIP_FILE" kickbox-integration -x "*.DS_Store" "*/.*"
 cd ".."
 
 # Remove temp directory
