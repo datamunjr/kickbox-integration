@@ -17,7 +17,9 @@ jobs:
       - name: Install QIT CLI
         run: |
           composer global require woocommerce/qit-cli
-          export PATH="$PATH:$HOME/.composer/vendor/bin"
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       - name: Authenticate QIT
         run: qit partner:add --user='${{ secrets.QIT_USER }}' --application_password='${{ secrets.QIT_APP_PASS }}'
