@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-kickbox-react:
     runs-on: ubuntu-latest
 
     steps:
