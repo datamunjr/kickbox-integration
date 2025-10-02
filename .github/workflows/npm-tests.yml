@@ -2,21 +2,7 @@ name: NPM Tests
 
 on:
   push:
-    paths:
-      - 'src/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'jest.config.js'
-      - 'babel.config.js'
-      - 'webpack.config.js'
   pull_request:
-    paths:
-      - 'src/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'jest.config.js'
-      - 'babel.config.js'
-      - 'webpack.config.js'
 
 jobs:
   test:
