@@ -24,12 +24,12 @@ jobs:
 
       - name: Prepare submission
         run: ./prepare-submission.sh
-
-      #      - name: Run Activation Test
-      #        run: qit run:activation kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait
-
-      - name: Run Security Test
-        run: qit run:security kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait
+    strategy:
+      matrix:
+        qit-test: [ "activation", "security", "api", "phpcompatibility", "malware", "woo-api", "woo-e2e", "validation" ]
+        steps:
+          - name: Run ${{ matrix.qit-test }} qit test
+            run: qit run:${{ matrix.qit-test }} kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait
 
   test-kickbox-react:
     name: React Tests
