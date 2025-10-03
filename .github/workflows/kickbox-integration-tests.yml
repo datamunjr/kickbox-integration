@@ -34,8 +34,8 @@ jobs:
           file kickbox-integration.zip
           unzip -l kickbox-integration.zip | head -20
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      #      - name: Setup tmate session
+      #        uses: mxschmitt/action-tmate@v3
 
       - name: Run Activation Test
         run: qit run:activation kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait
