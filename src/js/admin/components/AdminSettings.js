@@ -289,7 +289,7 @@ const AdminSettings = () => {
 
     const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
 
-    const kickboxIntegrationAdminHeaderTitle = () => {
+    const kickboxIntegrationAdminHeadertitle = () => {
         return <div className="kickbox_integration-header-title">
             <h2 style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
                 Configure your Kickbox Integration Settings here!
@@ -306,7 +306,6 @@ const AdminSettings = () => {
     if (initialLoading) {
         return (
             <div className="kickbox_integration-admin-container">
-                {kickboxIntegrationAdminHeaderTitle()}
                 <div className="kickbox_integration-loading" style={{
                     textAlign: 'center',
                     padding: '40px 20px',
@@ -338,12 +337,12 @@ const AdminSettings = () => {
     return (
         <div className="kickbox_integration-admin-container">
             <div className="kickbox_integration-header">
-                {kickboxIntegrationAdminHeaderTitle()}
+                {kickboxIntegrationAdminHeadertitle()}
                 {message.text && (
                     <div className={`notice notice-${message.type}`}>
                         <p>
                             {message.text}
-                            {message.hasDetails && (
+                            {message.hasDetails && (    
                                 <span style={{marginLeft: '10px'}}>
                   <button
                       type="button"
@@ -354,11 +353,11 @@ const AdminSettings = () => {
                     {showErrorDetails ? 'Hide details' : 'More details'}
                   </button>
                 </span>
-                            )}
-                        </p>
-                        {message.hasDetails && showErrorDetails && renderErrorDetails(message.details)}
-                    </div>
-                )}
+                        )}
+                    </p>
+                    {message.hasDetails && showErrorDetails && renderErrorDetails(message.details)}
+                </div>
+            )}
             </div>
 
             <div className="kickbox_integration-tabs">
@@ -370,7 +369,7 @@ const AdminSettings = () => {
                     >
                         {tab.label}
                         {tab.id === 'flagged' && pendingCount > 0 && (
-                            <span className="kickbox_integration-pending-badge">
+                            <span className="kickbox_integration-pending-badge-inline">
                                 {pendingCount}
                             </span>
                         )}

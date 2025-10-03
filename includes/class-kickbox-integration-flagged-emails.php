@@ -262,8 +262,8 @@ class Kickbox_Integration_Flagged_Emails {
 
 		global $wpdb;
 
-		$where_values     = array( "1=1" );
-		$email_like_value = null;
+		$where_clause      = '1=1';
+		$email_like_filter = '%';
 
 		// Search by email
 		if ( ! empty( $args['search'] ) ) {
@@ -272,30 +272,39 @@ class Kickbox_Integration_Flagged_Emails {
 			 * If we include it as part of the $where_values, $wpdb will escape the quotes surrounding the
 			 * search term.
 			 */
-			$email_like_value = '%' . $wpdb->esc_like( $args['search'] ) . '%';
+			$email_like_filter = '%' . $wpdb->esc_like( $args['search'] ) . '%';
 		}
 
 		// Filter by decision
+		$admin_decision_filter = '%';
 		if ( ! empty( $args['decision'] ) ) {
-			$where_values[] = $wpdb->prepare( 'admin_decision = %s', sanitize_text_field( $args['decision'] ) );
+			$admin_decision_filter = $wpdb->esc_like( $args['decision'] );
 		}
 
 		// Filter by origin
+		$origin_filter = '%';
 		if ( ! empty( $args['origin'] ) ) {
-			$where_values[] = $wpdb->prepare( 'origin = %s', sanitize_text_field( $args['origin'] ) );
+			$origin_filter = $wpdb->esc_like( $args['origin'] );
 		}
 
 		// Filter by verification action
+		$verification_action_filter = '%';
 		if ( ! empty( $args['verification_action'] ) ) {
-			$where_values[] = $wpdb->prepare( 'verification_action = %s', sanitize_text_field( $args['verification_action'] ) );
+			$verification_action_filter = $wpdb->esc_like( $args['verification_action'] );
 		}
 
-		$where_clause = ! empty( $where_values ) ? implode( ' AND ', $where_values ) : '';
-
 		// Count total records
-		$total_items = ! empty( $email_like_value ) ?
-			$wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE %s AND email LIKE %s", $this->table_name, $where_clause, $email_like_value ) ) :
-			$wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE %s", $this->table_name, $where_clause ) );
+		$total_items =
+			$wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM %i WHERE admin_decision LIKE %s AND origin LIKE %s AND verification_action LIKE %s AND email LIKE %s",
+					$this->table_name,
+					$admin_decision_filter,
+					$origin_filter,
+					$verification_action_filter,
+					$email_like_filter
+				)
+			);
 
 		// Calculate pagination
 		$offset      = ( $args['page'] - 1 ) * $args['per_page'];
@@ -304,23 +313,19 @@ class Kickbox_Integration_Flagged_Emails {
 		// Get records
 		$orderby = sanitize_sql_orderby( $args['orderby'] . ' ' . $args['order'] );
 
-		$results = ! empty( $email_like_value ) ?
-			$wpdb->get_results( $wpdb->prepare(
-				"SELECT * FROM %i WHERE %s AND email like %s ORDER BY %s LIMIT %d OFFSET %d",
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM %i  WHERE admin_decision LIKE %s AND origin LIKE %s AND verification_action LIKE %s AND email LIKE %s ORDER BY %s LIMIT %d OFFSET %d",
 				$this->table_name,
-				$where_clause,
-				$email_like_value,
+				$admin_decision_filter,
+				$origin_filter,
+				$verification_action_filter,
+				$email_like_filter,
 				$orderby,
 				$args['per_page'],
 				$offset
-			) ) : $wpdb->get_results( $wpdb->prepare(
-				"SELECT * FROM %i WHERE %s ORDER BY %s LIMIT %d OFFSET %d",
-				$this->table_name,
-				$where_clause,
-				$orderby,
-				$args['per_page'],
-				$offset
-			) );
+			)
+		);
 
 		// Decode JSON for each result
 		foreach ( $results as $result ) {

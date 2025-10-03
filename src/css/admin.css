@@ -61,6 +61,22 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.kickbox_integration-pending-badge-inline {
+    background: #dc3545;
+    color: white;
+    border-radius: 12px;
+    padding: 4px 8px;
+    margin-left: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1;
+    display: inline-block;
+    min-width: 20px;
+    text-align: center;
+    vertical-align: middle;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .kickbox_integration-tab-content {
     min-height: 400px;
 }
