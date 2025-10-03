@@ -338,12 +338,10 @@ class Kickbox_Integration_Admin {
         // Determine sandbox mode from API key prefix
         $sandbox_mode = strpos( $api_key, 'test_' ) === 0;
 
-        // Test with a sample email
-        $test_email = 'test@example.com';
-        $api_url    = 'https://api.kickbox.com/v2/verify';
+        // Test API key by checking balance (doesn't consume credits)
+        $api_url = 'https://api.kickbox.com/v2/balance';
 
         $url = add_query_arg( array(
-                'email'  => $test_email,
                 'apikey' => $api_key
         ), $api_url );
 
@@ -385,10 +383,14 @@ class Kickbox_Integration_Admin {
             ) );
         }
 
-        if ( isset( $data['result'] ) ) {
+        if ( isset( $data['success'] ) && $data['success'] === true && isset( $data['balance'] ) ) {
+            // Update the balance option
+            update_option( 'kickbox_integration_balance', intval( $data['balance'] ) );
+            
             wp_send_json_success( array(
                     'message' => __( 'API connection successful!', 'kickbox-integration' ),
-                    'result'  => $data
+                    'balance' => intval( $data['balance'] ),
+                    'sandbox_mode' => $sandbox_mode
             ) );
         } else {
             // Log the unexpected response for debugging
@@ -410,12 +412,10 @@ class Kickbox_Integration_Admin {
             return array( 'success' => false, 'message' => __( 'API key is required.', 'kickbox-integration' ) );
         }
 
-        // Test with a sample email
-        $test_email = 'test@example.com';
-        $api_url    = 'https://api.kickbox.com/v2/verify';
+        // Test API key by checking balance (doesn't consume credits)
+        $api_url = 'https://api.kickbox.com/v2/balance';
 
         $url = add_query_arg( array(
-                'email'  => $test_email,
                 'apikey' => $api_key
         ), $api_url );
 
@@ -457,8 +457,15 @@ class Kickbox_Integration_Admin {
             );
         }
 
-        if ( isset( $data['result'] ) ) {
-            return array( 'success' => true, 'message' => __( 'API key is valid.', 'kickbox-integration' ) );
+        if ( isset( $data['success'] ) && $data['success'] === true && isset( $data['balance'] ) ) {
+            // Update the balance option
+            update_option( 'kickbox_integration_balance', intval( $data['balance'] ) );
+            
+            return array( 
+                'success' => true, 
+                'message' => __( 'API key is valid.', 'kickbox-integration' ),
+                'balance' => intval( $data['balance'] )
+            );
         } else {
             // Log the unexpected response for debugging
             error_log( '[Kickbox_Integration]: Unexpected Kickbox API response during validation - ' . print_r( $data, true ) );
