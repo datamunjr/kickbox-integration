@@ -738,7 +738,7 @@
 /* WooCommerce Help Tip Integration */
 .woocommerce-help-tip {
     margin-left: 8px;
-    vertical-align: -webkit-baseline-middle;
+    vertical-align: middle;
 }
 
 .kickbox-header-admin-img {
