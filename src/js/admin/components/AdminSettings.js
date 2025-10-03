@@ -289,7 +289,7 @@ const AdminSettings = () => {
 
     const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
 
-    const kickboxIntegrationAdminHeadertitle = () => {
+    const kickboxIntegrationAdminHeaderTitle = () => {
         return <div className="kickbox_integration-header-title">
             <h2 style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
                 Configure your Kickbox Integration Settings here!
@@ -306,7 +306,7 @@ const AdminSettings = () => {
     if (initialLoading) {
         return (
             <div className="kickbox_integration-admin-container">
-                {kickboxIntegrationAdminHeadertitle()}
+                {kickboxIntegrationAdminHeaderTitle()}
                 <div className="kickbox_integration-loading" style={{
                     textAlign: 'center',
                     padding: '40px 20px',
@@ -338,7 +338,7 @@ const AdminSettings = () => {
     return (
         <div className="kickbox_integration-admin-container">
             <div className="kickbox_integration-header">
-                {kickboxIntegrationAdminHeadertitle()}
+                {kickboxIntegrationAdminHeaderTitle()}
                 {message.text && (
                     <div className={`notice notice-${message.type}`}>
                         <p>

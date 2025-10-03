@@ -745,21 +745,9 @@
     margin-left: 8px;
 }
 
-.kickbox-admin-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.kickbox-admin-header img {
+.kickbox-header-admin-img {
     width: 32px;
     height: 32px;
-    vertical-align: middle;
+    vertical-align: bottom;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    margin-top: 5px;
-}
-
-.kickbox-admin-header h1 {
-    margin: 0;
-    color: #1d2327;
 }

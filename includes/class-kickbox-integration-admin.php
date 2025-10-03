@@ -149,12 +149,12 @@ class Kickbox_Integration_Admin {
     public function admin_page() {
         ?>
         <div class="wrap">
-            <div class="kickbox-admin-header">
+            <h1 class="wp-heading-inline">
                 <img src="<?php echo esc_url( KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/images/kickbox-logo-icon-255x255.svg' ); ?>"
-                     alt="Kickbox Logo"/>
-                <h1><?php echo esc_html__( 'Kickbox Integration Settings', 'kickbox-integration' ); ?></h1>
-            </div>
-
+                     alt="Kickbox Logo"
+                     class="kickbox-header-admin-img"/><?php echo esc_html__( 'Kickbox Integration Settings', 'kickbox-integration' ); ?>
+            </h1>
+            <hr class="wp-header-end">
             <div id="kickbox-integration-admin-app">
                 <p>Loading Kickbox Integration Settings...</p>
                 <p><em>If this message persists, there may be a JavaScript error. Please check the browser console.</em>
