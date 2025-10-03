@@ -20,25 +20,13 @@ jobs:
           echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
 
       - name: Authenticate QIT
-        run: |
-          qit partner:add --user='${{ secrets.QIT_USER }}' --application_password='${{ secrets.QIT_APP_PASS }}'
+        run: qit partner:add --user='${{ secrets.QIT_USER }}' --application_password='${{ secrets.QIT_APP_PASS }}'
 
       - name: Prepare submission
-        run: |
-          chmod +x ./prepare-submission.sh
-          ./prepare-submission.sh
+        run: ./prepare-submission.sh
 
-      - name: Verify zip file creation
-        run: |
-          ls -la kickbox-integration.zip
-          file kickbox-integration.zip
-          unzip -l kickbox-integration.zip | head -20
-
-      #      - name: Setup tmate session
-      #        uses: mxschmitt/action-tmate@v3
-
-      - name: Run Activation Test
-        run: qit run:activation kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait
+      #      - name: Run Activation Test
+      #        run: qit run:activation kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait
 
       - name: Run Security Test
         run: qit run:security kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait

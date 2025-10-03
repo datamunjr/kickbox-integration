@@ -335,8 +335,8 @@ class Kickbox_Integration {
                                 <?php
                                 printf(
                                         esc_html__( 'WooCommerce version %s is required. You have version %s.', 'kickbox-integration' ),
-                                        KICKBOX_INTEGRATION_REQUIRED_WC_VERSION . '+',
-                                        defined( 'WC_VERSION' ) ? WC_VERSION : 'Unknown'
+                                        esc_html__( KICKBOX_INTEGRATION_REQUIRED_WC_VERSION . '+' ),
+                                        esc_html__( defined( 'WC_VERSION' ) ? WC_VERSION : 'Unknown' )
                                 );
                                 ?>
                                 <a href="<?php echo esc_url( admin_url( 'update-core.php' ) ); ?>">
@@ -365,8 +365,8 @@ class Kickbox_Integration {
                 <?php
                 printf(
                         esc_html__( 'requires WordPress version %s or higher. You are running version %s.', 'kickbox-integration' ),
-                        KICKBOX_INTEGRATION_REQUIRED_WP_VERSION,
-                        $current_wp_version
+                        esc_html__( KICKBOX_INTEGRATION_REQUIRED_WP_VERSION ),
+                        esc_html__( $current_wp_version )
                 );
                 ?>
             </p>
@@ -387,7 +387,7 @@ class Kickbox_Integration {
                 <?php
                 printf(
                         esc_html__( 'has been deactivated because the WordPress version is too old. Please upgrade WordPress to at least version %s.', 'kickbox-integration' ),
-                        KICKBOX_INTEGRATION_REQUIRED_WP_VERSION
+                        esc_html__( KICKBOX_INTEGRATION_REQUIRED_WP_VERSION )
                 );
                 ?>
             </p>
@@ -441,8 +441,8 @@ class Kickbox_Integration {
                 <?php
                 printf(
                         esc_html__( 'requires WooCommerce version %s or higher. You are running version %s.', 'kickbox-integration' ),
-                        KICKBOX_INTEGRATION_REQUIRED_WC_VERSION,
-                        $current_version
+                        esc_html__( KICKBOX_INTEGRATION_REQUIRED_WC_VERSION ),
+                        esc_html__( $current_version )
                 );
                 ?>
             </p>
