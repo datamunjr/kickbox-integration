@@ -7,6 +7,9 @@ on:
 jobs:
   qit-tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        qit-test: [ "activation", "security", "api", "phpcompatibility", "malware", "woo-api", "woo-e2e", "validation" ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,12 +27,9 @@ jobs:
 
       - name: Prepare submission
         run: ./prepare-submission.sh
-    strategy:
-      matrix:
-        qit-test: [ "activation", "security", "api", "phpcompatibility", "malware", "woo-api", "woo-e2e", "validation" ]
-        steps:
-          - name: Run ${{ matrix.qit-test }} qit test
-            run: qit run:${{ matrix.qit-test }} kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait
+
+      - name: Run ${{ matrix.qit-test }} qit test
+        run: qit run:${{ matrix.qit-test }} kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait
 
   test-kickbox-react:
     name: React Tests
