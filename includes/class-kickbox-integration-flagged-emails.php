@@ -304,17 +304,19 @@ class Kickbox_Integration_Flagged_Emails {
 		$total_pages = ceil( $total_items / $args['per_page'] );
 
 		// Get records
-		$orderby = sanitize_sql_orderby( $args['orderby'] . ' ' . $args['order'] );
+		$orderby     = sanitize_sql_orderby( $args['orderby'] );
+		$asc_or_desc = sanitize_sql_orderby( $args['order'] );
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM %i  WHERE admin_decision LIKE %s AND origin LIKE %s AND verification_action LIKE %s AND email LIKE %s ORDER BY %s LIMIT %d OFFSET %d",
+				"SELECT * FROM %i  WHERE admin_decision LIKE %s AND origin LIKE %s AND verification_action LIKE %s AND email LIKE %s ORDER BY %i %5s LIMIT %d OFFSET %d",
 				$this->table_name,
 				$admin_decision_filter,
 				$origin_filter,
 				$verification_action_filter,
 				$email_like_filter,
 				$orderby,
+				$asc_or_desc,
 				$args['per_page'],
 				$offset
 			)
