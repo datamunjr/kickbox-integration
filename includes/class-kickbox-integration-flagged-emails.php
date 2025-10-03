@@ -262,16 +262,9 @@ class Kickbox_Integration_Flagged_Emails {
 
 		global $wpdb;
 
-		$where_clause      = '1=1';
-		$email_like_filter = '%';
-
 		// Search by email
+		$email_like_filter = '%';
 		if ( ! empty( $args['search'] ) ) {
-			/**
-			 * Note: we need to keep the "LIKE" value due to the way $wpdb formats it.
-			 * If we include it as part of the $where_values, $wpdb will escape the quotes surrounding the
-			 * search term.
-			 */
 			$email_like_filter = '%' . $wpdb->esc_like( $args['search'] ) . '%';
 		}
 
