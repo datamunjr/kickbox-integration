@@ -95,8 +95,13 @@ const EmailVerification = () => {
 
     // Function to verify email (called on Place Order click)
     const verifyEmailOnSubmit = async () => {
+        // If verification is not enabled, always allow submission
+        if (!kickbox_integration_checkout || !kickbox_integration_checkout.verification_enabled) {
+            return true;
+        }
+
         if (!email || !isValidEmail(email)) {
-            return false; // Allow submission if no email or invalid format
+            return false; // Don't verify if there's no email or if it's invalid
         }
 
         // If we've already verified this email and should block, prevent submission

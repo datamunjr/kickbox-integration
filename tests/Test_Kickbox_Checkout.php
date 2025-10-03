@@ -618,16 +618,34 @@ class Test_Kickbox_Checkout extends WP_UnitTestCase {
 	 * Test add_verification_errors_to_contact_field with no cached result
 	 */
 	public function test_add_verification_errors_to_contact_field_no_cached_result() {
+		// Create checkout instance
+		$checkout = new Kickbox_Integration_Checkout();
+
+		// Don't set cached_result (simulates verification disabled or no validation occurred)
+
+		// Call add_verification_errors_to_contact_field
+		$errors = new WP_Error();
+		$fields = array();
+		$group  = 'contact';
+
+		$checkout->add_verification_errors_to_contact_field( $errors, $fields, $group );
+
+		// Should not have errors when no cached result (verification disabled)
+		$this->assertFalse( $errors->has_errors(), 'Should not have errors when no cached result (verification disabled)' );
+	}
+
+	/**
+	 * Test that scripts are not enqueued when verification is disabled
+	 */
+	public function test_scripts_not_enqueued_when_verification_disabled() {
 		// Create a mock verification instance
 		$verification_mock = $this->getMockBuilder( Kickbox_Integration_Verification::class )
-		                          ->onlyMethods( array( 'get_action_for_result' ) )
+		                          ->onlyMethods( array( 'is_verification_enabled' ) )
 		                          ->getMock();
 
-		// SPY on get_action_for_result - should be called with 'unknown' result
-		$verification_mock->expects( $this->once() )
-		                  ->method( 'get_action_for_result' )
-		                  ->with( 'unknown' )
-		                  ->willReturn( 'allow' );
+		// Mock is_verification_enabled to return false
+		$verification_mock->method( 'is_verification_enabled' )
+		                  ->willReturn( false );
 
 		// Create checkout instance
 		$checkout = new Kickbox_Integration_Checkout();
@@ -638,16 +656,58 @@ class Test_Kickbox_Checkout extends WP_UnitTestCase {
 		$property->setAccessible( true );
 		$property->setValue( $checkout, $verification_mock );
 
-		// Don't set cached_result (should default to 'unknown')
+		// Mock WordPress query functions
+		$wp_query_mock = $this->getMockBuilder( 'stdClass' )
+		                      ->addMethods( array( 'is_checkout', 'is_page' ) )
+		                      ->getMock();
+		$wp_query_mock->method( 'is_checkout' )->willReturn( true );
+		$wp_query_mock->method( 'is_page' )->willReturn( true );
+		$GLOBALS['wp_query'] = $wp_query_mock;
 
-		// Call add_verification_errors_to_contact_field
-		$errors = new WP_Error();
-		$fields = array();
-		$group  = 'contact';
+		// Call enqueue_checkout_scripts
+		$checkout->enqueue_checkout_scripts();
 
-		$checkout->add_verification_errors_to_contact_field( $errors, $fields, $group );
+		// Verify scripts are not enqueued
+		$this->assertFalse( wp_script_is( 'kickbox-integration-checkout', 'enqueued' ), 'Checkout script should not be enqueued when verification is disabled' );
+		$this->assertFalse( wp_style_is( 'kickbox-integration-checkout', 'enqueued' ), 'Checkout style should not be enqueued when verification is disabled' );
+	}
 
-		// Should not have errors when action is 'allow'
-		$this->assertFalse( $errors->has_errors(), 'Should not have errors when no cached result and action is allow' );
+	/**
+	 * Test that blocks checkout support is not added when verification is disabled
+	 */
+	public function test_blocks_checkout_support_not_added_when_verification_disabled() {
+		// Create a mock verification instance
+		$verification_mock = $this->getMockBuilder( Kickbox_Integration_Verification::class )
+		                          ->onlyMethods( array( 'is_verification_enabled' ) )
+		                          ->getMock();
+
+		// Mock is_verification_enabled to return false
+		$verification_mock->method( 'is_verification_enabled' )
+		                  ->willReturn( false );
+
+		// Create checkout instance
+		$checkout = new Kickbox_Integration_Checkout();
+
+		// Use reflection to set the verification property
+		$reflection = new ReflectionClass( Kickbox_Integration_Checkout::class );
+		$property   = $reflection->getProperty( 'verification' );
+		$property->setAccessible( true );
+		$property->setValue( $checkout, $verification_mock );
+
+		// Mock WordPress query functions
+		$wp_query_mock = $this->getMockBuilder( 'stdClass' )
+		                      ->addMethods( array( 'is_checkout', 'is_page' ) )
+		                      ->getMock();
+		$wp_query_mock->method( 'is_checkout' )->willReturn( true );
+		$wp_query_mock->method( 'is_page' )->willReturn( true );
+		$GLOBALS['wp_query'] = $wp_query_mock;
+
+		// Capture output
+		ob_start();
+		$checkout->add_blocks_checkout_support();
+		$output = ob_get_clean();
+
+		// Verify no JavaScript is output
+		$this->assertEmpty( $output, 'No JavaScript should be output when verification is disabled' );
 	}
 }

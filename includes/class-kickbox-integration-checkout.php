@@ -39,7 +39,7 @@ class Kickbox_Integration_Checkout {
      * Enqueue checkout scripts
      */
     public function enqueue_checkout_scripts() {
-        if ( ! is_checkout() ) {
+        if ( ! is_checkout() || ! $this->verification->is_verification_enabled() ) {
             return;
         }
 
@@ -245,8 +245,13 @@ class Kickbox_Integration_Checkout {
      * @return void
      */
     public function add_verification_errors_to_contact_field( $errors, $fields, $group ) {
-        $verification_result = $this->cached_result['result'] ?? 'unknown';
-        $reason              = $this->cached_result['reason'] ?? '';
+        $verification_result = isset( $this->cached_result ) ? $this->cached_result['result'] : null;
+        $reason              = isset( $this->cached_result ) ? $this->cached_result['reason'] : null;
+
+        // If we don't have a cached result, then verification isn't enabled for checkout
+        if ( empty( $verification_result ) || empty( $reason ) ) {
+            return;
+        }
 
         // Check if this is an admin decision result
         if ( $reason === 'admin_decision' ) {
