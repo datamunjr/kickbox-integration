@@ -25,12 +25,17 @@ fi
 echo "Creating temp directory: $TEMP_DIR"
 mkdir -p "$TEMP_DIR/kickbox-integration"
 
+# Build assets before copying
+echo "Building assets..."
+npm ci
+npm run build
+
 # Copy all files to temp directory under the plugin slug folder
 echo "Copying plugin files to temp directory..."
 cp -r . "$TEMP_DIR/kickbox-integration/"
 
 # Change to temp directory
-cd "$TEMP_DIR"
+cd "$TEMP_DIR/kickbox-integration"
 
 echo "Cleaning up submission copy..."
 
@@ -44,6 +49,7 @@ rm -rf bin/
 rm -rf .git/
 rm -rf .idea/
 rm -rf .vscode/
+rm -rf .github/
 
 # Remove React test directories
 echo "Removing React test directories..."
@@ -66,6 +72,7 @@ rm -f .prettierrc.json
 rm -f .gitignore
 rm -f babel.config.js
 rm -f jest.config.js
+rm -f README.md
 
 # Remove build artifacts
 echo "Removing build artifacts..."
@@ -76,10 +83,12 @@ rm -f assets/js/*.LICENSE.txt
 # Remove system files
 echo "Removing system files..."
 find . -name ".DS_Store" -delete
+find . -name "Thumbs.db" -delete
+find . -name "*.tmp" -delete
 
 # Remove empty directories
 echo "Cleaning up empty directories..."
-rmdir wckb/ 2>/dev/null || true
+find . -type d -empty -delete 2>/dev/null || true
 
 # Go back to parent directory to create zip
 cd ".."
@@ -88,6 +97,14 @@ cd ".."
 echo "Creating zip file: $CURRENT_DIR/$ZIP_FILE"
 cd "$(basename "$TEMP_DIR")"
 zip -r "../$CURRENT_DIR/$ZIP_FILE" kickbox-integration -x "*.DS_Store" "*/.*"
+
+# Verify zip contents
+echo "Verifying zip file contents..."
+echo "Files included in zip:"
+unzip -l "../$CURRENT_DIR/$ZIP_FILE" | head -20
+echo "Total files in zip:"
+unzip -l "../$CURRENT_DIR/$ZIP_FILE" | tail -1
+
 cd ".."
 
 # Remove temp directory
