@@ -592,8 +592,12 @@ class Kickbox_Integration_Admin {
 
         $verification = new Kickbox_Integration_Verification();
         $stats        = $verification->get_verification_stats();
+        $reason_stats = $verification->get_verification_reason_stats();
 
-        wp_send_json_success( $stats );
+        wp_send_json_success( array(
+            'verification_stats' => $stats,
+            'reason_stats'       => $reason_stats
+        ) );
     }
 
     /**

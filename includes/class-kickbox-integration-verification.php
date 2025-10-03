@@ -358,6 +358,60 @@ class Kickbox_Integration_Verification {
 	}
 
 	/**
+	 * Get verification result reason statistics
+	 *
+	 * @return array Statistics
+	 */
+	public function get_verification_reason_stats() {
+		$cache_key = 'verification_reason_stats';
+
+		// Try to get from cache first
+		$stats = wp_cache_get( $cache_key, $this->cache_group );
+
+		if ( $stats !== false ) {
+			return $stats;
+		}
+
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'kickbox_integration_verification_log';
+
+		// Get all verification records with their data
+		$records = $wpdb->get_results(
+			$wpdb->prepare( "SELECT verification_data FROM %i WHERE verification_data IS NOT NULL", $table_name )
+		);
+
+		$reason_counts = array();
+
+		foreach ( $records as $record ) {
+			$data = json_decode( $record->verification_data, true );
+			if ( $data && isset( $data['reason'] ) ) {
+				$reason = $data['reason'];
+				$reason_counts[ $reason ] = ( $reason_counts[ $reason ] ?? 0 ) + 1;
+			}
+		}
+
+		// Convert to array format similar to verification stats
+		$stats = array();
+		foreach ( $reason_counts as $reason => $count ) {
+			$stats[] = array(
+				'result_reason' => $reason,
+				'count'         => $count
+			);
+		}
+
+		// Sort by count descending
+		usort( $stats, function( $a, $b ) {
+			return $b['count'] - $a['count'];
+		} );
+
+		// Cache the result
+		wp_cache_set( $cache_key, $stats, $this->cache_group, $this->cache_expiration );
+
+		return $stats;
+	}
+
+	/**
 	 * Check if email verification is enabled
 	 *
 	 * @param string $type Verification type ('checkout' or 'registration')

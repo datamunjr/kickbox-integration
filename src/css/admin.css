@@ -259,12 +259,25 @@
 }
 
 /* Pie Chart Styles */
+.kickbox_integration-charts-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
+}
+
 .kickbox_integration-pie-chart-container {
     margin-top: 30px;
     background: #fff;
     border: 1px solid #ccd0d4;
     border-radius: 4px;
     padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .kickbox_integration-charts-container {
+        grid-template-columns: 1fr;
+    }
 }
 
 .kickbox_integration-pie-chart-container h3 {

@@ -5,9 +5,9 @@
 
 echo "Preparing WooCommerce Kickbox Integration for submission..."
 
-# Get the current directory name
-CURRENT_DIR=$(basename "$PWD")
-TEMP_DIR="../wckb-temp"
+# Get the current directory name (project root, not scripts directory)
+CURRENT_DIR=$(basename "$(dirname "$PWD")")
+TEMP_DIR="../../wckb-temp"
 ZIP_FILE="kickbox-integration.zip"
 
 # Remove existing temp directory and zip file if they exist
@@ -25,8 +25,9 @@ fi
 echo "Creating temp directory: $TEMP_DIR"
 mkdir -p "$TEMP_DIR/kickbox-integration"
 
-# Build assets before copying
+# Build assets before copying (run from project root)
 echo "Building assets..."
+cd ..
 npm ci
 npm run build
 
@@ -111,8 +112,8 @@ cd ".."
 echo "Cleaning up temp directory..."
 rm -rf "$TEMP_DIR"
 
-# Go back to original directory
-cd "$CURRENT_DIR"
+# Go back to original directory (scripts folder)
+cd "$(dirname "$0")"
 
 echo ""
 echo "✅ Plugin prepared for submission!"
@@ -150,7 +151,7 @@ echo ""
 echo "💾 Original development files preserved in: $CURRENT_DIR"
 echo ""
 echo "📦 Next steps:"
-echo "   1. The zip file is ready: $(pwd)/$ZIP_FILE"
+echo "   1. The zip file is ready: $(dirname "$PWD")/$ZIP_FILE"
 echo "   2. Submit the zip file to WooCommerce"
 echo ""
 echo "The plugin is now ready for WooCommerce submission!"

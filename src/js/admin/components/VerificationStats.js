@@ -12,6 +12,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const VerificationStats = () => {
     const [stats, setStats] = useState(null);
+    const [reasonStats, setReasonStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -33,7 +34,8 @@ const VerificationStats = () => {
 
             const data = await response.json();
             if (data.success) {
-                setStats(data.data);
+                setStats(data.data.verification_stats);
+                setReasonStats(data.data.reason_stats);
             }
         } catch (error) {
             console.error('Error loading stats:', error);
@@ -70,7 +72,41 @@ const VerificationStats = () => {
         return labels[result] || result;
     };
 
-    // Prepare chart data
+    const getReasonLabel = (reason) => {
+        const labels = {
+            invalid_email: 'Invalid Email',
+            invalid_domain: 'Invalid Domain',
+            rejected_email: 'Rejected Email',
+            accepted_email: 'Accepted Email',
+            low_quality: 'Low Quality',
+            low_deliverability: 'Low Deliverability',
+            no_connect: 'No Connect',
+            timeout: 'Timeout',
+            invalid_smtp: 'Invalid SMTP',
+            unavailable_smtp: 'Unavailable SMTP',
+            unexpected_error: 'Unexpected Error'
+        };
+        return labels[reason] || reason;
+    };
+
+    const getReasonColor = (reason) => {
+        const colors = {
+            invalid_email: '#dc3232',        // Red - Invalid email format
+            invalid_domain: '#845a7b',       // Light red - Invalid domain
+            rejected_email: '#c8a076',       // Dark red - Rejected email
+            accepted_email: '#27ae60',       // Green - Accepted email
+            low_quality: '#f39c12',          // Orange - Low quality
+            low_deliverability: '#bfafa1',   // Dark orange - Low deliverability
+            no_connect: '#601531',           // Blue - No connect
+            timeout: '#2980b9',              // Dark blue - Timeout
+            invalid_smtp: '#2e2733',         // Purple - Invalid SMTP
+            unavailable_smtp: '#9b59b6',     // Light purple - Unavailable SMTP
+            unexpected_error: '#95a5a6'      // Gray - Unexpected error
+        };
+        return colors[reason] || '#666';
+    };
+
+    // Prepare chart data for verification results
     const prepareChartData = () => {
         if (!stats || !Array.isArray(stats)) {
             return null;
@@ -89,6 +125,32 @@ const VerificationStats = () => {
                     data: stats.map(item => parseInt(item.count)),
                     backgroundColor: stats.map(item => getResultColor(item.verification_result)),
                     borderColor: stats.map(item => getResultColor(item.verification_result)),
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                }
+            ]
+        };
+    };
+
+    // Prepare chart data for result reasons
+    const prepareReasonChartData = () => {
+        if (!reasonStats || !Array.isArray(reasonStats)) {
+            return null;
+        }
+
+        const total = reasonStats.reduce((sum, item) => sum + parseInt(item.count), 0);
+
+        if (total === 0) {
+            return null;
+        }
+
+        return {
+            labels: reasonStats.map(item => getReasonLabel(item.result_reason)),
+            datasets: [
+                {
+                    data: reasonStats.map(item => parseInt(item.count)),
+                    backgroundColor: reasonStats.map(item => getReasonColor(item.result_reason)),
+                    borderColor: reasonStats.map(item => getReasonColor(item.result_reason)),
                     borderWidth: 2,
                     hoverBorderWidth: 3,
                 }
@@ -125,6 +187,7 @@ const VerificationStats = () => {
     };
 
     const chartData = prepareChartData();
+    const reasonChartData = prepareReasonChartData();
     const totalVerifications = stats ? stats.reduce((sum, item) => sum + parseInt(item.count), 0) : 0;
 
     return (
@@ -164,16 +227,27 @@ const VerificationStats = () => {
                 </div>
             </div>
 
-            {chartData && (
-                <div className="kickbox_integration-pie-chart-container">
-                    <h3>Verification Results Distribution</h3>
-                    <div className="kickbox_integration-pie-chart">
-                        <Pie data={chartData} options={chartOptions}/>
+            <div className="kickbox_integration-charts-container">
+                {chartData && (
+                    <div className="kickbox_integration-pie-chart-container">
+                        <h3>Verification Results Distribution</h3>
+                        <div className="kickbox_integration-pie-chart">
+                            <Pie data={chartData} options={chartOptions}/>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {!chartData && stats && stats.length > 0 && (
+                {reasonChartData && (
+                    <div className="kickbox_integration-pie-chart-container">
+                        <h3>Result Reason Distribution</h3>
+                        <div className="kickbox_integration-pie-chart">
+                            <Pie data={reasonChartData} options={chartOptions}/>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {!chartData && !reasonChartData && stats && stats.length > 0 && (
                 <div className="kickbox_integration-no-data">
                     <p>No verification data available to display.</p>
                 </div>

@@ -35,7 +35,7 @@ jobs:
         run: qit partner:add --user='${{ secrets.QIT_USER }}' --application_password='${{ secrets.QIT_APP_PASS }}'
 
       - name: Prepare submission
-        run: ./prepare-submission.sh
+        run: ./scripts/prepare-submission.sh
 
       - name: Run ${{ matrix.qit-test }} qit test
         run: qit run:${{ matrix.qit-test }} kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait
