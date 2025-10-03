@@ -48,6 +48,7 @@ rm -rf src/
 rm -rf vendor/
 rm -rf tests/
 rm -rf bin/
+rm -rf scripts/
 rm -rf .git/
 rm -rf .idea/
 rm -rf .vscode/
@@ -125,6 +126,7 @@ echo "   - vendor/ (Composer dependencies)"
 echo "   - tests/ (test files and directories)"
 echo "   - __tests__/ (React test directories)"
 echo "   - bin/ (development scripts)"
+echo "   - scripts/ (development scripts)"
 echo "   - src/ (source files)"
 echo "   - .git/ (git repository)"
 echo "   - .idea/ (IntelliJ IDEA settings)"
