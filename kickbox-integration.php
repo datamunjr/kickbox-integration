@@ -280,8 +280,8 @@ class Kickbox_Integration {
             if ( class_exists( 'WooCommerce' ) && defined( 'WC_VERSION' ) ) {
                 $current_wc_version = WC_VERSION;
                 $version_status     = version_compare( $current_wc_version, KICKBOX_INTEGRATION_REQUIRED_WC_VERSION, '>=' )
-                        ? esc_html__( '<span style="color: #46b450;">✓ WC ' . $current_wc_version . '</span>' )
-                        : esc_html__( '<span style="color: #dc3232;">✗ WC ' . $current_wc_version . ' (Requires ' . KICKBOX_INTEGRATION_REQUIRED_WC_VERSION . '+)</span>' );
+                        ? '<span style="color: #46b450;">✓ WC ' . esc_html__( $current_wc_version ) . '</span>'
+                        : '<span style="color: #dc3232;">✗ WC ' . esc_html__( $current_wc_version ) . ' (Requires ' . esc_html__( KICKBOX_INTEGRATION_REQUIRED_WC_VERSION ) . '+)</span>';
 
                 $plugin_meta[] = $version_status;
             }
