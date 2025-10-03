@@ -29,6 +29,23 @@ const ApiSettings = ({
         }
     }, [settings.apiKey, isApiKeyValidated]);
 
+    // Initialize help tips
+    useEffect(() => {
+        const initializeHelpTips = () => {
+            if (typeof window.jQuery !== 'undefined' && window.jQuery.fn.tipTip) {
+                window.jQuery('.woocommerce-help-tip').tipTip({
+                    'attribute': 'data-tip',
+                    'fadeIn': 50,
+                    'fadeOut': 50,
+                    'delay': 200
+                });
+            }
+        };
+
+        // Initialize immediately
+        initializeHelpTips();
+    }, []);
+
 
     // Function to handle API key changes
     const handleApiKeyChange = (newValue) => {
@@ -174,6 +191,10 @@ const ApiSettings = ({
                         >
                             {loading ? 'Testing...' : 'Test API Connection'}
                         </button>
+                        <span
+                            className="woocommerce-help-tip"
+                            data-tip="Unhide the API key first to test the connection. Click the eye icon to reveal the full API key. This will not impact your verification balance."
+                        ></span>
                         {settings.apiKey && isApiKeyValidated && (
                             <div className="kickbox_integration-api-mode-notice">
                                 {settings.apiKey.startsWith('test_') ? (
@@ -204,20 +225,23 @@ const ApiSettings = ({
                             <label>Account Balance</label>
                         </th>
                         <td>
-                            <div className={`kickbox_integration-balance-info ${settings.isBalanceLow ? 'low-balance' : ''}`}>
-                                <p className={`balance-message ${settings.isBalanceLow ? 'low-balance-warning' : ''}`}>
-                                    {settings.balanceMessage}
-                                </p>
+                            <div
+                                className={`kickbox_integration-balance-info ${settings.isBalanceLow ? 'low-balance' : ''}`}>
+                                <p
+                                    className={`balance-message ${settings.isBalanceLow ? 'low-balance-warning' : ''}`}
+                                    dangerouslySetInnerHTML={{__html: settings.balanceMessage}}
+                                />
                                 {settings.isBalanceLow && (
                                     <div className="balance-warning">
                                         <p>
-                                            <strong>⚠️ Low Balance Alert:</strong> Your verification balance is running low. 
+                                            <strong>⚠️ Low Balance Alert:</strong> Your verification balance is running
+                                            low.
                                             Please add more credits to continue email verification.
                                         </p>
                                         <p>
-                                            <a 
-                                                href="https://kickbox.com" 
-                                                target="_blank" 
+                                            <a
+                                                href="https://kickbox.com"
+                                                target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="button button-primary"
                                             >
@@ -250,7 +274,8 @@ const ApiSettings = ({
 
                 <tr>
                     <th scope="row">
-                        <label htmlFor="kickbox_integration_enable_registration_verification">Registration Verification</label>
+                        <label htmlFor="kickbox_integration_enable_registration_verification">Registration
+                            Verification</label>
                     </th>
                     <td>
                         <input

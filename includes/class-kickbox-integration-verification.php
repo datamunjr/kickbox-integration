@@ -172,6 +172,7 @@ class Kickbox_Integration_Verification {
 	 * Get Kickbox verification results for an email address
 	 *
 	 * @param string $email Email address to verify
+	 *
 	 * @return array|WP_Error Array with 'response' and 'data' keys, or WP_Error on failure
 	 */
 	protected function get_kickbox_verification_results_for_email( $email ) {
@@ -463,7 +464,7 @@ class Kickbox_Integration_Verification {
 			return __( 'Balance not yet determined. Make a verification request to check your balance.', 'kickbox-integration' );
 		}
 
-		$message = sprintf( __( 'Current balance: %d verifications', 'kickbox-integration' ), $balance );
+		$message = sprintf( __( 'Current balance: <strong>%d</strong> verifications remaining.', 'kickbox-integration' ), $balance );
 
 		if ( ! empty( $last_updated ) ) {
 			$message .= ' ' . sprintf( __( '(last updated: %s)', 'kickbox-integration' ), date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $last_updated ) ) );

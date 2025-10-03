@@ -280,11 +280,6 @@
     margin: 0 auto;
 }
 
-/* Balance Information Styles */
-.kickbox_integration-balance-info {
-    padding: 10px 0;
-}
-
 .balance-message {
     margin: 0 0 10px 0;
     font-size: 14px;
@@ -743,6 +738,7 @@
 /* WooCommerce Help Tip Integration */
 .woocommerce-help-tip {
     margin-left: 8px;
+    vertical-align: -webkit-baseline-middle;
 }
 
 .kickbox-header-admin-img {

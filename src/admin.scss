@@ -143,8 +143,12 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Verification Actions */
@@ -274,11 +278,6 @@
   height: 400px;
   max-width: 500px;
   margin: 0 auto;
-}
-
-/* Balance Information Styles */
-.kickbox_integration-balance-info {
-  padding: 10px 0;
 }
 
 .balance-message {
@@ -465,12 +464,12 @@
   .kickbox_integration-tabs {
     flex-direction: column;
   }
-  
+
   .kickbox_integration-tab {
     border-bottom: 1px solid #ccd0d4;
     border-right: none;
   }
-  
+
   .kickbox_integration-stats-grid {
     grid-template-columns: 1fr;
   }
@@ -739,4 +738,5 @@
 /* WooCommerce Help Tip Integration */
 .woocommerce-help-tip {
   margin-left: 8px;
+  vertical-align: -webkit-baseline-middle;
 }

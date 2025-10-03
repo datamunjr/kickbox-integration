@@ -679,7 +679,7 @@ class Kickbox_Integration_Admin {
                 <strong><?php echo esc_html__( 'Kickbox Email Verification - Low Balance Alert', 'kickbox-integration' ); ?></strong>
             </p>
             <p>
-                <?php echo esc_html( $balance_message ); ?>
+                <?php echo wp_kses( $balance_message, array( 'strong' => array() ) ); ?>
             </p>
             <p>
                 <?php echo esc_html__( 'Your verification balance is running low. Please add more credits to continue email verification.', 'kickbox-integration' ); ?>
