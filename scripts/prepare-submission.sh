@@ -5,9 +5,10 @@
 
 echo "Preparing WooCommerce Kickbox Integration for submission..."
 
-# Get the current directory name (project root, not scripts directory)
-CURRENT_DIR=$(basename "$(dirname "$PWD")")
-TEMP_DIR="../../wckb-temp"
+# Get the project root directory
+PROJECT_ROOT="$(dirname "$(dirname "$(realpath "$0")")")"
+CURRENT_DIR=$(basename "$PROJECT_ROOT")
+TEMP_DIR="$PROJECT_ROOT/../wckb-temp"
 ZIP_FILE="kickbox-integration.zip"
 
 # Remove existing temp directory and zip file if they exist
@@ -27,7 +28,7 @@ mkdir -p "$TEMP_DIR/kickbox-integration"
 
 # Build assets before copying (run from project root)
 echo "Building assets..."
-cd ..
+cd "$PROJECT_ROOT"
 npm ci
 npm run build
 
@@ -95,25 +96,23 @@ find . -type d -empty -delete 2>/dev/null || true
 cd ".."
 
 # Create zip file from temp directory (which contains kickbox-integration folder)
-echo "Creating zip file: $CURRENT_DIR/$ZIP_FILE"
-cd "$(basename "$TEMP_DIR")"
-zip -r "../$CURRENT_DIR/$ZIP_FILE" kickbox-integration -x "*.DS_Store" "*/.*"
+echo "Creating zip file: $PROJECT_ROOT/$ZIP_FILE"
+cd "$TEMP_DIR"
+zip -r "$PROJECT_ROOT/$ZIP_FILE" kickbox-integration -x "*.DS_Store" "*/.*"
 
 # Verify zip contents
 echo "Verifying zip file contents..."
 echo "Files included in zip:"
-unzip -l "../$CURRENT_DIR/$ZIP_FILE" | head -20
+unzip -l "$PROJECT_ROOT/$ZIP_FILE" | head -20
 echo "Total files in zip:"
-unzip -l "../$CURRENT_DIR/$ZIP_FILE" | tail -1
-
-cd ".."
+unzip -l "$PROJECT_ROOT/$ZIP_FILE" | tail -1
 
 # Remove temp directory
 echo "Cleaning up temp directory..."
 rm -rf "$TEMP_DIR"
 
 # Go back to original directory (scripts folder)
-cd "$(dirname "$0")"
+cd "$(dirname "$(realpath "$0")")"
 
 echo ""
 echo "✅ Plugin prepared for submission!"
@@ -151,7 +150,7 @@ echo ""
 echo "💾 Original development files preserved in: $CURRENT_DIR"
 echo ""
 echo "📦 Next steps:"
-echo "   1. The zip file is ready: $(dirname "$PWD")/$ZIP_FILE"
+echo "   1. The zip file is ready: $PROJECT_ROOT/$ZIP_FILE"
 echo "   2. Submit the zip file to WooCommerce"
 echo ""
 echo "The plugin is now ready for WooCommerce submission!"
