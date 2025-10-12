@@ -9,7 +9,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Integrates Kickbox email verification service with WooCommerce for real-time email validation during checkout and batch verification for existing customers.
+Integrates Kickbox email verification with WooCommerce for real-time validation during checkout and batch verification.
 
 == Description ==
 
