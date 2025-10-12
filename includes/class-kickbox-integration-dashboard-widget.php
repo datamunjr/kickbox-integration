@@ -63,7 +63,7 @@ class Kickbox_Integration_Dashboard_Widget {
 
         wp_localize_script( 'kickbox-integration-dashboard', 'kickbox_integration_dashboard', array(
                 'ajax_url'  => admin_url( 'admin-ajax.php' ),
-                'admin_url' => admin_url( 'admin.php?page=kickbox-integration-settings&tab=stats' ),
+                'admin_url' => admin_url( 'admin.php?page=wc-settings&tab=kickbox&section=stats' ),
                 'nonce'     => wp_create_nonce( 'kickbox_integration_dashboard' ),
                 'strings'   => array(
                         'loading'       => __( 'Loading statistics...', 'kickbox-integration' ),

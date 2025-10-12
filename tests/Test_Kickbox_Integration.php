@@ -194,7 +194,7 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 		// Settings link should be first
 		$first_link = reset( $result );
 		$this->assertStringContainsString( 'Settings', $first_link );
-		$this->assertStringContainsString( 'kickbox-integration-settings', $first_link );
+		$this->assertStringContainsString( 'wc-settings&tab=kickbox', $first_link );
 	}
 
 	/**

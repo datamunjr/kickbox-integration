@@ -26,7 +26,7 @@ A WordPress plugin that integrates Kickbox email verification service with WooCo
 3. Build the assets: `npm run build`
 4. Upload the plugin to your WordPress site
 5. Activate the plugin
-6. Configure your Kickbox API key in WooCommerce > Kickbox Integration
+6. Configure your Kickbox API key in WooCommerce > Settings > Kickbox
 
 ## Development
 
@@ -97,7 +97,7 @@ When you first visit the settings page, it automatically defaults to the API Set
 ### API Settings
 
 1. Get your Kickbox API key from [kickbox.com](https://kickbox.com)
-2. Go to WooCommerce > Kickbox Integration
+2. Go to WooCommerce > Settings > Kickbox
 3. Enter your API key
 4. Enable sandbox mode for testing
 5. Test the API connection

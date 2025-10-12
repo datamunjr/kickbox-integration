@@ -1,14 +1,90 @@
 import React from 'react';
-import {createRoot} from 'react-dom/client';
-import AdminSettings from './components/AdminSettings';
+import { createRoot } from 'react-dom/client';
+import AllowList from './components/AllowList';
+import FlaggedEmails from './components/FlaggedEmails';
+import VerificationStats from './components/VerificationStats';
+import KickboxApiKeyInput from './components/KickboxApiKeyInput';
 import '../../css/admin.css';
 
-// Initialize the admin settings React app
-document.addEventListener('DOMContentLoaded', function () {
-    const container = document.getElementById('kickbox-integration-admin-app');
+// Initialize React components for WooCommerce Settings sections
+document.addEventListener('DOMContentLoaded', function() {
+	// Get current section from URL
+	const urlParams = new URLSearchParams(window.location.search);
+	const section = urlParams.get('section') || '';
 
-    if (container) {
-        const root = createRoot(container);
-        root.render(<AdminSettings/>);
-    }
+	// Mount API Key Input component (on API settings section - default)
+	const apiKeyContainer = document.getElementById('kickbox-react-api-key-container');
+	if (apiKeyContainer) {
+		const fieldId = apiKeyContainer.dataset.fieldId || 'kickbox_integration_api_key';
+		const initialValue = apiKeyContainer.dataset.initialValue || '';
+		const maskedValue = apiKeyContainer.dataset.maskedValue || '';
+		const hasSavedKey = apiKeyContainer.dataset.hasSavedKey === 'true';
+
+		const root = createRoot(apiKeyContainer);
+		root.render(
+			<KickboxApiKeyInput
+				fieldId={fieldId}
+				initialValue={initialValue}
+				maskedValue={maskedValue}
+				hasSavedKey={hasSavedKey}
+			/>,
+		);
+	}
+
+	// Mount Allow List component
+	const allowlistContainer = document.getElementById('kickbox-react-allowlist-container');
+	if (allowlistContainer && section === 'allowlist') {
+		const root = createRoot(allowlistContainer);
+		root.render(<AllowList settings={{}} />);
+	}
+
+	// Mount Flagged Emails component
+	const flaggedContainer = document.getElementById('kickbox-react-flagged-container');
+	if (flaggedContainer && section === 'flagged') {
+		const root = createRoot(flaggedContainer);
+		// Create dummy functions for pending count refresh
+		const refreshPendingCount = async () => {
+			// This would normally update the parent, but in WC settings we don't need it
+			return 0;
+		};
+		root.render(<FlaggedEmails onRefreshPendingCount={refreshPendingCount} />);
+	}
+
+	// Mount Statistics component
+	const statsContainer = document.getElementById('kickbox-react-stats-container');
+	if (statsContainer && section === 'stats') {
+		const root = createRoot(statsContainer);
+		root.render(<VerificationStats />);
+	}
+
+	// Handle deliverable action confirmation on save
+	const deliverableSelect = document.getElementById('kickbox_integration_deliverable_action');
+
+	if (deliverableSelect && section === 'actions') {
+		// Find the WooCommerce settings form
+		const settingsForm = deliverableSelect.closest('form');
+
+		if (settingsForm) {
+			// Define validation function in global scope so it can be called by onsubmit
+			window.kickboxValidateDeliverableAction = function() {
+				const currentValue = document.getElementById('kickbox_integration_deliverable_action').value;
+
+				if (currentValue === 'block') {
+					return confirm(
+						'⚠️ Warning: You are about to set Deliverable Emails to "Block".\n\n' +
+						'This will prevent almost all customer checkout and account signups and is counterproductive to your business.\n\n' +
+						'Deliverable emails are verified as safe to send to and should typically be allowed.\n\n' +
+						'Are you sure you want to continue?',
+					);
+				}
+
+				return true; // Allow submission for other values
+			};
+
+			// Set onsubmit attribute
+			settingsForm.onsubmit = window.kickboxValidateDeliverableAction;
+		}
+	}
+
+	// Note: tipTip initialization is handled by individual components after they mount
 });

@@ -53,7 +53,7 @@ For each verification result, you can configure the following actions:
 
 1. Upload the plugin files to the `/wp-content/plugins/kickbox-integration` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Go to WooCommerce > Kickbox Integration to configure your API key
+3. Go to WooCommerce > Settings > Kickbox to configure your API key
 4. Set up your verification actions and enable the features you need
 
 == Frequently Asked Questions ==
