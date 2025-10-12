@@ -319,11 +319,15 @@ class Kickbox_Integration {
                                 </a>
                             <?php elseif ( ! $status['version_ok'] ) : ?>
                                 <?php
-                                printf(
-                                        esc_html__( 'WooCommerce version %s is required. You have version %s.', 'kickbox-integration' ),
-                                        esc_html__( KICKBOX_INTEGRATION_REQUIRED_WC_VERSION . '+' ),
-                                        esc_html__( defined( 'WC_VERSION' ) ? WC_VERSION : 'Unknown' )
-                                );
+                                $required_version = KICKBOX_INTEGRATION_REQUIRED_WC_VERSION . '+';
+                                $current_version = defined( 'WC_VERSION' ) ? WC_VERSION : 'Unknown';
+                                /* translators: 1: Required WooCommerce version, 2: Current WooCommerce version */
+                                $message = esc_html__( 'WooCommerce version %1$s is required. You have version %2$s.', 'kickbox-integration' );
+                                echo esc_html( sprintf(
+                                        $message,
+                                        $required_version,
+                                        $current_version
+                                ) );
                                 ?>
                                 <a href="<?php echo esc_url( admin_url( 'update-core.php' ) ); ?>">
                                     <?php esc_html_e( 'Update WooCommerce', 'kickbox-integration' ); ?>
@@ -344,16 +348,19 @@ class Kickbox_Integration {
      */
     public static function display_wordpress_version_notice() {
         $current_wp_version = get_bloginfo( 'version' );
+        $required_version = KICKBOX_INTEGRATION_REQUIRED_WP_VERSION;
         ?>
         <div class="error">
             <p>
                 <strong><?php esc_html_e( 'Kickbox Integration', 'kickbox-integration' ); ?></strong>
                 <?php
-                printf(
-                        esc_html__( 'requires WordPress version %s or higher. You are running version %s.', 'kickbox-integration' ),
-                        esc_html__( KICKBOX_INTEGRATION_REQUIRED_WP_VERSION ),
-                        esc_html__( $current_wp_version )
-                );
+                /* translators: 1: Required WordPress version, 2: Current WordPress version */
+                $message = esc_html__( 'requires WordPress version %1$s or higher. You are running version %2$s.', 'kickbox-integration' );
+                echo esc_html( sprintf(
+                        $message,
+                        $required_version,
+                        $current_wp_version
+                ) );
                 ?>
             </p>
         </div>
@@ -366,15 +373,18 @@ class Kickbox_Integration {
      * @since 1.0.0
      */
     public static function display_wordpress_version_deactivated_notice() {
+        $required_version = KICKBOX_INTEGRATION_REQUIRED_WP_VERSION;
         ?>
         <div class="error">
             <p>
                 <strong><?php esc_html_e( 'Kickbox Integration', 'kickbox-integration' ); ?></strong>
                 <?php
-                printf(
-                        esc_html__( 'has been deactivated because the WordPress version is too old. Please upgrade WordPress to at least version %s.', 'kickbox-integration' ),
-                        esc_html__( KICKBOX_INTEGRATION_REQUIRED_WP_VERSION )
-                );
+                /* translators: %s: Required WordPress version */
+                $message = esc_html__( 'has been deactivated because the WordPress version is too old. Please upgrade WordPress to at least version %s.', 'kickbox-integration' );
+                echo esc_html( sprintf(
+                        $message,
+                        $required_version
+                ) );
                 ?>
             </p>
         </div>
@@ -420,16 +430,19 @@ class Kickbox_Integration {
      */
     public static function display_woocommerce_version_notice() {
         $current_version = defined( 'WC_VERSION' ) ? WC_VERSION : 'Unknown';
+        $required_version = KICKBOX_INTEGRATION_REQUIRED_WC_VERSION;
         ?>
         <div class="error">
             <p>
                 <strong><?php esc_html_e( 'Kickbox Integration', 'kickbox-integration' ); ?></strong>
                 <?php
-                printf(
-                        esc_html__( 'requires WooCommerce version %s or higher. You are running version %s.', 'kickbox-integration' ),
-                        esc_html__( KICKBOX_INTEGRATION_REQUIRED_WC_VERSION ),
-                        esc_html__( $current_version )
-                );
+                /* translators: 1: Required WooCommerce version, 2: Current WooCommerce version */
+                $message = esc_html__( 'requires WooCommerce version %1$s or higher. You are running version %2$s.', 'kickbox-integration' );
+                echo esc_html( sprintf(
+                        $message,
+                        $required_version,
+                        $current_version
+                ) );
                 ?>
             </p>
         </div>

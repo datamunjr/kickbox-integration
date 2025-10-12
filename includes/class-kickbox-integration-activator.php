@@ -74,10 +74,12 @@ class Kickbox_Integration_Activator {
 		$required_version = KICKBOX_INTEGRATION_REQUIRED_WP_VERSION;
 
 		if ( version_compare( $current_version, $required_version, '<' ) ) {
+			/* translators: 1: Required WordPress version, 2: Current WordPress version */
+			$message = __( 'Kickbox Integration requires WordPress version %1$s or higher. You are running version %2$s.', 'kickbox-integration' );
 			return array(
 				'error' => 'wordpress_version',
 				'message' => sprintf(
-					__( 'Kickbox Integration requires WordPress version %s or higher. You are running version %s.', 'kickbox-integration' ),
+					$message,
 					$required_version,
 					$current_version
 				),
@@ -115,10 +117,12 @@ class Kickbox_Integration_Activator {
 		$required_version = KICKBOX_INTEGRATION_REQUIRED_WC_VERSION;
 
 		if ( $current_version && version_compare( $current_version, $required_version, '<' ) ) {
+			/* translators: 1: Required WooCommerce version, 2: Current WooCommerce version */
+			$message = __( 'Kickbox Integration requires WooCommerce version %1$s or higher. You are running version %2$s.', 'kickbox-integration' );
 			return array(
 				'error' => 'woocommerce_version',
 				'message' => sprintf(
-					__( 'Kickbox Integration requires WooCommerce version %s or higher. You are running version %s.', 'kickbox-integration' ),
+					$message,
 					$required_version,
 					$current_version
 				),

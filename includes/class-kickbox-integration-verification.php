@@ -518,10 +518,15 @@ class Kickbox_Integration_Verification {
 			return __( 'Balance not yet determined. Make a verification request to check your balance.', 'kickbox-integration' );
 		}
 
-		$message = sprintf( __( 'Current balance: <strong>%d</strong> verifications remaining.', 'kickbox-integration' ), $balance );
+		/* translators: %d: Number of verifications remaining */
+		$balance_text = __( 'Current balance: <strong>%d</strong> verifications remaining.', 'kickbox-integration' );
+		$message = sprintf( $balance_text, $balance );
 
 		if ( ! empty( $last_updated ) ) {
-			$message .= ' ' . sprintf( __( '(last updated: %s)', 'kickbox-integration' ), date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $last_updated ) ) );
+			$formatted_date = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $last_updated ) );
+			/* translators: %s: Date and time of last update */
+			$update_text = __( '(last updated: %s)', 'kickbox-integration' );
+			$message .= ' ' . sprintf( $update_text, $formatted_date );
 		}
 
 		return $message;
