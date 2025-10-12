@@ -5,6 +5,9 @@
  * @package Kickbox_Integration
  */
 
+/**
+ * @codingStandardsIgnoreFile
+ */
 class Test_Kickbox_Setup extends WP_UnitTestCase {
 
 	/**

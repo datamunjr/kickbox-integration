@@ -88,7 +88,7 @@ class Kickbox_Integration_Verification {
 		$admin = new Kickbox_Integration_Admin();
 		if ( $admin->is_email_in_allow_list( $email ) ) {
 			$this->logger->info( "Email $email is in allow-list, skipping Kickbox verification.", array( 'source' => 'kickbox-integration' ) );
-			
+
 			// Return a deliverable result for allow list emails
 			return array(
 				'result'       => 'deliverable',
@@ -147,7 +147,10 @@ class Kickbox_Integration_Verification {
 		// Check if email has pending review - if so, use the existing kickbox result
 		if ( $admin_decision === 'pending' ) {
 			$cached_kickbox_result = $flagged_emails->get_kickbox_result( $email );
-			$this->logger->debug( "Email $email has pending admin decision, using cached Kickbox result", array( 'source' => 'kickbox-integration', 'result' => $cached_kickbox_result ) );
+			$this->logger->debug( "Email $email has pending admin decision, using cached Kickbox result", array(
+				'source' => 'kickbox-integration',
+				'result' => $cached_kickbox_result
+			) );
 
 			return $cached_kickbox_result;
 		}
@@ -280,6 +283,7 @@ class Kickbox_Integration_Verification {
 		$verification_result = $result['result'] ?? 'unknown';
 		$verification_data   = json_encode( $result );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->insert(
 			$table_name,
 			array(
@@ -319,6 +323,7 @@ class Kickbox_Integration_Verification {
 
 		$table_name = $wpdb->prefix . 'kickbox_integration_verification_log';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$results = $wpdb->get_results( $wpdb->prepare(
 			"SELECT * FROM %i WHERE email = %s ORDER BY created_at DESC",
 			$table_name,
@@ -350,6 +355,7 @@ class Kickbox_Integration_Verification {
 
 		$table_name = $wpdb->prefix . 'kickbox_integration_verification_log';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$stats = $wpdb->get_results(
 			$wpdb->prepare( "SELECT verification_result, COUNT(*) as count FROM %i GROUP BY verification_result", $table_name )
 		);
@@ -380,6 +386,7 @@ class Kickbox_Integration_Verification {
 		$table_name = $wpdb->prefix . 'kickbox_integration_verification_log';
 
 		// Get all verification records with their data
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$records = $wpdb->get_results(
 			$wpdb->prepare( "SELECT verification_data FROM %i WHERE verification_data IS NOT NULL", $table_name )
 		);
@@ -389,7 +396,7 @@ class Kickbox_Integration_Verification {
 		foreach ( $records as $record ) {
 			$data = json_decode( $record->verification_data, true );
 			if ( $data && isset( $data['reason'] ) ) {
-				$reason = $data['reason'];
+				$reason                   = $data['reason'];
 				$reason_counts[ $reason ] = ( $reason_counts[ $reason ] ?? 0 ) + 1;
 			}
 		}
@@ -404,7 +411,7 @@ class Kickbox_Integration_Verification {
 		}
 
 		// Sort by count descending
-		usort( $stats, function( $a, $b ) {
+		usort( $stats, function ( $a, $b ) {
 			return $b['count'] - $a['count'];
 		} );
 
@@ -523,13 +530,13 @@ class Kickbox_Integration_Verification {
 
 		/* translators: %d: Number of verifications remaining */
 		$balance_text = __( 'Current balance: <strong>%d</strong> verifications remaining.', 'kickbox-integration' );
-		$message = sprintf( $balance_text, $balance );
+		$message      = sprintf( $balance_text, $balance );
 
 		if ( ! empty( $last_updated ) ) {
 			$formatted_date = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $last_updated ) );
 			/* translators: %s: Date and time of last update */
 			$update_text = __( '(last updated: %s)', 'kickbox-integration' );
-			$message .= ' ' . sprintf( $update_text, $formatted_date );
+			$message     .= ' ' . sprintf( $update_text, $formatted_date );
 		}
 
 		return $message;

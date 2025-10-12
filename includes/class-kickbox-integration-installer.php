@@ -103,8 +103,8 @@ class Kickbox_Integration_Installer {
 	/**
 	 * Add performance indexes to database tables
 	 *
-	 * @since 1.0.0
 	 * @return array Array of errors, empty if successful
+	 * @since 1.0.0
 	 */
 	public static function add_performance_indexes() {
 		global $wpdb;
@@ -120,8 +120,10 @@ class Kickbox_Integration_Installer {
 		);
 
 		foreach ( $verification_indexes as $index_name => $columns ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$index_exists = $wpdb->get_results( $wpdb->prepare( "SHOW INDEX FROM %i WHERE Key_name = %s", $verification_log_table, $index_name ) );
 			if ( empty( $index_exists ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 				$wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD INDEX %i (%s)", $verification_log_table, $index_name, $columns ) );
 			}
 		}
@@ -136,8 +138,10 @@ class Kickbox_Integration_Installer {
 
 		$results = array();
 		foreach ( $flagged_indexes as $index_name => $columns ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$index_exists = $wpdb->get_results( $wpdb->prepare( "SHOW INDEX FROM %i WHERE Key_name = %s", $flagged_emails_table, $index_name ) );
 			if ( empty( $index_exists ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 				$results[ $index_name ] = $wpdb->query( $wpdb->prepare( "ALTER TABLE %i ADD INDEX %i (%s)", $flagged_emails_table, $index_name, $columns ) );
 			}
 		}
@@ -161,8 +165,8 @@ class Kickbox_Integration_Installer {
 	/**
 	 * Set default plugin options
 	 *
-	 * @since 1.0.0
 	 * @return array Array of errors, empty if successful
+	 * @since 1.0.0
 	 */
 	public static function set_default_options() {
 		$default_options = array(

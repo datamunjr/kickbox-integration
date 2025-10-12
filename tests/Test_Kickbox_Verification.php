@@ -5,6 +5,9 @@
  * @package Kickbox_Integration
  */
 
+/**
+ * @codingStandardsIgnoreFile
+ */
 class Test_Kickbox_Verification extends WP_UnitTestCase {
 
 	/**
@@ -691,14 +694,14 @@ class Test_Kickbox_Verification extends WP_UnitTestCase {
 		// Count existing verification logs before the test
 		global $wpdb;
 		$verification_log_table = $wpdb->prefix . 'kickbox_integration_verification_log';
-		$initial_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$verification_log_table}" );
+		$initial_count          = $wpdb->get_var( "SELECT COUNT(*) FROM {$verification_log_table}" );
 
 		// Call the log_verification method
 		$method->invoke( $verification_instance, $email, $verification_result, $user_id, $order_id, $origin );
 
 		// Check if a new verification log was created
 		$final_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$verification_log_table}" );
-		$was_logged = ( $final_count > $initial_count );
+		$was_logged  = ( $final_count > $initial_count );
 
 		// Verify that a log entry was created
 		$this->assertTrue( $was_logged, "Verification should have been logged for {$description}" );
@@ -735,7 +738,7 @@ class Test_Kickbox_Verification extends WP_UnitTestCase {
 	 */
 	public function provideLogVerificationScenarios() {
 		return array(
-			'deliverable_checkout' => array(
+			'deliverable_checkout'       => array(
 				'test@example.com',
 				array(
 					'result' => 'deliverable',
@@ -759,7 +762,7 @@ class Test_Kickbox_Verification extends WP_UnitTestCase {
 				'registration',
 				'undeliverable email from registration'
 			),
-			'risky_checkout' => array(
+			'risky_checkout'             => array(
 				'risky@example.com',
 				array(
 					'result' => 'risky',
@@ -771,7 +774,7 @@ class Test_Kickbox_Verification extends WP_UnitTestCase {
 				'checkout',
 				'risky email from checkout'
 			),
-			'unknown_registration' => array(
+			'unknown_registration'       => array(
 				'unknown@example.com',
 				array(
 					'result' => 'unknown',
@@ -783,7 +786,7 @@ class Test_Kickbox_Verification extends WP_UnitTestCase {
 				'registration',
 				'unknown email from registration'
 			),
-			'minimal_data' => array(
+			'minimal_data'               => array(
 				'minimal@example.com',
 				array(
 					'result' => 'deliverable',

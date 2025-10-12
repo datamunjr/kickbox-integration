@@ -5,6 +5,9 @@
  * @package Kickbox_Integration
  */
 
+/**
+ * @codingStandardsIgnoreFile
+ */
 class Test_Kickbox_Integration extends WP_UnitTestCase {
 
 	private function getPluginBasename() {
@@ -165,7 +168,7 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	 * Test that plugin action links filter is registered
 	 */
 	public function test_plugin_action_links_filter_registered() {
-		$kickbox = KICKBOX();
+		$kickbox           = KICKBOX();
 		$action_links_hook = 'plugin_action_links_' . KICKBOX_INTEGRATION_PLUGIN_BASENAME;
 
 		// Use has_filter to check if our specific callback is registered
@@ -181,13 +184,13 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	 */
 	public function test_plugin_action_links_function() {
 		$kickbox = KICKBOX();
-		$links = array( 'deactivate' => '<a href="#">Deactivate</a>' );
+		$links   = array( 'deactivate' => '<a href="#">Deactivate</a>' );
 
 		$result = $kickbox->plugin_action_links( $links );
 
 		$this->assertIsArray( $result );
 		$this->assertCount( 2, $result, 'Should have 2 links after adding Settings link' );
-		
+
 		// Settings link should be first
 		$first_link = reset( $result );
 		$this->assertStringContainsString( 'Settings', $first_link );
@@ -415,14 +418,14 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 	 */
 	public function test_admin_menu_hook_registered() {
 		$kickbox = KICKBOX();
-		
+
 		// Verify the admin component exists and has the add_admin_menu method
 		$this->assertNotNull( $kickbox->admin, 'Admin component should be initialized' );
 		$this->assertTrue( method_exists( $kickbox->admin, 'add_admin_menu' ), 'Admin class should have add_admin_menu method' );
-		
+
 		// Use has_action to check if admin menu callback is registered
 		$priority = has_action( 'admin_menu', array( $kickbox->admin, 'add_admin_menu' ) );
-		
+
 		$this->assertNotFalse( $priority, 'Admin menu callback should be registered on admin_menu hook' );
 		$this->assertEquals( 10, $priority, 'Admin menu callback should be registered at priority 10' );
 	}

@@ -124,6 +124,7 @@ class Kickbox_Integration_Flagged_Emails {
 			return $existing->id;
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$result = $wpdb->insert(
 			$this->table_name,
 			array(
@@ -176,6 +177,7 @@ class Kickbox_Integration_Flagged_Emails {
 		if ( $result === false ) {
 			global $wpdb;
 
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$result = $wpdb->get_row(
 				$wpdb->prepare(
 					"SELECT * FROM %i WHERE id = %d",
@@ -211,6 +213,7 @@ class Kickbox_Integration_Flagged_Emails {
 		if ( $result === false ) {
 			global $wpdb;
 
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$result = $wpdb->get_row(
 				$wpdb->prepare(
 					"SELECT * FROM %i WHERE email = %s ORDER BY flagged_date DESC LIMIT 1",
@@ -262,65 +265,70 @@ class Kickbox_Integration_Flagged_Emails {
 
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$count_total_query = $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE 1=1", $this->table_name );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$results_query = $wpdb->prepare( "SELECT * FROM %i WHERE 1=1", $this->table_name );
+
 		// Search by email
-		$email_like_filter = '%';
 		if ( ! empty( $args['search'] ) ) {
-			$email_like_filter = '%' . $wpdb->esc_like( $args['search'] ) . '%';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$count_total_query .= $wpdb->prepare( ' AND email LIKE %s', '%' . $wpdb->esc_like( $args['search'] ) . '%' );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$results_query .= $wpdb->prepare( ' AND email LIKE %s', '%' . $wpdb->esc_like( $args['search'] ) . '%' );
 		}
 
 		// Filter by decision
-		$admin_decision_filter = '%';
 		if ( ! empty( $args['decision'] ) ) {
-			$admin_decision_filter = $wpdb->esc_like( $args['decision'] );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$count_total_query .= $wpdb->prepare( ' AND admin_decision=%s', sanitize_text_field( $args['decision'] ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$results_query .= $wpdb->prepare( ' AND admin_decision=%s', sanitize_text_field( $args['decision'] ) );
 		}
 
 		// Filter by origin
-		$origin_filter = '%';
 		if ( ! empty( $args['origin'] ) ) {
-			$origin_filter = $wpdb->esc_like( $args['origin'] );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$count_total_query .= $wpdb->prepare( ' AND origin=%s', sanitize_text_field( $args['origin'] ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$results_query .= $wpdb->prepare( ' AND origin=%s', sanitize_text_field( $args['origin'] ) );
 		}
 
 		// Filter by verification action
-		$verification_action_filter = '%';
 		if ( ! empty( $args['verification_action'] ) ) {
-			$verification_action_filter = $wpdb->esc_like( $args['verification_action'] );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$count_total_query .= $wpdb->prepare( ' AND verification_action=%s', sanitize_text_field( $args['verification_action'] ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$results_query .= $wpdb->prepare( ' AND verification_action=%s', sanitize_text_field( $args['verification_action'] ) );
 		}
 
 		// Count total records
-		$total_items =
-			$wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT COUNT(*) FROM %i WHERE admin_decision LIKE %s AND origin LIKE %s AND verification_action LIKE %s AND email LIKE %s",
-					$this->table_name,
-					$admin_decision_filter,
-					$origin_filter,
-					$verification_action_filter,
-					$email_like_filter
-				)
-			);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$total_items = $wpdb->get_var(
+		/* phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- everything is prepared above */
+			$count_total_query
+		);
 
 		// Calculate pagination
 		$offset      = ( $args['page'] - 1 ) * $args['per_page'];
 		$total_pages = ceil( $total_items / $args['per_page'] );
 
 		// Get records
-		$orderby = sanitize_sql_orderby( $args['orderby'] );
-
-		//TODO: Need to figure out how to dynamically set this
+		$orderby     = sanitize_sql_orderby( $args['orderby'] );
 		$asc_or_desc = sanitize_sql_orderby( $args['order'] );
 
+		$results_query .= $wpdb->prepare(
+		/* phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $asc_or_desc is sanitized right above */
+			" ORDER BY %i {$asc_or_desc} LIMIT %d OFFSET %d",
+			$orderby,
+			$args['per_page'],
+			$offset
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$results = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM %i  WHERE admin_decision LIKE %s AND origin LIKE %s AND verification_action LIKE %s AND email LIKE %s ORDER BY %i DESC LIMIT %d OFFSET %d",
-				$this->table_name,
-				$admin_decision_filter,
-				$origin_filter,
-				$verification_action_filter,
-				$email_like_filter,
-				$orderby,
-				$args['per_page'],
-				$offset
-			)
+		/* phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- everything is prepared above */
+			$results_query
 		);
 
 		// Decode JSON for each result
@@ -358,6 +366,7 @@ class Kickbox_Integration_Flagged_Emails {
 			return false;
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$result = $wpdb->update(
 			$this->table_name,
 			array(
@@ -401,6 +410,7 @@ class Kickbox_Integration_Flagged_Emails {
 			return false;
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$result = $wpdb->update(
 			$this->table_name,
 			array(
@@ -471,25 +481,33 @@ class Kickbox_Integration_Flagged_Emails {
 		$stats = array();
 
 		// Total flagged emails
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$stats['total'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i", $this->table_name ) );
 
 		// Pending reviews
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$stats['pending'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE admin_decision = %s", $this->table_name, 'pending' ) );
 
 		// Allowed emails
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$stats['allowed'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE admin_decision = %s", $this->table_name, 'allow' ) );
 
 		// Blocked emails
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$stats['blocked'] = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE admin_decision = %s", $this->table_name, 'block' ) );
 
 		// By origin
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$stats['by_origin'] = $wpdb->get_results(
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prepare( "SELECT origin, COUNT(*) as count FROM %i GROUP BY origin", $this->table_name ),
 			OBJECT_K
 		);
 
 		// By Kickbox result
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$stats['by_result'] = $wpdb->get_results(
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prepare( "SELECT JSON_EXTRACT(kickbox_result, '$.result') as result, COUNT(*) as count FROM %i GROUP BY JSON_EXTRACT(kickbox_result, '$.result')", $this->table_name ),
 			OBJECT_K
 		);
@@ -510,6 +528,7 @@ class Kickbox_Integration_Flagged_Emails {
 	public function delete_flagged_email( $id ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$result = $wpdb->delete(
 			$this->table_name,
 			array( 'id' => $id ),
