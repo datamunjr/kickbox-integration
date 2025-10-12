@@ -22,10 +22,18 @@ class Kickbox_Integration_Registration {
     private $verification;
 
     /**
+     * WooCommerce logger instance.
+     *
+     * @var WC_Logger
+     */
+    private $logger;
+
+    /**
      * Constructor.
      */
     public function __construct() {
         $this->verification = new Kickbox_Integration_Verification();
+        $this->logger = wc_get_logger();
 
         // Hook into WooCommerce registration validation
         add_filter( 'woocommerce_process_registration_errors', array( $this, 'validate_registration_email' ), 10, 4 );
@@ -73,8 +81,12 @@ class Kickbox_Integration_Registration {
         ) );
 
         if ( is_wp_error( $result ) ) {
-            // Log error but don't block registration
-            error_log( 'Kickbox_Integration Registration Verification Error: ' . $result->get_error_message() );
+            $this->logger->warning( 'Verification error during registration: ' . $result->get_error_message(), array( 
+                'source' => 'kickbox-integration',
+                'email' => $email
+            ) );
+            
+            // Don't block registration on verification errors
             return $validation_error;
         }
 

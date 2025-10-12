@@ -11,7 +11,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Kickbox_Integration_Admin {
 
+    private $logger;
+
     public function __construct() {
+        $this->logger = wc_get_logger();
+        
         add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 25 );
@@ -353,9 +357,11 @@ class Kickbox_Integration_Admin {
         ) );
 
         if ( is_wp_error( $response ) ) {
-            // Log the WP_Error for debugging
-            error_log( '[Kickbox_Integration]: WP_Error during API test - ' . $response->get_error_message() );
-
+            $this->logger->error( 'WP_Error during API test: ' . $response->get_error_message(), array( 
+                'source' => 'kickbox-integration',
+                'error_code' => $response->get_error_code()
+            ) );
+            
             wp_send_json_error( array(
                     'message'     => $response->get_error_message(),
                     'details'     => array(
@@ -370,9 +376,12 @@ class Kickbox_Integration_Admin {
         $data = json_decode( $body, true );
 
         if ( json_last_error() !== JSON_ERROR_NONE ) {
-            // Log the invalid JSON response for debugging
-            error_log( '[Kickbox_Integration]: Invalid JSON response from Kickbox API - ' . $body );
-
+            $this->logger->error( 'Invalid JSON response from Kickbox API', array( 
+                'source' => 'kickbox-integration',
+                'json_error' => json_last_error_msg(),
+                'response_body' => substr( $body, 0, 500 ) // Log first 500 chars
+            ) );
+            
             wp_send_json_error( array(
                     'message'     => __( 'Invalid response from Kickbox API.', 'kickbox-integration' ),
                     'details'     => array(
@@ -393,9 +402,11 @@ class Kickbox_Integration_Admin {
                     'sandbox_mode' => $sandbox_mode
             ) );
         } else {
-            // Log the unexpected response for debugging
-            error_log( '[Kickbox_Integration]: Unexpected Kickbox API response - ' . print_r( $data, true ) );
-
+            $this->logger->error( 'Unexpected Kickbox API response', array( 
+                'source' => 'kickbox-integration',
+                'response_data' => $data
+            ) );
+            
             wp_send_json_error( array(
                     'message'     => __( 'Unexpected response from Kickbox API.', 'kickbox-integration' ),
                     'details'     => $data,
@@ -427,9 +438,11 @@ class Kickbox_Integration_Admin {
         ) );
 
         if ( is_wp_error( $response ) ) {
-            // Log the WP_Error for debugging
-            error_log( '[Kickbox_Integration]: WP_Error during API validation - ' . $response->get_error_message() );
-
+            $this->logger->error( 'WP_Error during API validation: ' . $response->get_error_message(), array( 
+                'source' => 'kickbox-integration',
+                'error_code' => $response->get_error_code()
+            ) );
+            
             return array(
                     'success' => false,
                     'message' => $response->get_error_message(),
@@ -444,9 +457,12 @@ class Kickbox_Integration_Admin {
         $data = json_decode( $body, true );
 
         if ( json_last_error() !== JSON_ERROR_NONE ) {
-            // Log the invalid JSON response for debugging
-            error_log( '[Kickbox_Integration]: Invalid JSON response during API validation - ' . $body );
-
+            $this->logger->error( 'Invalid JSON response during API validation', array( 
+                'source' => 'kickbox-integration',
+                'json_error' => json_last_error_msg(),
+                'response_body' => substr( $body, 0, 500 )
+            ) );
+            
             return array(
                     'success' => false,
                     'message' => __( 'Invalid response from Kickbox API.', 'kickbox-integration' ),
@@ -467,9 +483,11 @@ class Kickbox_Integration_Admin {
                 'balance' => intval( $data['balance'] )
             );
         } else {
-            // Log the unexpected response for debugging
-            error_log( '[Kickbox_Integration]: Unexpected Kickbox API response during validation - ' . print_r( $data, true ) );
-
+            $this->logger->error( 'Unexpected Kickbox API response during validation', array( 
+                'source' => 'kickbox-integration',
+                'response_data' => $data
+            ) );
+            
             return array(
                     'success' => false,
                     'message' => __( 'Unexpected response from Kickbox API.', 'kickbox-integration' ),
@@ -934,7 +952,10 @@ class Kickbox_Integration_Admin {
             $result = $flagged_emails->get_flagged_emails( $args );
             wp_send_json_success( $result );
         } catch ( Exception $e ) {
-            error_log( '[Kickbox_Integration] Flagged Emails AJAX Error: ' . $e->getMessage() );
+            $this->logger->error( 'Flagged Emails AJAX Error: ' . $e->getMessage(), array( 
+                'source' => 'kickbox-integration'
+            ) );
+            
             wp_send_json_error( array( 'message' => __( 'Error loading flagged emails: ', 'kickbox-integration' ) . $e->getMessage() ) );
         }
     }

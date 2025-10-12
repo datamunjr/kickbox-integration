@@ -14,6 +14,7 @@ class Kickbox_Integration_Verification {
 	private $api_key;
 	private $sandbox_mode;
 	private $api_url;
+	private $logger;
 
 	/**
 	 * Cache group for verification data
@@ -33,6 +34,7 @@ class Kickbox_Integration_Verification {
 		$this->api_key      = get_option( 'kickbox_integration_api_key', '' );
 		$this->sandbox_mode = strpos( $this->api_key, 'test_' ) === 0;
 		$this->api_url      = 'https://api.kickbox.com/v2/verify';
+		$this->logger       = wc_get_logger();
 
 		add_action( 'wp_ajax_kickbox_integration_verify_email', array( $this, 'ajax_verify_email' ) );
 		add_action( 'wp_ajax_nopriv_kickbox_integration_verify_email', array( $this, 'ajax_verify_email' ) );
@@ -85,8 +87,8 @@ class Kickbox_Integration_Verification {
 		// Check if email is in allow list
 		$admin = new Kickbox_Integration_Admin();
 		if ( $admin->is_email_in_allow_list( $email ) ) {
-			error_log( "[Kickbox_Integration] E-mail $email address is in the allow-list, skipping kickbox verification." );
-
+			$this->logger->info( "Email $email is in allow-list, skipping Kickbox verification.", array( 'source' => 'kickbox-integration' ) );
+			
 			// Return a deliverable result for allow list emails
 			return array(
 				'result'       => 'deliverable',
@@ -106,7 +108,9 @@ class Kickbox_Integration_Verification {
 		$flagged_emails = new Kickbox_Integration_Flagged_Emails();
 		$admin_decision = $flagged_emails->get_admin_decision( $email );
 
-		error_log( "[Kickbox_Integration] E-mail $email address has been flagged with decision: $admin_decision." );
+		if ( $admin_decision ) {
+			$this->logger->info( "Email $email has admin decision: $admin_decision", array( 'source' => 'kickbox-integration' ) );
+		}
 
 		if ( $admin_decision === 'allow' ) {
 			// Return deliverable result for admin-allowed emails
@@ -143,8 +147,7 @@ class Kickbox_Integration_Verification {
 		// Check if email has pending review - if so, use the existing kickbox result
 		if ( $admin_decision === 'pending' ) {
 			$cached_kickbox_result = $flagged_emails->get_kickbox_result( $email );
-			error_log( "[Kickbox_Integration] E-mail $email is has a pending admin decision. Using cached Kickbox result: " .
-			           print_r( $cached_kickbox_result, true ) );
+			$this->logger->debug( "Email $email has pending admin decision, using cached Kickbox result", array( 'source' => 'kickbox-integration', 'result' => $cached_kickbox_result ) );
 
 			return $cached_kickbox_result;
 		}

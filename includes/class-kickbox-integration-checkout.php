@@ -14,9 +14,11 @@ class Kickbox_Integration_Checkout {
     private $verification;
     private $cached_email; // Email that we use during woocommerce_blocks_validate_location_address_fields
     private $cached_result;
+    private $logger;
 
     public function __construct() {
         $this->verification = new Kickbox_Integration_Verification();
+        $this->logger = wc_get_logger();
 
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_checkout_scripts' ) );
 
@@ -223,9 +225,12 @@ class Kickbox_Integration_Checkout {
         ) );
 
         if ( is_wp_error( $result ) ) {
-            // Log error but don't block checkout
-            error_log( 'Kickbox_Integration Verification Error: ' . $result->get_error_message() );
-
+            $this->logger->warning( 'Verification error during checkout: ' . $result->get_error_message(), array( 
+                'source' => 'kickbox-integration',
+                'email' => $this->cached_email
+            ) );
+            
+            // Don't block checkout on verification errors
             return;
         }
 
