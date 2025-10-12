@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import LoadingSpinner from './LoadingSpinner';
 
 // Custom debounce hook
 const useDebounce = (value, delay) => {
@@ -20,6 +21,7 @@ const useDebounce = (value, delay) => {
 const FlaggedEmails = ({onRefreshPendingCount}) => {
     const [flaggedEmails, setFlaggedEmails] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
     const [message, setMessage] = useState({type: '', text: ''});
     const [pagination, setPagination] = useState({
         current_page: 1,
@@ -87,6 +89,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
             setMessage({type: 'error', text: 'Error loading flagged emails.'});
         } finally {
             setLoading(false);
+            setInitialLoading(false);
         }
     };
 
@@ -267,13 +270,12 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
         );
     };
 
+    if (initialLoading) {
+        return <LoadingSpinner message="Loading flagged emails..."/>;
+    }
+
     return (
         <div className="kickbox_integration-flagged-emails">
-            <div className="kickbox_integration-flagged-emails-header">
-                <h3>Review Flagged Emails</h3>
-                <p>Review emails that were flagged during checkout for admin decision.</p>
-            </div>
-
             {message.text && (
                 <div className={`notice notice-${message.type === 'error' ? 'error' : 'success'} is-dismissible`}>
                     <p>{message.text}</p>

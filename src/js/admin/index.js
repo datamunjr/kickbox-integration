@@ -6,7 +6,7 @@ import VerificationStats from './components/VerificationStats';
 import KickboxApiKeyInput from './components/KickboxApiKeyInput';
 import '../../css/admin.css';
 
-// Initialize React components for WooCommerce Settings sections
+// Initialize React components for WooCommerce Settings sections and Analytics page
 document.addEventListener('DOMContentLoaded', function() {
 	// Get current section from URL
 	const urlParams = new URLSearchParams(window.location.search);
@@ -38,19 +38,18 @@ document.addEventListener('DOMContentLoaded', function() {
 		root.render(<AllowList settings={{}} />);
 	}
 
-	// Mount Flagged Emails component
-	const flaggedContainer = document.getElementById('kickbox-react-flagged-container');
-	if (flaggedContainer && section === 'flagged') {
-		const root = createRoot(flaggedContainer);
-		// Create dummy functions for pending count refresh
+	// Mount Flagged Emails component (on standalone page)
+	const flaggedPageContainer = document.getElementById('kickbox-flagged-emails-page-container');
+	if (flaggedPageContainer) {
+		const root = createRoot(flaggedPageContainer);
+		// Create dummy function for pending count refresh
 		const refreshPendingCount = async () => {
-			// This would normally update the parent, but in WC settings we don't need it
 			return 0;
 		};
 		root.render(<FlaggedEmails onRefreshPendingCount={refreshPendingCount} />);
 	}
 
-	// Mount Statistics component
+	// Mount Statistics component (on Settings > Stats section)
 	const statsContainer = document.getElementById('kickbox-react-stats-container');
 	if (statsContainer && section === 'stats') {
 		const root = createRoot(statsContainer);

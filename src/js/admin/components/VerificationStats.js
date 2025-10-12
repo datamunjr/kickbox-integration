@@ -6,6 +6,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
+import LoadingSpinner from './LoadingSpinner';
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -45,7 +46,7 @@ const VerificationStats = () => {
     };
 
     if (loading) {
-        return <div className="kickbox_integration-loading">Loading statistics...</div>;
+        return <LoadingSpinner message="Loading statistics..." />;
     }
 
     if (!stats) {
@@ -257,7 +258,11 @@ const VerificationStats = () => {
                 <button
                     type="button"
                     className="button button-secondary"
-                    onClick={loadStats}
+                    onClick={() => {
+                        setLoading(true);
+                        loadStats();
+                    }}
+                    disabled={loading}
                 >
                     Refresh Statistics
                 </button>
