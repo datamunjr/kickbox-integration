@@ -159,6 +159,9 @@ class Kickbox_Integration {
      * @since 1.0.0
      */
     private function init_hooks() {
+        // Load plugin text domain for translations
+        add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
+        
         // Declare HPOS compatibility
         add_action( 'before_woocommerce_init', array( $this, 'declare_hpos_compatibility' ) );
 
@@ -174,6 +177,19 @@ class Kickbox_Integration {
                 $this,
                 'plugin_row_dependency_notice'
         ) );
+    }
+
+    /**
+     * Load plugin text domain for translations
+     *
+     * @since 1.0.0
+     */
+    public function load_plugin_textdomain() {
+        load_plugin_textdomain(
+            'kickbox-integration',
+            false,
+            dirname( KICKBOX_INTEGRATION_PLUGIN_BASENAME ) . '/languages/'
+        );
     }
 
     /**

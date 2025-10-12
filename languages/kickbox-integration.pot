@@ -1,0 +1,504 @@
+# Copyright (C) 2025 munjr llc
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Kickbox Integration 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kickbox-integration\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-10-12T19:21:55+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: kickbox-integration\n"
+
+#. Plugin Name of the plugin
+#: kickbox-integration.php
+#: includes/class-kickbox-integration-admin.php:57
+#: includes/class-kickbox-integration-admin.php:58
+#: includes/class-kickbox-integration-installer.php:209
+#: kickbox-integration.php:355
+#: kickbox-integration.php:380
+#: kickbox-integration.php:403
+#: kickbox-integration.php:419
+#: kickbox-integration.php:437
+#: kickbox-integration.php:461
+msgid "Kickbox Integration"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: kickbox-integration.php
+msgid "https://woocommerce.com/products/kickbox-email-verification"
+msgstr ""
+
+#. Description of the plugin
+#: kickbox-integration.php
+msgid "Integrates Kickbox email verification service with WooCommerce for real-time email validation during checkout and user registration."
+msgstr ""
+
+#. Author of the plugin
+#: kickbox-integration.php
+msgid "munjr llc"
+msgstr ""
+
+#. Author URI of the plugin
+#: kickbox-integration.php
+msgid "https://woocommerce.com/vendor/munjr"
+msgstr ""
+
+#. translators: 1: Required WordPress version, 2: Current WordPress version
+#: includes/class-kickbox-integration-activator.php:78
+#, php-format
+msgid "Kickbox Integration requires WordPress version %1$s or higher. You are running version %2$s."
+msgstr ""
+
+#: includes/class-kickbox-integration-activator.php:102
+msgid "Kickbox Integration requires WooCommerce to be installed and active."
+msgstr ""
+
+#. translators: 1: Required WooCommerce version, 2: Current WooCommerce version
+#: includes/class-kickbox-integration-activator.php:121
+#, php-format
+msgid "Kickbox Integration requires WooCommerce version %1$s or higher. You are running version %2$s."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:142
+msgid "Testing API connection..."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:143
+#: includes/class-kickbox-integration-admin.php:400
+msgid "API connection successful!"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:144
+msgid "API connection failed. Please check your API key."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:145
+msgid "Are you sure you want to test the API connection? This will use 1 verification credit."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:159
+msgid "Kickbox Integration Settings"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:177
+msgid "API Key"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:184
+msgid "Enter your Kickbox API key. You can find this in your Kickbox dashboard."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:187
+msgid "Test API Connection"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:194
+msgid "Sandbox Mode"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:201
+msgid "Enable sandbox mode for testing (recommended)"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:208
+msgid "Checkout Verification"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:215
+msgid "Enable email verification during checkout"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:222
+msgid "Registration Verification"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:229
+msgid "Enable email verification during user registration"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:236
+msgid "Verification Actions"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:237
+msgid "Configure what action to take for each verification result:"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:242
+msgid "Deliverable Emails"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:248
+#: includes/class-kickbox-integration-admin.php:268
+#: includes/class-kickbox-integration-admin.php:287
+#: includes/class-kickbox-integration-admin.php:306
+msgid "Allow checkout"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:251
+#: includes/class-kickbox-integration-admin.php:271
+#: includes/class-kickbox-integration-admin.php:290
+#: includes/class-kickbox-integration-admin.php:309
+msgid "Block checkout"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:254
+#: includes/class-kickbox-integration-admin.php:274
+#: includes/class-kickbox-integration-admin.php:293
+#: includes/class-kickbox-integration-admin.php:312
+msgid "Allow but flag for review"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:262
+msgid "Undeliverable Emails"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:282
+msgid "Risky Emails"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:301
+msgid "Unknown Emails"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:332
+#: includes/class-kickbox-integration-admin.php:506
+#: includes/class-kickbox-integration-admin.php:544
+#: includes/class-kickbox-integration-admin.php:608
+#: includes/class-kickbox-integration-admin.php:628
+#: includes/class-kickbox-integration-admin.php:853
+#: includes/class-kickbox-integration-admin.php:867
+#: includes/class-kickbox-integration-admin.php:897
+#: includes/class-kickbox-integration-admin.php:936
+#: includes/class-kickbox-integration-admin.php:970
+#: includes/class-kickbox-integration-admin.php:998
+#: includes/class-kickbox-integration-admin.php:1026
+#: includes/class-kickbox-integration-admin.php:1042
+#: includes/class-kickbox-integration-dashboard-widget.php:90
+msgid "Insufficient permissions."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:339
+#: includes/class-kickbox-integration-admin.php:423
+msgid "API key is required."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:386
+#: includes/class-kickbox-integration-admin.php:468
+#: includes/class-kickbox-integration-verification.php:204
+msgid "Invalid response from Kickbox API."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:411
+#: includes/class-kickbox-integration-admin.php:493
+msgid "Unexpected response from Kickbox API."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:482
+msgid "API key is valid."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:555
+msgid "Settings not saved. API key validation failed: "
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:581
+msgid "Settings saved successfully!"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:590
+msgid "Sandbox Mode: Using test API key. No credits will be consumed."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:591
+msgid "Live Mode: Using production API key. Credits will be consumed."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:701
+msgid "Kickbox Email Verification - Low Balance Alert"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:707
+msgid "Your verification balance is running low. Please add more credits to continue email verification."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:711
+msgid "Add Credits to Kickbox Account"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:715
+msgid "View Settings"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:764
+msgid "Kickbox Email Verification - Verification Disabled"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:767
+msgid "Your Kickbox integration is enabled but both checkout and registration verification are currently disabled."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:770
+msgid "This means customers can use invalid email addresses during checkout and registration, which can result in:"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:773
+msgid "- Fake or invalid email addresses"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:774
+msgid "- Misspelled email addresses"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:775
+msgid "- Throw-away or disposable email addresses"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:776
+msgid "- Invalid user accounts and failed order deliveries"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:777
+msgid "- Reduced email deliverability and customer engagement"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:782
+msgid "Enable Email Verification"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:785
+msgid "Learn More About Email Verification"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:873
+msgid "Invalid email address."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:880
+msgid "Email address is already in the allow list."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:887
+msgid "Email added to allow list successfully."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:903
+#: includes/class-kickbox-integration-verification.php:257
+msgid "Email address is required."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:915
+msgid "Email removed from allow list successfully."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:959
+msgid "Error loading flagged emails: "
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:978
+#: includes/class-kickbox-integration-admin.php:1006
+msgid "Invalid parameters."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:985
+#: includes/class-kickbox-integration-admin.php:1013
+msgid "Decision updated successfully."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:987
+#: includes/class-kickbox-integration-admin.php:1015
+msgid "Failed to update decision."
+msgstr ""
+
+#: includes/class-kickbox-integration-checkout.php:66
+msgid "Verifying email..."
+msgstr ""
+
+#: includes/class-kickbox-integration-checkout.php:67
+msgid "Email verification failed. Please check your email address."
+msgstr ""
+
+#: includes/class-kickbox-integration-checkout.php:68
+msgid "Unable to verify email at this time. Please try again."
+msgstr ""
+
+#: includes/class-kickbox-integration-checkout.php:69
+msgid "Email address is deliverable and safe to send to."
+msgstr ""
+
+#: includes/class-kickbox-integration-checkout.php:70
+msgid "Email address does not exist or is invalid."
+msgstr ""
+
+#: includes/class-kickbox-integration-checkout.php:71
+msgid "Email address has quality issues and may result in bounces."
+msgstr ""
+
+#: includes/class-kickbox-integration-checkout.php:72
+msgid "Unable to verify email address - server timeout or unavailable."
+msgstr ""
+
+#: includes/class-kickbox-integration-checkout.php:285
+#: includes/class-kickbox-integration-registration.php:124
+msgid "This email address does not exist or is invalid. Please use a different email address."
+msgstr ""
+
+#: includes/class-kickbox-integration-checkout.php:286
+#: includes/class-kickbox-integration-registration.php:125
+msgid "This email address has quality issues and may result in bounces. Please use a different email address."
+msgstr ""
+
+#: includes/class-kickbox-integration-checkout.php:287
+msgid "We were unable to verify this email address due to unknown issue. Please use a different email address."
+msgstr ""
+
+#: includes/class-kickbox-integration-dashboard-widget.php:27
+msgid "Kickbox Email Verification Statistics"
+msgstr ""
+
+#: includes/class-kickbox-integration-dashboard-widget.php:41
+#: includes/class-kickbox-integration-dashboard-widget.php:69
+msgid "Loading statistics..."
+msgstr ""
+
+#: includes/class-kickbox-integration-dashboard-widget.php:70
+msgid "Unable to load statistics."
+msgstr ""
+
+#: includes/class-kickbox-integration-dashboard-widget.php:71
+msgid "Retry"
+msgstr ""
+
+#: includes/class-kickbox-integration-dashboard-widget.php:72
+msgid "No verification data available."
+msgstr ""
+
+#: includes/class-kickbox-integration-dashboard-widget.php:73
+msgid "Total Verifications"
+msgstr ""
+
+#: includes/class-kickbox-integration-dashboard-widget.php:74
+msgid "Deliverable"
+msgstr ""
+
+#: includes/class-kickbox-integration-dashboard-widget.php:75
+msgid "Undeliverable"
+msgstr ""
+
+#: includes/class-kickbox-integration-dashboard-widget.php:76
+msgid "Risky"
+msgstr ""
+
+#: includes/class-kickbox-integration-dashboard-widget.php:77
+msgid "Unknown"
+msgstr ""
+
+#: includes/class-kickbox-integration-dashboard-widget.php:78
+msgid "View Details"
+msgstr ""
+
+#: includes/class-kickbox-integration-installer.php:210
+msgid "could not create certain MySQL indexes. Please check your MySQL logs or reach out to support."
+msgstr ""
+
+#: includes/class-kickbox-integration-registration.php:126
+msgid "We were unable to verify this email address due to server timeout. Please use a different email address."
+msgstr ""
+
+#: includes/class-kickbox-integration-verification.php:80
+msgid "Kickbox API key is not configured."
+msgstr ""
+
+#: includes/class-kickbox-integration-verification.php:84
+msgid "Invalid email address format."
+msgstr ""
+
+#: includes/class-kickbox-integration-verification.php:528
+msgid "Balance not yet determined. Make a verification request to check your balance."
+msgstr ""
+
+#. translators: %d: Number of verifications remaining
+#: includes/class-kickbox-integration-verification.php:532
+#, php-format
+msgid "Current balance: <strong>%d</strong> verifications remaining."
+msgstr ""
+
+#. translators: %s: Date and time of last update
+#: includes/class-kickbox-integration-verification.php:538
+#, php-format
+msgid "(last updated: %s)"
+msgstr ""
+
+#: kickbox-integration.php:203
+msgid "Settings"
+msgstr ""
+
+#: kickbox-integration.php:314
+msgid "Dependencies:"
+msgstr ""
+
+#: kickbox-integration.php:316
+msgid "WooCommerce is required but not active."
+msgstr ""
+
+#: kickbox-integration.php:318
+msgid "Install WooCommerce"
+msgstr ""
+
+#. translators: 1: Required WooCommerce version, 2: Current WooCommerce version
+#: kickbox-integration.php:325
+#, php-format
+msgid "WooCommerce version %1$s is required. You have version %2$s."
+msgstr ""
+
+#: kickbox-integration.php:333
+msgid "Update WooCommerce"
+msgstr ""
+
+#. translators: 1: Required WordPress version, 2: Current WordPress version
+#: kickbox-integration.php:358
+#, php-format
+msgid "requires WordPress version %1$s or higher. You are running version %2$s."
+msgstr ""
+
+#. translators: %s: Required WordPress version
+#: kickbox-integration.php:383
+#, php-format
+msgid "has been deactivated because the WordPress version is too old. Please upgrade WordPress to at least version %s."
+msgstr ""
+
+#: kickbox-integration.php:404
+msgid "requires WooCommerce to be installed and active."
+msgstr ""
+
+#: kickbox-integration.php:420
+msgid "has been deactivated because WooCommerce is no longer active."
+msgstr ""
+
+#. translators: 1: Required WooCommerce version, 2: Current WooCommerce version
+#: kickbox-integration.php:440
+#, php-format
+msgid "requires WooCommerce version %1$s or higher. You are running version %2$s."
+msgstr ""
+
+#: kickbox-integration.php:462
+msgid "has been deactivated because WooCommerce version is too old."
+msgstr ""
+
+#: kickbox-integration.php:547
+#: kickbox-integration.php:551
+msgid "Plugin Activation Error"
+msgstr ""
+
+#: kickbox-integration.php:549
+msgid "Please resolve the issue and try activating the plugin again."
+msgstr ""
+
+#: kickbox-integration.php:550
+msgid "Return to Plugins page"
+msgstr ""
