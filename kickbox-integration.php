@@ -97,6 +97,14 @@ class Kickbox_Integration {
     public $flagged_emails;
 
     /**
+     * Flagged emails page class instance
+     *
+     * @var Kickbox_Integration_Flagged_Emails_Page
+     * @since 1.0.0
+     */
+    public $flagged_emails_page;
+
+    /**
      * Main Kickbox_Integration Instance
      *
      * Ensures only one instance of Kickbox_Integration is loaded or can be loaded.
@@ -152,7 +160,7 @@ class Kickbox_Integration {
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-dashboard-widget.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails-page.php';
-
+        
         // Settings tab is included via woocommerce_get_settings_pages filter
         // No need to include it here as it requires WooCommerce classes to be loaded first
     }
@@ -165,10 +173,10 @@ class Kickbox_Integration {
     private function init_hooks() {
         // Load plugin text domain for translations
         add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
-
+        
         // Register WooCommerce settings tab
         add_filter( 'woocommerce_get_settings_pages', array( $this, 'add_settings_tab' ) );
-
+        
         // Declare HPOS compatibility
         add_action( 'before_woocommerce_init', array( $this, 'declare_hpos_compatibility' ) );
 
@@ -193,9 +201,9 @@ class Kickbox_Integration {
      */
     public function load_plugin_textdomain() {
         load_plugin_textdomain(
-                'kickbox-integration',
-                false,
-                dirname( KICKBOX_INTEGRATION_PLUGIN_BASENAME ) . '/languages/'
+            'kickbox-integration',
+            false,
+            dirname( KICKBOX_INTEGRATION_PLUGIN_BASENAME ) . '/languages/'
         );
     }
 
@@ -203,7 +211,6 @@ class Kickbox_Integration {
      * Add Kickbox settings tab to WooCommerce settings
      *
      * @param array $settings Array of WooCommerce settings pages
-     *
      * @return array Modified array of settings pages
      * @since 1.0.0
      */
@@ -213,9 +220,8 @@ class Kickbox_Integration {
             $logger = wc_get_logger();
             $logger->debug( 'Kickbox settings tab filter called', array( 'source' => 'kickbox-integration' ) );
         }
-
+        
         $settings[] = include KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-settings-tab.php';
-
         return $settings;
     }
 
@@ -258,13 +264,13 @@ class Kickbox_Integration {
      */
     public function init_components() {
         // Instantiate components
-        $this->verification     = new Kickbox_Integration_Verification();
-        $this->admin            = new Kickbox_Integration_Admin();
-        $this->checkout         = new Kickbox_Integration_Checkout();
-        $this->registration     = new Kickbox_Integration_Registration();
-        $this->dashboard_widget = new Kickbox_Integration_Dashboard_Widget();
-        $this->flagged_emails   = new Kickbox_Integration_Flagged_Emails();
-//        $this->flagged_emails_page   = new Kickbox_Integration_Flagged_Emails_Page();
+        $this->verification          = new Kickbox_Integration_Verification();
+        $this->admin                 = new Kickbox_Integration_Admin();
+        $this->checkout              = new Kickbox_Integration_Checkout();
+        $this->registration          = new Kickbox_Integration_Registration();
+        $this->dashboard_widget      = new Kickbox_Integration_Dashboard_Widget();
+        $this->flagged_emails        = new Kickbox_Integration_Flagged_Emails();
+        $this->flagged_emails_page   = new Kickbox_Integration_Flagged_Emails_Page();
     }
 
     /**
@@ -364,7 +370,7 @@ class Kickbox_Integration {
                             <?php elseif ( ! $status['version_ok'] ) : ?>
                                 <?php
                                 $required_version = KICKBOX_INTEGRATION_REQUIRED_WC_VERSION . '+';
-                                $current_version  = defined( 'WC_VERSION' ) ? WC_VERSION : 'Unknown';
+                                $current_version = defined( 'WC_VERSION' ) ? WC_VERSION : 'Unknown';
                                 /* translators: 1: Required WooCommerce version, 2: Current WooCommerce version */
                                 $message = esc_html__( 'WooCommerce version %1$s is required. You have version %2$s.', 'kickbox-integration' );
                                 echo esc_html( sprintf(
@@ -392,7 +398,7 @@ class Kickbox_Integration {
      */
     public static function display_wordpress_version_notice() {
         $current_wp_version = get_bloginfo( 'version' );
-        $required_version   = KICKBOX_INTEGRATION_REQUIRED_WP_VERSION;
+        $required_version = KICKBOX_INTEGRATION_REQUIRED_WP_VERSION;
         ?>
         <div class="error">
             <p>
@@ -473,7 +479,7 @@ class Kickbox_Integration {
      * @since 1.0.0
      */
     public static function display_woocommerce_version_notice() {
-        $current_version  = defined( 'WC_VERSION' ) ? WC_VERSION : 'Unknown';
+        $current_version = defined( 'WC_VERSION' ) ? WC_VERSION : 'Unknown';
         $required_version = KICKBOX_INTEGRATION_REQUIRED_WC_VERSION;
         ?>
         <div class="error">
