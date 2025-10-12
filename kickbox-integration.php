@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Kickbox Integration
- * Plugin URI: https://munjr.com/kickbox-integration
+ * Plugin URI: https://woocommerce.com/products/kickbox-email-verification
  * Description: Integrates Kickbox email verification service with WooCommerce for real-time email validation during checkout and user registration.
  * Version: 1.0.0
  * Author: munjr llc
- * Author URI: https://munjr.com
+ * Author URI: https://woocommerce.com/vendor/munjr
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: kickbox-integration
@@ -269,22 +269,8 @@ class Kickbox_Integration {
      */
     public function plugin_row_meta( $plugin_meta, $plugin_file ) {
         if ( KICKBOX_INTEGRATION_PLUGIN_BASENAME === $plugin_file ) {
-            // Add WooCommerce dependency information
-            $woocommerce_status = class_exists( 'WooCommerce' )
-                    ? '<span style="color: #46b450;">✓ WooCommerce Active</span>'
-                    : '<span style="color: #dc3232;">✗ WooCommerce Required</span>';
-
-            $plugin_meta[] = $woocommerce_status;
-
-            // Add version requirement if WooCommerce is active
-            if ( class_exists( 'WooCommerce' ) && defined( 'WC_VERSION' ) ) {
-                $current_wc_version = WC_VERSION;
-                $version_status     = version_compare( $current_wc_version, KICKBOX_INTEGRATION_REQUIRED_WC_VERSION, '>=' )
-                        ? '<span style="color: #46b450;">✓ WC ' . esc_html__( $current_wc_version ) . '</span>'
-                        : '<span style="color: #dc3232;">✗ WC ' . esc_html__( $current_wc_version ) . ' (Requires ' . esc_html__( KICKBOX_INTEGRATION_REQUIRED_WC_VERSION ) . '+)</span>';
-
-                $plugin_meta[] = $version_status;
-            }
+            // Plugin meta is now handled by WordPress plugin header
+            // No custom status information needed
         }
 
         return $plugin_meta;

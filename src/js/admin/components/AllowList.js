@@ -1,4 +1,21 @@
 import React, {useState, useEffect} from 'react';
+import ReactDOM from 'react-dom';
+
+// Notice component for displaying messages after wp-header-end
+const AllowListNotice = ({message, type, onDismiss}) => {
+    return (
+        <div className={`notice notice-${type} is-dismissible kickbox-allowlist-notice`}>
+            <p dangerouslySetInnerHTML={{__html: message}} />
+            <button 
+                type="button" 
+                className="notice-dismiss"
+                onClick={onDismiss}
+            >
+                <span className="screen-reader-text">Dismiss this notice.</span>
+            </button>
+        </div>
+    );
+};
 
 const AllowList = ({settings}) => {
     const [allowList, setAllowList] = useState([]);
@@ -8,10 +25,42 @@ const AllowList = ({settings}) => {
     const [success, setSuccess] = useState('');
 
     useEffect(() => {
-        if (settings.allowList) {
-            setAllowList(settings.allowList);
+        // Load allow list on mount and when settings change
+        loadAllowList();
+    }, []);
+
+    // Display notices after wp-header-end
+    useEffect(() => {
+        const wpHeaderEnd = document.querySelector('.wp-header-end');
+        if (!wpHeaderEnd) return;
+
+        // Create container for the notice if there's a message
+        if (error || success) {
+            const noticeContainer = document.createElement('div');
+            wpHeaderEnd.parentNode.insertBefore(noticeContainer, wpHeaderEnd.nextSibling);
+
+            const handleDismiss = () => {
+                if (error) setError('');
+                if (success) setSuccess('');
+            };
+
+            // Render React component into the container
+            ReactDOM.render(
+                <AllowListNotice 
+                    message={error || success}
+                    type={error ? 'error' : 'success'}
+                    onDismiss={handleDismiss}
+                />,
+                noticeContainer
+            );
+
+            // Cleanup function
+            return () => {
+                ReactDOM.unmountComponentAtNode(noticeContainer);
+                noticeContainer.remove();
+            };
         }
-    }, [settings.allowList]);
+    }, [error, success]);
 
     const addEmail = async () => {
         if (!newEmail.trim()) {
@@ -24,6 +73,7 @@ const AllowList = ({settings}) => {
             return;
         }
 
+        const emailToAdd = newEmail.trim();
         setLoading(true);
         setError('');
         setSuccess('');
@@ -37,14 +87,14 @@ const AllowList = ({settings}) => {
                 body: new URLSearchParams({
                     action: 'kickbox_integration_add_to_allow_list',
                     nonce: kickbox_integration_admin.nonce,
-                    email: newEmail.trim()
+                    email: emailToAdd
                 })
             });
 
             const data = await response.json();
 
             if (data.success) {
-                setSuccess(data.data.message);
+                setSuccess(`<strong>${emailToAdd}</strong> successfully added to allow list.`);
                 setNewEmail('');
                 // Refresh the allow list
                 loadAllowList();
@@ -83,7 +133,7 @@ const AllowList = ({settings}) => {
             const data = await response.json();
 
             if (data.success) {
-                setSuccess(data.data.message);
+                setSuccess(`<strong>${email}</strong> successfully removed from allow list.`);
                 // Refresh the allow list
                 loadAllowList();
             } else {
@@ -115,7 +165,8 @@ const AllowList = ({settings}) => {
                 setAllowList(data.data);
             }
         } catch (error) {
-            console.error('Failed to load allow list:', error);
+            // Silently fail - allow list will show as empty
+            setAllowList([]);
         }
     };
 
@@ -139,18 +190,6 @@ const AllowList = ({settings}) => {
                     This is useful for trusted customers, test accounts, or special cases.
                 </p>
             </div>
-
-            {error && (
-                <div className="notice notice-error inline">
-                    <p>{error}</p>
-                </div>
-            )}
-
-            {success && (
-                <div className="notice notice-success inline">
-                    <p>{success}</p>
-                </div>
-            )}
 
             <div className="kickbox_integration-add-email-section">
                 <h4>Add Email to Allow List</h4>
@@ -192,7 +231,7 @@ const AllowList = ({settings}) => {
                                     type="button"
                                     onClick={() => removeEmail(email)}
                                     disabled={loading}
-                                    className="button button-link-delete"
+                                    className="button button-secondary"
                                     title="Remove from allow list"
                                 >
                                     Remove
@@ -201,19 +240,6 @@ const AllowList = ({settings}) => {
                         ))}
                     </div>
                 )}
-            </div>
-
-            <div className="kickbox_integration-allow-list-info">
-                <h4>How the Allow List Works</h4>
-                <ul>
-                    <li><strong>Skip Verification:</strong> Emails in this list bypass Kickbox verification entirely
-                    </li>
-                    <li><strong>Case Insensitive:</strong> Email matching is case-insensitive</li>
-                    <li><strong>Immediate Effect:</strong> Changes take effect immediately for new checkouts</li>
-                    <li><strong>Use Cases:</strong> Trusted customers, test accounts, VIP customers, or special business
-                        cases
-                    </li>
-                </ul>
             </div>
         </div>
     );

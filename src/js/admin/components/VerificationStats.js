@@ -38,7 +38,7 @@ const VerificationStats = () => {
                 setReasonStats(data.data.reason_stats);
             }
         } catch (error) {
-            console.error('Error loading stats:', error);
+            // Silently fail - stats will remain null
         } finally {
             setLoading(false);
         }

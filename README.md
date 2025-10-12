@@ -49,7 +49,7 @@ npm run dev
 ### Project Structure
 
 ```
-wckb/
+kickbox-integration/
 ├── kickbox-integration.php                        # Main plugin file & Kickbox_Integration class
 ├── includes/                                      # PHP classes
 │   ├── class-kickbox-integration.php              # Main plugin class (singleton)

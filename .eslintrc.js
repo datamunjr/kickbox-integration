@@ -13,8 +13,8 @@ module.exports = {
 		sourceType: 'module',
 	},
 	globals: {
-		wckb_admin: 'readonly',
-		wckb_checkout: 'readonly',
+		kickbox_integration_admin: 'readonly',
+		kickbox_integration_checkout: 'readonly',
 	},
 	rules: {
 		'@wordpress/no-global-event-listener': 'off',

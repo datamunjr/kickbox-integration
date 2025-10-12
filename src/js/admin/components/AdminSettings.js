@@ -1,9 +1,53 @@
 import React, {useState, useEffect} from 'react';
+import ReactDOM from 'react-dom';
 import ApiSettings from './ApiSettings';
 import VerificationActions from './VerificationActions';
 import VerificationStats from './VerificationStats';
 import AllowList from './AllowList';
 import FlaggedEmails from './FlaggedEmails';
+
+// Notice component for displaying messages after wp-header-end
+const AdminNotice = ({message, type, hasDetails, details, showDetails, onToggleDetails, onDismiss}) => {
+    return (
+        <div className={`notice notice-${type} is-dismissible kickbox-admin-notice`}>
+            <p>
+                {message}
+                {hasDetails && (
+                    <span style={{marginLeft: '10px'}}>
+                        <button
+                            type="button"
+                            className="button button-small"
+                            onClick={onToggleDetails}
+                            style={{fontSize: '11px', padding: '2px 8px', height: 'auto'}}
+                        >
+                            {showDetails ? 'Hide details' : 'More details'}
+                        </button>
+                    </span>
+                )}
+            </p>
+            {hasDetails && showDetails && (
+                <div className="kickbox_integration-error-details" style={{
+                    marginTop: '10px',
+                    padding: '10px',
+                    backgroundColor: '#f9f9f9',
+                    border: '1px solid #ddd',
+                    borderRadius: '3px'
+                }}>
+                    <pre style={{margin: 0, fontSize: '12px', whiteSpace: 'pre-wrap', wordBreak: 'break-word'}}>
+                        {JSON.stringify(details, null, 2)}
+                    </pre>
+                </div>
+            )}
+            <button 
+                type="button" 
+                className="notice-dismiss"
+                onClick={onDismiss}
+            >
+                <span className="screen-reader-text">Dismiss this notice.</span>
+            </button>
+        </div>
+    );
+};
 
 const AdminSettings = () => {
     const [activeTab, setActiveTab] = useState(() => {
@@ -27,6 +71,47 @@ const AdminSettings = () => {
     const [showErrorDetails, setShowErrorDetails] = useState(false);
     const [apiKeyValidatedOnSave, setApiKeyValidatedOnSave] = useState(false);
     const [pendingCount, setPendingCount] = useState(0);
+
+    // Display notices after wp-header-end
+    useEffect(() => {
+        const wpHeaderEnd = document.querySelector('.wp-header-end');
+        if (!wpHeaderEnd) return;
+
+        // Create container for the notice if there's a message
+        if (message.text) {
+            const noticeContainer = document.createElement('div');
+            wpHeaderEnd.parentNode.insertBefore(noticeContainer, wpHeaderEnd.nextSibling);
+
+            const handleDismiss = () => {
+                setMessage({type: '', text: '', details: null, hasDetails: false});
+                setShowErrorDetails(false);
+            };
+
+            const handleToggleDetails = () => {
+                setShowErrorDetails(!showErrorDetails);
+            };
+
+            // Render React component into the container
+            ReactDOM.render(
+                <AdminNotice 
+                    message={message.text}
+                    type={message.type}
+                    hasDetails={message.hasDetails}
+                    details={message.details}
+                    showDetails={showErrorDetails}
+                    onToggleDetails={handleToggleDetails}
+                    onDismiss={handleDismiss}
+                />,
+                noticeContainer
+            );
+
+            // Cleanup function
+            return () => {
+                ReactDOM.unmountComponentAtNode(noticeContainer);
+                noticeContainer.remove();
+            };
+        }
+    }, [message, showErrorDetails]);
 
     useEffect(() => {
         // Load current settings
@@ -87,7 +172,7 @@ const AdminSettings = () => {
                 setSettings(data.data);
             }
         } catch (error) {
-            console.error('Error loading settings:', error);
+            // Silently fail - settings will use defaults
         } finally {
             setInitialLoading(false);
         }
@@ -111,7 +196,7 @@ const AdminSettings = () => {
                 setPendingCount(data.data.pending_count);
             }
         } catch (error) {
-            console.error('Error loading pending count:', error);
+            // Silently fail - pending count will remain at 0
         }
     };
 
@@ -120,7 +205,6 @@ const AdminSettings = () => {
         setMessage({type: '', text: ''});
 
         try {
-            console.log(settings);
             const body = {
                 action: 'kickbox_integration_save_settings',
                 nonce: kickbox_integration_admin.nonce,
@@ -134,7 +218,6 @@ const AdminSettings = () => {
                 enableCustomerVerification: settings.enableCustomerVerification,
                 skipValidation: Boolean(!settings?.hasApiKeyChanged).toString()
             }
-            console.log(body);
             const response = await fetch(kickbox_integration_admin.ajax_url, {
                 method: 'POST',
                 headers: {
@@ -173,7 +256,6 @@ const AdminSettings = () => {
                 });
             }
         } catch (error) {
-            console.error('Error saving settings:', error);
             setMessage({
                 type: 'error',
                 text: 'Error saving settings',
@@ -241,27 +323,12 @@ const AdminSettings = () => {
         }));
     };
 
-    // Function to render error details
-    const renderErrorDetails = (details) => {
-        if (!details) return null;
-
-        return (
-            <div className="kickbox_integration-error-details" style={{
-                marginTop: '10px',
-                padding: '10px',
-                backgroundColor: '#f9f9f9',
-                border: '1px solid #ddd',
-                borderRadius: '3px'
-            }}>
-        <pre style={{margin: 0, fontSize: '12px', whiteSpace: 'pre-wrap', wordBreak: 'break-word'}}>
-          {JSON.stringify(details, null, 2)}
-        </pre>
-            </div>
-        );
-    };
-
     const handleTabChange = (tabId) => {
         setActiveTab(tabId);
+        
+        // Clear any messages when switching tabs
+        setMessage({type: '', text: '', details: null, hasDetails: false});
+        setShowErrorDetails(false);
 
         // Update URL parameter without page reload
         const url = new URL(window.location);
@@ -338,26 +405,6 @@ const AdminSettings = () => {
         <div className="kickbox_integration-admin-container">
             <div className="kickbox_integration-header">
                 {kickboxIntegrationAdminHeadertitle()}
-                {message.text && (
-                    <div className={`notice notice-${message.type}`}>
-                        <p>
-                            {message.text}
-                            {message.hasDetails && (    
-                                <span style={{marginLeft: '10px'}}>
-                  <button
-                      type="button"
-                      className="button button-small"
-                      onClick={() => setShowErrorDetails(!showErrorDetails)}
-                      style={{fontSize: '11px', padding: '2px 8px', height: 'auto'}}
-                  >
-                    {showErrorDetails ? 'Hide details' : 'More details'}
-                  </button>
-                </span>
-                        )}
-                    </p>
-                    {message.hasDetails && showErrorDetails && renderErrorDetails(message.details)}
-                </div>
-            )}
             </div>
 
             <div className="kickbox_integration-tabs">

@@ -51,7 +51,6 @@ const ApiSettings = ({
     const handleApiKeyChange = (newValue) => {
         onSettingChange('apiKey', newValue);
         if (!settings.hasApiKeyChanged) {
-            console.log("API key changed");
             settings.hasApiKeyChanged = true;
         }
     };
@@ -82,11 +81,9 @@ const ApiSettings = ({
                 // to avoid triggering validation state changes
                 onSettingChange('apiKey', data.data.apiKey);
                 setShowApiKey(true);
-            } else {
-                console.error('Failed to fetch full API key:', data.data.message);
             }
         } catch (error) {
-            console.error('Error fetching full API key:', error);
+            // Silently fail - key will remain masked
         } finally {
             setIsLoadingFullKey(false);
         }

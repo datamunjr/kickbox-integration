@@ -8,7 +8,7 @@ echo "Preparing WooCommerce Kickbox Integration for submission..."
 # Get the project root directory
 PROJECT_ROOT="$(dirname "$(dirname "$(realpath "$0")")")"
 CURRENT_DIR=$(basename "$PROJECT_ROOT")
-TEMP_DIR="$PROJECT_ROOT/../wckb-temp"
+TEMP_DIR="$PROJECT_ROOT/../kickbox-integration-temp"
 ZIP_FILE="kickbox-integration.zip"
 
 # Remove existing temp directory and zip file if they exist
