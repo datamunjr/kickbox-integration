@@ -94,7 +94,7 @@ class Kickbox_Integration_Settings_Tab extends WC_Settings_Page {
 		
 		$settings = array(
 			array(
-				'title' => __( 'API Settings', 'kickbox-integration' ),
+				'title' => __( 'Kickbox API Settings', 'kickbox-integration' ),
 				'type'  => 'title_with_icon',
 				'desc'  => __( 'Configure your Kickbox API key and connection settings.', 'kickbox-integration' ),
 				'id'    => 'kickbox_api_settings',
@@ -366,7 +366,7 @@ class Kickbox_Integration_Settings_Tab extends WC_Settings_Page {
 		<h2>
 			<img src="<?php echo esc_url( KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/images/kickbox-logo-icon-255x255.svg' ); ?>"
 			     alt="Kickbox Logo"
-			     style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;" />
+			     style="width: 24px; height: 24px; vertical-align: middle;" />
 			<?php echo esc_html( $value['title'] ); ?>
 		</h2>
 		<?php if ( ! empty( $value['desc'] ) ) : ?>
