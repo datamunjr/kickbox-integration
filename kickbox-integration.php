@@ -160,7 +160,7 @@ class Kickbox_Integration {
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-dashboard-widget.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails-page.php';
-        
+
         // Settings tab is included via woocommerce_get_settings_pages filter
         // No need to include it here as it requires WooCommerce classes to be loaded first
     }
@@ -171,12 +171,9 @@ class Kickbox_Integration {
      * @since 1.0.0
      */
     private function init_hooks() {
-        // Load plugin text domain for translations
-        add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
-        
         // Register WooCommerce settings tab
         add_filter( 'woocommerce_get_settings_pages', array( $this, 'add_settings_tab' ) );
-        
+
         // Declare HPOS compatibility
         add_action( 'before_woocommerce_init', array( $this, 'declare_hpos_compatibility' ) );
 
@@ -194,18 +191,6 @@ class Kickbox_Integration {
         ) );
     }
 
-    /**
-     * Load plugin text domain for translations
-     *
-     * @since 1.0.0
-     */
-    public function load_plugin_textdomain() {
-        load_plugin_textdomain(
-            'kickbox-integration',
-            false,
-            dirname( KICKBOX_INTEGRATION_PLUGIN_BASENAME ) . '/languages/'
-        );
-    }
 
     /**
      * Add Kickbox settings tab to WooCommerce settings
