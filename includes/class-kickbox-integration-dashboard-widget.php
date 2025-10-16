@@ -13,7 +13,6 @@ class Kickbox_Integration_Dashboard_Widget {
 
     public function __construct() {
         add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widget' ) );
-        add_action( 'wp_ajax_kickbox_integration_dashboard_stats', array( $this, 'ajax_get_dashboard_stats' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_dashboard_scripts' ) );
     }
 
@@ -80,19 +79,4 @@ class Kickbox_Integration_Dashboard_Widget {
         ) );
     }
 
-    /**
-     * AJAX handler for dashboard statistics
-     */
-    public function ajax_get_dashboard_stats() {
-        check_ajax_referer( 'kickbox_integration_dashboard', 'nonce' );
-
-        if ( ! current_user_can( 'manage_woocommerce' ) ) {
-            wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'kickbox-integration' ) ) );
-        }
-
-        $verification = new Kickbox_Integration_Verification();
-        $stats        = $verification->get_verification_stats();
-
-        wp_send_json_success( $stats );
-    }
 }

@@ -25,7 +25,6 @@ class Kickbox_Integration_Admin {
 		add_action( 'wp_ajax_kickbox_integration_validate_api_key', array( $this, 'validate_kickbox_api_key' ) );
 		add_action( 'wp_ajax_kickbox_integration_get_settings', array( $this, 'ajax_get_settings' ) );
 		add_action( 'wp_ajax_kickbox_integration_save_settings', array( $this, 'ajax_save_settings' ) );
-		add_action( 'wp_ajax_kickbox_integration_get_stats', array( $this, 'ajax_get_stats' ) );
 		add_action( 'wp_ajax_kickbox_integration_get_full_api_key', array( $this, 'ajax_get_full_api_key' ) );
 		add_action( 'wp_ajax_kickbox_integration_get_allow_list', array( $this, 'ajax_get_allow_list' ) );
 		add_action( 'wp_ajax_kickbox_integration_add_to_allow_list', array( $this, 'ajax_add_to_allow_list' ) );
@@ -742,25 +741,6 @@ class Kickbox_Integration_Admin {
 		) );
 	}
 
-	/**
-	 * AJAX handler for getting statistics
-	 */
-	public function ajax_get_stats() {
-		check_ajax_referer( 'kickbox_integration_admin', 'nonce' );
-
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'kickbox-integration' ) ) );
-		}
-
-		$verification = new Kickbox_Integration_Verification();
-		$stats        = $verification->get_verification_stats();
-		$reason_stats = $verification->get_verification_reason_stats();
-
-		wp_send_json_success( array(
-			'verification_stats' => $stats,
-			'reason_stats'       => $reason_stats
-		) );
-	}
 
 	/**
 	 * AJAX handler for getting full API key

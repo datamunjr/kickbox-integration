@@ -105,6 +105,14 @@ class Kickbox_Integration {
     public $flagged_emails_page;
 
     /**
+     * Analytics class instance
+     *
+     * @var Kickbox_Integration_Analytics
+     * @since 1.0.0
+     */
+    public $analytics;
+
+    /**
      * Main Kickbox_Integration Instance
      *
      * Ensures only one instance of Kickbox_Integration is loaded or can be loaded.
@@ -160,6 +168,7 @@ class Kickbox_Integration {
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-dashboard-widget.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails-page.php';
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-analytics.php';
 
         // Settings tab is included via woocommerce_get_settings_pages filter
         // No need to include it here as it requires WooCommerce classes to be loaded first
@@ -256,6 +265,7 @@ class Kickbox_Integration {
         $this->dashboard_widget      = new Kickbox_Integration_Dashboard_Widget();
         $this->flagged_emails        = new Kickbox_Integration_Flagged_Emails();
         $this->flagged_emails_page   = new Kickbox_Integration_Flagged_Emails_Page();
+        $this->analytics             = new Kickbox_Integration_Analytics();
     }
 
     /**

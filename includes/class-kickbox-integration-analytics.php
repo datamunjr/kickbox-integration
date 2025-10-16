@@ -1,0 +1,374 @@
+<?php
+/**
+ * Kickbox_Integration_Analytics Class
+ *
+ * Handles email verification analytics and statistics calculations
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+class Kickbox_Integration_Analytics {
+
+	/**
+	 * Cache group for analytics data
+	 *
+	 * @var string
+	 */
+	private $cache_group = 'kickbox_analytics';
+
+	/**
+	 * Cache expiration time in seconds (1 hour)
+	 *
+	 * @var int
+	 */
+	private $cache_expiration = 3600;
+
+	/**
+	 * Database table name for verification logs
+	 *
+	 * @var string
+	 */
+	private $verification_table;
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		global $wpdb;
+		$this->verification_table = $wpdb->prefix . 'kickbox_integration_verification_log';
+
+		// Register AJAX handlers
+		add_action( 'wp_ajax_kickbox_integration_get_stats', array( $this, 'ajax_get_verification_stats' ) );
+		add_action( 'wp_ajax_kickbox_integration_dashboard_stats', array( $this, 'ajax_get_dashboard_stats' ) );
+	}
+
+	/**
+	 * Generate cache key for verification statistics
+	 *
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_stats() {
+		return "verification_stats";
+	}
+
+	/**
+	 * Generate cache key for verification reason statistics
+	 *
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_reason_stats() {
+		return "verification_reason_stats";
+	}
+
+	/**
+	 * Generate cache key for dashboard statistics
+	 *
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_dashboard_stats() {
+		return "dashboard_stats";
+	}
+
+	/**
+	 * Clear all cached analytics data
+	 */
+	public function clear_analytics_cache() {
+		wp_cache_flush_group( $this->cache_group );
+	}
+
+	/**
+	 * Get verification statistics
+	 *
+	 * @return array Statistics
+	 */
+	public function get_verification_stats() {
+		$cache_key = $this->get_cache_key_for_stats();
+
+		// Try to get from cache first
+		$stats = wp_cache_get( $cache_key, $this->cache_group );
+
+		if ( $stats !== false ) {
+			return $stats;
+		}
+
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$stats = $wpdb->get_results(
+			$wpdb->prepare( "SELECT verification_result, COUNT(*) as count FROM %i GROUP BY verification_result", $this->verification_table )
+		);
+
+		// Cache the result
+		wp_cache_set( $cache_key, $stats, $this->cache_group, $this->cache_expiration );
+
+		return $stats;
+	}
+
+	/**
+	 * Get verification result reason statistics
+	 *
+	 * @return array Statistics
+	 */
+	public function get_verification_reason_stats() {
+		$cache_key = $this->get_cache_key_for_reason_stats();
+
+		// Try to get from cache first
+		$stats = wp_cache_get( $cache_key, $this->cache_group );
+
+		if ( $stats !== false ) {
+			return $stats;
+		}
+
+		global $wpdb;
+
+		// Get all verification records with their data
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$records = $wpdb->get_results(
+			$wpdb->prepare( "SELECT verification_data FROM %i WHERE verification_data IS NOT NULL", $this->verification_table )
+		);
+
+		$reason_counts = array();
+
+		foreach ( $records as $record ) {
+			$data = json_decode( $record->verification_data, true );
+			if ( $data && isset( $data['reason'] ) ) {
+				$reason                   = $data['reason'];
+				$reason_counts[ $reason ] = ( $reason_counts[ $reason ] ?? 0 ) + 1;
+			}
+		}
+
+		// Convert to array format similar to verification stats
+		$stats = array();
+		foreach ( $reason_counts as $reason => $count ) {
+			$stats[] = array(
+				'result_reason' => $reason,
+				'count'         => $count
+			);
+		}
+
+		// Sort by count descending
+		usort( $stats, function ( $a, $b ) {
+			return $b['count'] - $a['count'];
+		} );
+
+		// Cache the result
+		wp_cache_set( $cache_key, $stats, $this->cache_group, $this->cache_expiration );
+
+		return $stats;
+	}
+
+	/**
+	 * Get comprehensive verification statistics for dashboard
+	 *
+	 * @return array Dashboard statistics
+	 */
+	public function get_dashboard_stats() {
+		$cache_key = $this->get_cache_key_for_dashboard_stats();
+
+		// Try to get from cache first
+		$stats = wp_cache_get( $cache_key, $this->cache_group );
+
+		if ( $stats !== false ) {
+			return $stats;
+		}
+
+		$stats = array(
+			'verification_stats' => $this->get_verification_stats(),
+			'reason_stats'       => $this->get_verification_reason_stats(),
+			'total_verifications' => $this->get_total_verifications(),
+			'today_verifications' => $this->get_today_verifications(),
+			'this_week_verifications' => $this->get_this_week_verifications(),
+			'this_month_verifications' => $this->get_this_month_verifications()
+		);
+
+		// Cache the result
+		wp_cache_set( $cache_key, $stats, $this->cache_group, $this->cache_expiration );
+
+		return $stats;
+	}
+
+	/**
+	 * Get total number of verifications
+	 *
+	 * @return int Total verifications
+	 */
+	public function get_total_verifications() {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i", $this->verification_table ) );
+
+		return intval( $count );
+	}
+
+	/**
+	 * Get verifications for today
+	 *
+	 * @return int Today's verifications
+	 */
+	public function get_today_verifications() {
+		global $wpdb;
+
+		$today = current_time( 'Y-m-d' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$count = $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM %i WHERE DATE(created_at) = %s",
+			$this->verification_table,
+			$today
+		) );
+
+		return intval( $count );
+	}
+
+	/**
+	 * Get verifications for this week
+	 *
+	 * @return int This week's verifications
+	 */
+	public function get_this_week_verifications() {
+		global $wpdb;
+
+		$week_start = date( 'Y-m-d', strtotime( 'monday this week' ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$count = $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM %i WHERE DATE(created_at) >= %s",
+			$this->verification_table,
+			$week_start
+		) );
+
+		return intval( $count );
+	}
+
+	/**
+	 * Get verifications for this month
+	 *
+	 * @return int This month's verifications
+	 */
+	public function get_this_month_verifications() {
+		global $wpdb;
+
+		$month_start = date( 'Y-m-01' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$count = $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM %i WHERE DATE(created_at) >= %s",
+			$this->verification_table,
+			$month_start
+		) );
+
+		return intval( $count );
+	}
+
+	/**
+	 * Get verification statistics by date range
+	 *
+	 * @param string $start_date Start date (Y-m-d format)
+	 * @param string $end_date End date (Y-m-d format)
+	 * @return array Statistics for date range
+	 */
+	public function get_verification_stats_by_date_range( $start_date, $end_date ) {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$stats = $wpdb->get_results( $wpdb->prepare(
+			"SELECT verification_result, COUNT(*) as count FROM %i WHERE DATE(created_at) BETWEEN %s AND %s GROUP BY verification_result",
+			$this->verification_table,
+			$start_date,
+			$end_date
+		) );
+
+		return $stats;
+	}
+
+	/**
+	 * Get verification trends (daily counts for the last 30 days)
+	 *
+	 * @return array Daily verification counts
+	 */
+	public function get_verification_trends() {
+		global $wpdb;
+
+		$thirty_days_ago = date( 'Y-m-d', strtotime( '-30 days' ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$trends = $wpdb->get_results( $wpdb->prepare(
+			"SELECT DATE(created_at) as date, COUNT(*) as count FROM %i WHERE DATE(created_at) >= %s GROUP BY DATE(created_at) ORDER BY date ASC",
+			$this->verification_table,
+			$thirty_days_ago
+		) );
+
+		return $trends;
+	}
+
+	/**
+	 * AJAX handler for getting verification statistics
+	 */
+	public function ajax_get_verification_stats() {
+		check_ajax_referer( 'kickbox_integration_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'kickbox-integration' ) ) );
+		}
+
+		$stats        = $this->get_verification_stats();
+		$reason_stats = $this->get_verification_reason_stats();
+
+		wp_send_json_success( array(
+			'verification_stats' => $stats,
+			'reason_stats'       => $reason_stats
+		) );
+	}
+
+	/**
+	 * AJAX handler for getting dashboard statistics
+	 */
+	public function ajax_get_dashboard_stats() {
+		check_ajax_referer( 'kickbox_integration_dashboard', 'nonce' );
+
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'kickbox-integration' ) ) );
+		}
+
+		$stats = $this->get_dashboard_stats();
+
+		wp_send_json_success( $stats );
+	}
+
+	/**
+	 * Get verification statistics summary for display
+	 *
+	 * @return array Formatted statistics for UI display
+	 */
+	public function get_stats_summary() {
+		$verification_stats = $this->get_verification_stats();
+		$reason_stats = $this->get_verification_reason_stats();
+		$total = $this->get_total_verifications();
+
+		$summary = array(
+			'total_verifications' => $total,
+			'by_result' => array(),
+			'by_reason' => $reason_stats,
+			'percentages' => array()
+		);
+
+		// Calculate percentages and format by result
+		foreach ( $verification_stats as $stat ) {
+			$result = $stat->verification_result;
+			$count = intval( $stat->count );
+			$percentage = $total > 0 ? round( ( $count / $total ) * 100, 1 ) : 0;
+
+			$summary['by_result'][$result] = array(
+				'count' => $count,
+				'percentage' => $percentage
+			);
+
+			$summary['percentages'][$result] = $percentage;
+		}
+
+		return $summary;
+	}
+}
