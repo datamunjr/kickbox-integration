@@ -122,6 +122,7 @@ class Kickbox_Integration_Admin {
 	/**
 	 * Enqueue admin scripts and styles
 	 */
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	public function enqueue_admin_scripts( $hook ) {
 		// Only load on WooCommerce settings page with Kickbox tab
 		$is_wc_settings = ( $hook === 'woocommerce_page_wc-settings' && isset( $_GET['tab'] ) && $_GET['tab'] === 'kickbox' );

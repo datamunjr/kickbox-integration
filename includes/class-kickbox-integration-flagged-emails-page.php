@@ -34,6 +34,7 @@ class Kickbox_Integration_Flagged_Emails_Page {
     /**
      * Enqueue scripts for flagged emails page
      */
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
     public function enqueue_flagged_emails_scripts( $hook ) {
         // Check if we're on the flagged emails page
         $page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
