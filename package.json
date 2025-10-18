@@ -1,5 +1,5 @@
 {
-  "name": "woocommerce-kickbox-integration",
+  "name": "kickbox-integration",
   "version": "1.0.0",
   "description": "WooCommerce integration with Kickbox email verification service",
   "main": "index.js",

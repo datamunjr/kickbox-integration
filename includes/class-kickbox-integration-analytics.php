@@ -42,6 +42,12 @@ class Kickbox_Integration_Analytics {
 		// Register AJAX handlers
 		add_action( 'wp_ajax_kickbox_integration_get_stats', array( $this, 'ajax_get_verification_stats' ) );
 		add_action( 'wp_ajax_kickbox_integration_dashboard_stats', array( $this, 'ajax_get_dashboard_stats' ) );
+		
+		// Register WooCommerce Analytics report
+		add_filter( 'woocommerce_analytics_report_menu_items', array( $this, 'register_analytics_report' ) );
+		
+		// Enqueue scripts and styles for WooCommerce Analytics
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 1 );
 	}
 
 	/**
@@ -371,4 +377,76 @@ class Kickbox_Integration_Analytics {
 
 		return $summary;
 	}
+
+	/**
+	 * Register analytics report with WooCommerce
+	 *
+	 * @param array $reports Existing reports
+	 * @return array Modified reports
+	 */
+	public function register_analytics_report( $report_pages ) {
+		// Find the position of the Settings page
+		$settings_index = -1;
+		foreach ( $report_pages as $index => $page ) {
+			if ( isset( $page['id'] ) && $page['id'] === 'woocommerce-analytics-settings' ) {
+				$settings_index = $index;
+				break;
+			}
+		}
+		
+		// Create our report page
+		$email_verification_report = array(
+			'id'     => 'kickbox-email-verifications',
+			'title'  => __( 'Email Verification', 'kickbox-integration' ),
+			'parent' => 'woocommerce-analytics',
+			'path'   => '/analytics/kickbox-email-verifications',
+		);
+		
+		// Insert our report before the Settings page
+		if ( $settings_index >= 0 ) {
+			array_splice( $report_pages, $settings_index, 0, array( $email_verification_report ) );
+		} else {
+			// If Settings page not found, just append to the end
+			$report_pages[] = $email_verification_report;
+		}
+		
+		return $report_pages;
+	}
+
+	/**
+	 * Enqueue admin scripts and styles for WooCommerce Analytics
+	 */
+	public function enqueue_admin_scripts() {
+
+		// For whatever reason, adding this script to the dependencies to the wp_enqueue_script() below brakes the
+		// Email Verification Report page
+		wp_enqueue_script( 'wc-admin-components' );
+		
+		// Enqueue the analytics JavaScript bundle
+		wp_enqueue_script(
+			'kickbox-integration-analytics',
+			KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/js/analytics.js',
+			array( 'react', 'react-dom', 'wp-hooks', 'wp-i18n', 'wp-components', 'wc-components', 'wc-admin-app' ),
+			KICKBOX_INTEGRATION_VERSION,
+			true
+		);
+
+		// Enqueue analytics CSS if it exists
+		$css_file = KICKBOX_INTEGRATION_PLUGIN_DIR . 'assets/css/analytics.css';
+		if ( file_exists( $css_file ) ) {
+			wp_enqueue_style(
+				'kickbox-integration-analytics',
+				KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/css/analytics.css',
+				array(),
+				KICKBOX_INTEGRATION_VERSION
+			);
+		}
+
+		// Localize script for AJAX
+		wp_localize_script( 'kickbox-integration-analytics', 'kickboxAnalytics', array(
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'nonce'   => wp_create_nonce( 'kickbox_integration_admin' ),
+		) );
+	}
+
 }
