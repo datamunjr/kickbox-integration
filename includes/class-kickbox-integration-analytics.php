@@ -201,10 +201,22 @@ class Kickbox_Integration_Analytics {
 	 * @return int Total verifications
 	 */
 	public function get_total_verifications() {
+		$cache_key = $this->get_cache_key_for_total_verifications();
+		
+		// Try to get from cache first
+		$count = wp_cache_get( $cache_key, $this->cache_group );
+		
+		if ( $count !== false ) {
+			return intval( $count );
+		}
+
 		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i", $this->verification_table ) );
+
+		// Cache the result
+		wp_cache_set( $cache_key, $count, $this->cache_group, $this->cache_expiration );
 
 		return intval( $count );
 	}
@@ -215,6 +227,15 @@ class Kickbox_Integration_Analytics {
 	 * @return int Today's verifications
 	 */
 	public function get_today_verifications() {
+		$cache_key = $this->get_cache_key_for_today_verifications();
+		
+		// Try to get from cache first
+		$count = wp_cache_get( $cache_key, $this->cache_group );
+		
+		if ( $count !== false ) {
+			return intval( $count );
+		}
+
 		global $wpdb;
 
 		$today = current_time( 'Y-m-d' );
@@ -226,6 +247,9 @@ class Kickbox_Integration_Analytics {
 			$today
 		) );
 
+		// Cache the result
+		wp_cache_set( $cache_key, $count, $this->cache_group, $this->cache_expiration );
+
 		return intval( $count );
 	}
 
@@ -235,9 +259,18 @@ class Kickbox_Integration_Analytics {
 	 * @return int This week's verifications
 	 */
 	public function get_this_week_verifications() {
+		$cache_key = $this->get_cache_key_for_week_verifications();
+		
+		// Try to get from cache first
+		$count = wp_cache_get( $cache_key, $this->cache_group );
+		
+		if ( $count !== false ) {
+			return intval( $count );
+		}
+
 		global $wpdb;
 
-		$week_start = date( 'Y-m-d', strtotime( 'monday this week' ) );
+		$week_start = gmdate( 'Y-m-d', strtotime( 'monday this week' ) );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$count = $wpdb->get_var( $wpdb->prepare(
@@ -245,6 +278,9 @@ class Kickbox_Integration_Analytics {
 			$this->verification_table,
 			$week_start
 		) );
+
+		// Cache the result
+		wp_cache_set( $cache_key, $count, $this->cache_group, $this->cache_expiration );
 
 		return intval( $count );
 	}
@@ -255,9 +291,18 @@ class Kickbox_Integration_Analytics {
 	 * @return int This month's verifications
 	 */
 	public function get_this_month_verifications() {
+		$cache_key = $this->get_cache_key_for_month_verifications();
+		
+		// Try to get from cache first
+		$count = wp_cache_get( $cache_key, $this->cache_group );
+		
+		if ( $count !== false ) {
+			return intval( $count );
+		}
+
 		global $wpdb;
 
-		$month_start = date( 'Y-m-01' );
+		$month_start = gmdate( 'Y-m-01' );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$count = $wpdb->get_var( $wpdb->prepare(
@@ -265,6 +310,9 @@ class Kickbox_Integration_Analytics {
 			$this->verification_table,
 			$month_start
 		) );
+
+		// Cache the result
+		wp_cache_set( $cache_key, $count, $this->cache_group, $this->cache_expiration );
 
 		return intval( $count );
 	}
@@ -279,7 +327,7 @@ class Kickbox_Integration_Analytics {
 	public function get_verification_stats_by_date_range( $start_date, $end_date ) {
 		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$stats = $wpdb->get_results( $wpdb->prepare(
 			"SELECT verification_result, COUNT(*) as count FROM %i WHERE DATE(created_at) BETWEEN %s AND %s GROUP BY verification_result",
 			$this->verification_table,
@@ -296,9 +344,18 @@ class Kickbox_Integration_Analytics {
 	 * @return array Daily verification counts
 	 */
 	public function get_verification_trends() {
+		$cache_key = $this->get_cache_key_for_trends();
+		
+		// Try to get from cache first
+		$trends = wp_cache_get( $cache_key, $this->cache_group );
+		
+		if ( $trends !== false ) {
+			return $trends;
+		}
+
 		global $wpdb;
 
-		$thirty_days_ago = date( 'Y-m-d', strtotime( '-30 days' ) );
+		$thirty_days_ago = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$trends = $wpdb->get_results( $wpdb->prepare(
@@ -306,6 +363,9 @@ class Kickbox_Integration_Analytics {
 			$this->verification_table,
 			$thirty_days_ago
 		) );
+
+		// Cache the result
+		wp_cache_set( $cache_key, $trends, $this->cache_group, $this->cache_expiration );
 
 		return $trends;
 	}
@@ -447,6 +507,51 @@ class Kickbox_Integration_Analytics {
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			'nonce'   => wp_create_nonce( 'kickbox_integration_admin' ),
 		) );
+	}
+
+	/**
+	 * Get cache key for total verifications
+	 *
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_total_verifications() {
+		return 'kickbox_total_verifications';
+	}
+
+	/**
+	 * Get cache key for today's verifications
+	 *
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_today_verifications() {
+		return 'kickbox_today_verifications_' . current_time( 'Y-m-d' );
+	}
+
+	/**
+	 * Get cache key for week verifications
+	 *
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_week_verifications() {
+		return 'kickbox_week_verifications_' . gmdate( 'Y-W' );
+	}
+
+	/**
+	 * Get cache key for month verifications
+	 *
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_month_verifications() {
+		return 'kickbox_month_verifications_' . gmdate( 'Y-m' );
+	}
+
+	/**
+	 * Get cache key for trends
+	 *
+	 * @return string Cache key
+	 */
+	private function get_cache_key_for_trends() {
+		return 'kickbox_trends_' . gmdate( 'Y-m-d' );
 	}
 
 }
