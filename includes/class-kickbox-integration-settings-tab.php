@@ -52,7 +52,6 @@ class Kickbox_Integration_Settings_Tab extends WC_Settings_Page {
 			''            => __( 'Kickbox API Settings', 'kickbox-integration' ),
 			'actions'     => __( 'Verification Actions', 'kickbox-integration' ),
 			'allowlist'   => __( 'Allow List', 'kickbox-integration' ),
-			'stats'       => __( 'Statistics', 'kickbox-integration' ),
 		);
 
 		return apply_filters( 'woocommerce_get_sections_' . $this->id, $sections );
@@ -72,9 +71,6 @@ class Kickbox_Integration_Settings_Tab extends WC_Settings_Page {
 				break;
 			case 'allowlist':
 				$settings = $this->get_allowlist_settings();
-				break;
-			case 'stats':
-				$settings = $this->get_statistics_settings();
 				break;
 			default:
 				$settings = $this->get_api_settings();
@@ -289,34 +285,6 @@ class Kickbox_Integration_Settings_Tab extends WC_Settings_Page {
 		return $settings;
 	}
 
-	/**
-	 * Get Statistics section settings
-	 *
-	 * @return array
-	 */
-	private function get_statistics_settings() {
-		$settings = array(
-			array(
-				'title' => __( 'Verification Statistics', 'kickbox-integration' ),
-				'type'  => 'title',
-				'desc'  => __( 'View email verification statistics and analytics.', 'kickbox-integration' ),
-				'id'    => 'kickbox_statistics',
-			),
-
-			array(
-				'type'    => 'kickbox_react_section',
-				'id'      => 'kickbox_stats_component',
-				'section' => 'stats',
-			),
-
-			array(
-				'type' => 'sectionend',
-				'id'   => 'kickbox_statistics',
-			),
-		);
-
-		return $settings;
-	}
 
 	/**
 	 * Render custom API key field with show/hide functionality

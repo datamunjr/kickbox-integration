@@ -2,7 +2,6 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import AllowList from './components/AllowList';
 import FlaggedEmails from './components/FlaggedEmails';
-import VerificationStats from './components/VerificationStats';
 import KickboxApiKeyInput from './components/KickboxApiKeyInput';
 import '../../css/admin.css';
 
@@ -49,12 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
 		root.render(<FlaggedEmails onRefreshPendingCount={refreshPendingCount} />);
 	}
 
-	// Mount Statistics component (on Settings > Stats section)
-	const statsContainer = document.getElementById('kickbox-react-stats-container');
-	if (statsContainer && section === 'stats') {
-		const root = createRoot(statsContainer);
-		root.render(<VerificationStats />);
-	}
 
 	// Handle deliverable action confirmation on save
 	const deliverableSelect = document.getElementById('kickbox_integration_deliverable_action');
