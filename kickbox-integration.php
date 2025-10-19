@@ -104,6 +104,11 @@ class Kickbox_Integration {
      */
     public $flagged_emails_page;
 
+		/**
+		 * @var Kickbox_Integration_Test_Table_Page
+		 */
+		public $test_table_page;
+
     /**
      * Analytics class instance
      *
@@ -168,6 +173,8 @@ class Kickbox_Integration {
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-dashboard-widget.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails-page.php';
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails-table.php';
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-test-table-page.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-analytics.php';
 
         // Settings tab is included via woocommerce_get_settings_pages filter
@@ -265,6 +272,7 @@ class Kickbox_Integration {
         $this->dashboard_widget      = new Kickbox_Integration_Dashboard_Widget();
         $this->flagged_emails        = new Kickbox_Integration_Flagged_Emails();
         $this->flagged_emails_page   = new Kickbox_Integration_Flagged_Emails_Page();
+        $this->test_table_page       = new Kickbox_Integration_Test_Table_Page();
         $this->analytics             = new Kickbox_Integration_Analytics();
     }
 
