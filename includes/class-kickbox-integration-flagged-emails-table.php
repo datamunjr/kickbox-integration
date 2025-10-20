@@ -36,7 +36,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 	public function __construct() {
 		// Ensure WP_List_Table is available
 		if ( ! class_exists( 'WP_List_Table' ) ) {
-			wp_die( __( 'WP_List_Table class not found. This feature requires WordPress admin.', 'kickbox-integration' ) );
+			wp_die( esc_html__( 'WP_List_Table class not found. This feature requires WordPress admin.', 'kickbox-integration' ) );
 		}
 
 		parent::__construct( array(
@@ -156,13 +156,15 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 					if ( $user ) {
 						$user_edit_url = get_edit_user_link( $user_id );
 						$output        .= '<div style="font-size: 12px; color: #666;">';
-						$output        .= sprintf(
-							__( 'User ID: %s', 'kickbox-integration' ),
-							'<a href="' . esc_url( $user_edit_url ) . '" target="_blank">' . esc_html( $user_id ) . '</a>'
-						);
+					$output        .= sprintf(
+						// translators: %s is the user ID with a link to edit the user
+						__( 'User ID: %s (click to edit)', 'kickbox-integration' ),
+						'<a href="' . esc_url( $user_edit_url ) . '" target="_blank">' . esc_html( $user_id ) . '</a>'
+					);
 						$output        .= '</div>';
 					} else {
 						$output .= '<div style="font-size: 12px; color: #666;">';
+						// translators: %s is the user ID
 						$output .= sprintf( __( 'User ID: %s', 'kickbox-integration' ), $user_id );
 						$output .= '</div>';
 					}
@@ -178,6 +180,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 
 				if ( $reason ) {
 					$output .= '<div style="font-size: 12px; color: #666; margin-top: 4px;">';
+					// translators: %s is the reason for the kickbox result
 					$output .= sprintf( __( 'Reason: %s', 'kickbox-integration' ), esc_html( $reason ) );
 					$output .= '</div>';
 				}
@@ -248,11 +251,14 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		$current_page = $this->get_pagenum();
 
 		// Get search parameter
-		$search = isset( $_REQUEST['s'] ) ? sanitize_text_field( $_REQUEST['s'] ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
+		$search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
 
 		// Get sorting parameters
-		$orderby = isset( $_REQUEST['orderby'] ) ? sanitize_sql_orderby( $_REQUEST['orderby'] ) : 'flagged_date';
-		$order   = isset( $_REQUEST['order'] ) ? sanitize_text_field( $_REQUEST['order'] ) : 'DESC';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
+		$orderby = isset( $_REQUEST['orderby'] ) ? sanitize_sql_orderby( wp_unslash( $_REQUEST['orderby'] ) ) : 'flagged_date';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
+		$order   = isset( $_REQUEST['order'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'DESC';
 
 		// Validate orderby
 		if ( ! in_array( $orderby, array( 'email', 'admin_decision', 'flagged_date', 'origin' ) ) ) {
@@ -274,23 +280,27 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		}
 
 		// Get total items with search
-		$total_items_query = "SELECT COUNT(*) FROM {$this->table_name}" . $search_conditions;
+		$total_items_query = "SELECT COUNT(*) FROM %i" . $search_conditions;
 		if ( ! empty( $search_params ) ) {
-			$total_items = $wpdb->get_var( $wpdb->prepare( $total_items_query, $search_params ) );
+			$prepared_params = array_merge( array( $this->table_name ), $search_params );
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$total_items = $wpdb->get_var( $wpdb->prepare( $total_items_query, $prepared_params ) );
 		} else {
-			$total_items = $wpdb->get_var( $total_items_query );
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$total_items = $wpdb->get_var( $wpdb->prepare( $total_items_query, $this->table_name ) );
 		}
 
 		// Get items with search
 		$offset      = ( $current_page - 1 ) * $per_page;
-		$items_query = "SELECT * FROM {$this->table_name}" . $search_conditions . " ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
+		$items_query = "SELECT * FROM %i" . $search_conditions . " ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
 
 		if ( ! empty( $search_params ) ) {
-			$search_params[] = $per_page;
-			$search_params[] = $offset;
-			$items           = $wpdb->get_results( $wpdb->prepare( $items_query, $search_params ), ARRAY_A );
+			$prepared_params = array_merge( array( $this->table_name ), $search_params, array( $per_page, $offset ) );
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$items           = $wpdb->get_results( $wpdb->prepare( $items_query, $prepared_params ), ARRAY_A );
 		} else {
-			$items = $wpdb->get_results( $wpdb->prepare( $items_query, $per_page, $offset ), ARRAY_A );
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$items = $wpdb->get_results( $wpdb->prepare( $items_query, $this->table_name, $per_page, $offset ), ARRAY_A );
 		}
 
 		// Process items to decode JSON fields
@@ -325,13 +335,13 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 
 		// Check user permissions
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( __( 'You do not have sufficient permissions to perform this action.', 'kickbox-integration' ) );
+			wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'kickbox-integration' ) );
 		}
 
 		// Verify nonce
 		$nonce_action = 'bulk-' . $this->_args['plural'];
-		if ( ! wp_verify_nonce( $_GET['_wpnonce'], $nonce_action ) ) {
-			wp_die( __( 'Security check failed.', 'kickbox-integration' ) );
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), $nonce_action ) ) {
+			wp_die( esc_html__( 'Security check failed.', 'kickbox-integration' ) );
 		}
 
 		// Check if items are selected
@@ -398,6 +408,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 	private function update_email_decision( $email_id, $decision ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->update(
 			$this->table_name,
 			array(
@@ -423,8 +434,10 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 	private function get_email_address_by_id( $email_id ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$email = $wpdb->get_var( $wpdb->prepare(
-			"SELECT email FROM {$this->table_name} WHERE id = %d",
+			"SELECT email FROM %i WHERE id = %d",
+			$this->table_name,
 			$email_id
 		) );
 
@@ -438,6 +451,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 	 * @param string $input_id The input id attribute
 	 */
 	public function search_box( $text = '', $input_id = 'flagged-emails-search' ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
 		if ( empty( $_REQUEST['s'] ) && ! $this->has_items() ) {
 			return;
 		}
@@ -446,14 +460,18 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 			$text = __( 'Search flagged emails', 'kickbox-integration' );
 		}
 
-		$search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
+		$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 
 		// Preserve page parameter
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
 		if ( isset( $_GET['page'] ) ) {
-			echo '<input type="hidden" name="page" value="' . esc_attr( $_GET['page'] ) . '" />';
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
+			echo '<input type="hidden" name="page" value="' . esc_attr( sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) . '" />';
 		}
 
 		// Preserve other parameters
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
 		foreach ( $_GET as $key => $value ) {
 			if ( ! in_array( $key, array( 's', 'paged', 'orderby', 'order', 'page' ) ) ) {
 				echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
@@ -464,11 +482,11 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 			<label class="screen-reader-text" for="<?php echo esc_attr( $input_id ); ?>"><?php echo esc_html( $text ); ?>
 				:</label>
 			<input type="search" id="<?php echo esc_attr( $input_id ); ?>" name="s" value="<?php echo esc_attr( $search ); ?>"
-						 placeholder="<?php _e( 'Search emails...', 'kickbox-integration' ); ?>" />
+						 placeholder="<?php esc_attr_e( 'Search emails...', 'kickbox-integration' ); ?>" />
 			<?php submit_button( $text, '', '', false, array( 'id' => 'search-submit' ) ); ?>
 			<?php if ( $search ): ?>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=kickbox-flagged-emails' ) ); ?>" class="button">
-					<?php _e( 'Clear Search', 'kickbox-integration' ); ?>
+					<?php esc_html_e( 'Clear Search', 'kickbox-integration' ); ?>
 				</a>
 			<?php endif; ?>
 		</p>
@@ -480,6 +498,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 	 */
 	public function display() {
 		?>
+		<!-- phpcs:ignore WordPress.Security.NonceVerification.Recommended -- GET form for search functionality -->
 		<form method="get" action="<?php echo esc_url( admin_url( 'admin.php?page=kickbox-flagged-emails' ) ); ?>">
 			<?php
 			$this->search_box();
@@ -488,6 +507,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 			wp_nonce_field( 'bulk-' . $this->_args['plural'] );
 
 			// Preserve GET parameters for after redirect
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
 			foreach ( $_GET as $key => $value ) {
 				if ( ! in_array( $key, array( 'action', 'action2', 'flagged_email', '_wpnonce' ) ) ) {
 					echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
@@ -557,6 +577,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 	 */
 	public function bulk_action_notices() {
 		// Check if we're on the correct page
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
 		if ( ! isset( $_GET['page'] ) || $_GET['page'] !== 'kickbox-flagged-emails' ) {
 			return;
 		}
@@ -572,8 +593,10 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		}
 
 		// Check for bulk action notice transient
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
 		if ( isset( $_GET['bulk_notice'] ) ) {
-			$transient_key = sanitize_text_field( $_GET['bulk_notice'] );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
+			$transient_key = sanitize_text_field( wp_unslash( $_GET['bulk_notice'] ) );
 			$bulk_results  = get_transient( $transient_key );
 
 			if ( $bulk_results && is_array( $bulk_results ) ) {
@@ -585,9 +608,10 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 				// Display success notice
 				if ( $success_count > 0 ) {
 					$success_message = sprintf(
+						// translators: %1$d is the number of emails, %2$s is the action (allowed/blocked)
 						_n(
-							'%d email has been %s.',
-							'%d emails have been %s.',
+							'%1$d email has been %2$s.',
+							'%1$d emails have been %2$s.',
 							$success_count,
 							'kickbox-integration'
 						),
@@ -602,6 +626,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 				if ( ! empty( $failed_items ) ) {
 					$failed_count   = count( $failed_items );
 					$failed_message = sprintf(
+						// translators: %d is the number of emails that failed to be processed
 						_n(
 							'%d email failed to be processed:',
 							'%d emails failed to be processed:',

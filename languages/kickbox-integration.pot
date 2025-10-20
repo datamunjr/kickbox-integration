@@ -9,22 +9,22 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-10-12T19:21:55+00:00\n"
+"POT-Creation-Date: 2025-10-20T16:34:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: kickbox-integration\n"
 
 #. Plugin Name of the plugin
 #: kickbox-integration.php
-#: includes/class-kickbox-integration-admin.php:57
-#: includes/class-kickbox-integration-admin.php:58
+#: includes/class-kickbox-integration-admin.php:59
+#: includes/class-kickbox-integration-admin.php:60
 #: includes/class-kickbox-integration-installer.php:209
-#: kickbox-integration.php:355
-#: kickbox-integration.php:380
-#: kickbox-integration.php:403
-#: kickbox-integration.php:419
-#: kickbox-integration.php:437
+#: kickbox-integration.php:413
+#: kickbox-integration.php:438
 #: kickbox-integration.php:461
+#: kickbox-integration.php:477
+#: kickbox-integration.php:495
+#: kickbox-integration.php:519
 msgid "Kickbox Integration"
 msgstr ""
 
@@ -64,255 +64,289 @@ msgstr ""
 msgid "Kickbox Integration requires WooCommerce version %1$s or higher. You are running version %2$s."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:142
+#: includes/class-kickbox-integration-admin.php:151
 msgid "Testing API connection..."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:143
-#: includes/class-kickbox-integration-admin.php:400
+#: includes/class-kickbox-integration-admin.php:152
+#: includes/class-kickbox-integration-admin.php:508
 msgid "API connection successful!"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:144
+#: includes/class-kickbox-integration-admin.php:153
 msgid "API connection failed. Please check your API key."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:145
+#: includes/class-kickbox-integration-admin.php:154
 msgid "Are you sure you want to test the API connection? This will use 1 verification credit."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:159
+#: includes/class-kickbox-integration-admin.php:169
 msgid "Kickbox Integration Settings"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:177
+#: includes/class-kickbox-integration-admin.php:197
+#: includes/class-kickbox-integration-settings-tab.php:100
 msgid "API Key"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:184
+#: includes/class-kickbox-integration-admin.php:204
 msgid "Enter your Kickbox API key. You can find this in your Kickbox dashboard."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:187
+#: includes/class-kickbox-integration-admin.php:207
 msgid "Test API Connection"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:194
+#: includes/class-kickbox-integration-admin.php:215
 msgid "Sandbox Mode"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:201
+#: includes/class-kickbox-integration-admin.php:222
 msgid "Enable sandbox mode for testing (recommended)"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:208
+#: includes/class-kickbox-integration-admin.php:230
 msgid "Checkout Verification"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:215
+#: includes/class-kickbox-integration-admin.php:237
 msgid "Enable email verification during checkout"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:222
+#: includes/class-kickbox-integration-admin.php:245
 msgid "Registration Verification"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:229
+#: includes/class-kickbox-integration-admin.php:252
 msgid "Enable email verification during user registration"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:236
+#: includes/class-kickbox-integration-admin.php:259
+#: includes/class-kickbox-integration-settings-tab.php:53
+#: includes/class-kickbox-integration-settings-tab.php:151
 msgid "Verification Actions"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:237
+#: includes/class-kickbox-integration-admin.php:260
 msgid "Configure what action to take for each verification result:"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:242
+#: includes/class-kickbox-integration-admin.php:266
 msgid "Deliverable Emails"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:248
-#: includes/class-kickbox-integration-admin.php:268
-#: includes/class-kickbox-integration-admin.php:287
-#: includes/class-kickbox-integration-admin.php:306
+#: includes/class-kickbox-integration-admin.php:273
+#: includes/class-kickbox-integration-admin.php:297
+#: includes/class-kickbox-integration-admin.php:320
+#: includes/class-kickbox-integration-admin.php:343
 msgid "Allow checkout"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:251
-#: includes/class-kickbox-integration-admin.php:271
-#: includes/class-kickbox-integration-admin.php:290
-#: includes/class-kickbox-integration-admin.php:309
+#: includes/class-kickbox-integration-admin.php:277
+#: includes/class-kickbox-integration-admin.php:301
+#: includes/class-kickbox-integration-admin.php:324
+#: includes/class-kickbox-integration-admin.php:347
 msgid "Block checkout"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:254
-#: includes/class-kickbox-integration-admin.php:274
-#: includes/class-kickbox-integration-admin.php:293
-#: includes/class-kickbox-integration-admin.php:312
+#: includes/class-kickbox-integration-admin.php:281
+#: includes/class-kickbox-integration-admin.php:305
+#: includes/class-kickbox-integration-admin.php:328
+#: includes/class-kickbox-integration-admin.php:351
+#: includes/class-kickbox-integration-settings-tab.php:169
+#: includes/class-kickbox-integration-settings-tab.php:184
+#: includes/class-kickbox-integration-settings-tab.php:199
+#: includes/class-kickbox-integration-settings-tab.php:214
 msgid "Allow but flag for review"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:262
+#: includes/class-kickbox-integration-admin.php:290
 msgid "Undeliverable Emails"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:282
+#: includes/class-kickbox-integration-admin.php:314
 msgid "Risky Emails"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:301
+#: includes/class-kickbox-integration-admin.php:337
 msgid "Unknown Emails"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:332
-#: includes/class-kickbox-integration-admin.php:506
-#: includes/class-kickbox-integration-admin.php:544
-#: includes/class-kickbox-integration-admin.php:608
-#: includes/class-kickbox-integration-admin.php:628
-#: includes/class-kickbox-integration-admin.php:853
-#: includes/class-kickbox-integration-admin.php:867
-#: includes/class-kickbox-integration-admin.php:897
-#: includes/class-kickbox-integration-admin.php:936
-#: includes/class-kickbox-integration-admin.php:970
-#: includes/class-kickbox-integration-admin.php:998
-#: includes/class-kickbox-integration-admin.php:1026
-#: includes/class-kickbox-integration-admin.php:1042
-#: includes/class-kickbox-integration-dashboard-widget.php:90
+#: includes/class-kickbox-integration-admin.php:370
+#: includes/class-kickbox-integration-admin.php:649
+#: includes/class-kickbox-integration-admin.php:687
+#: includes/class-kickbox-integration-admin.php:752
+#: includes/class-kickbox-integration-admin.php:977
+#: includes/class-kickbox-integration-admin.php:991
+#: includes/class-kickbox-integration-admin.php:1021
+#: includes/class-kickbox-integration-admin.php:1060
+#: includes/class-kickbox-integration-admin.php:1094
+#: includes/class-kickbox-integration-admin.php:1122
+#: includes/class-kickbox-integration-admin.php:1150
+#: includes/class-kickbox-integration-admin.php:1166
+#: includes/class-kickbox-integration-analytics.php:380
+#: includes/class-kickbox-integration-analytics.php:399
 msgid "Insufficient permissions."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:339
-#: includes/class-kickbox-integration-admin.php:423
+#: includes/class-kickbox-integration-admin.php:376
+#: includes/class-kickbox-integration-admin.php:532
 msgid "API key is required."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:386
-#: includes/class-kickbox-integration-admin.php:468
-#: includes/class-kickbox-integration-verification.php:204
+#: includes/class-kickbox-integration-admin.php:424
+#: includes/class-kickbox-integration-admin.php:494
+#: includes/class-kickbox-integration-admin.php:588
+#: includes/class-kickbox-integration-verification.php:196
 msgid "Invalid response from Kickbox API."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:411
-#: includes/class-kickbox-integration-admin.php:493
+#: includes/class-kickbox-integration-admin.php:436
+msgid "API connection successful! (Sandbox Mode)"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:447
+#: includes/class-kickbox-integration-admin.php:519
+#: includes/class-kickbox-integration-admin.php:612
+#: includes/class-kickbox-integration-admin.php:635
 msgid "Unexpected response from Kickbox API."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:482
+#: includes/class-kickbox-integration-admin.php:601
+msgid "API key is valid (Sandbox Mode)."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:624
 msgid "API key is valid."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:555
+#: includes/class-kickbox-integration-admin.php:698
 msgid "Settings not saved. API key validation failed: "
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:581
+#: includes/class-kickbox-integration-admin.php:724
 msgid "Settings saved successfully!"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:590
+#: includes/class-kickbox-integration-admin.php:733
 msgid "Sandbox Mode: Using test API key. No credits will be consumed."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:591
+#: includes/class-kickbox-integration-admin.php:734
 msgid "Live Mode: Using production API key. Credits will be consumed."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:701
+#: includes/class-kickbox-integration-admin.php:825
 msgid "Kickbox Email Verification - Low Balance Alert"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:707
+#: includes/class-kickbox-integration-admin.php:831
 msgid "Your verification balance is running low. Please add more credits to continue email verification."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:711
+#: includes/class-kickbox-integration-admin.php:835
 msgid "Add Credits to Kickbox Account"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:715
+#: includes/class-kickbox-integration-admin.php:839
 msgid "View Settings"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:764
+#: includes/class-kickbox-integration-admin.php:888
 msgid "Kickbox Email Verification - Verification Disabled"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:767
+#: includes/class-kickbox-integration-admin.php:891
 msgid "Your Kickbox integration is enabled but both checkout and registration verification are currently disabled."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:770
+#: includes/class-kickbox-integration-admin.php:894
 msgid "This means customers can use invalid email addresses during checkout and registration, which can result in:"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:773
+#: includes/class-kickbox-integration-admin.php:897
 msgid "- Fake or invalid email addresses"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:774
+#: includes/class-kickbox-integration-admin.php:898
 msgid "- Misspelled email addresses"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:775
+#: includes/class-kickbox-integration-admin.php:899
 msgid "- Throw-away or disposable email addresses"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:776
+#: includes/class-kickbox-integration-admin.php:900
 msgid "- Invalid user accounts and failed order deliveries"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:777
+#: includes/class-kickbox-integration-admin.php:901
 msgid "- Reduced email deliverability and customer engagement"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:782
+#: includes/class-kickbox-integration-admin.php:906
 msgid "Enable Email Verification"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:785
+#: includes/class-kickbox-integration-admin.php:909
 msgid "Learn More About Email Verification"
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:873
+#: includes/class-kickbox-integration-admin.php:997
 msgid "Invalid email address."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:880
+#: includes/class-kickbox-integration-admin.php:1004
 msgid "Email address is already in the allow list."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:887
+#: includes/class-kickbox-integration-admin.php:1011
 msgid "Email added to allow list successfully."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:903
-#: includes/class-kickbox-integration-verification.php:257
+#: includes/class-kickbox-integration-admin.php:1027
+#: includes/class-kickbox-integration-verification.php:249
 msgid "Email address is required."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:915
+#: includes/class-kickbox-integration-admin.php:1039
 msgid "Email removed from allow list successfully."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:959
+#: includes/class-kickbox-integration-admin.php:1083
 msgid "Error loading flagged emails: "
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:978
-#: includes/class-kickbox-integration-admin.php:1006
+#: includes/class-kickbox-integration-admin.php:1102
+#: includes/class-kickbox-integration-admin.php:1130
 msgid "Invalid parameters."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:985
-#: includes/class-kickbox-integration-admin.php:1013
+#: includes/class-kickbox-integration-admin.php:1109
+#: includes/class-kickbox-integration-admin.php:1137
 msgid "Decision updated successfully."
 msgstr ""
 
-#: includes/class-kickbox-integration-admin.php:987
-#: includes/class-kickbox-integration-admin.php:1015
+#: includes/class-kickbox-integration-admin.php:1111
+#: includes/class-kickbox-integration-admin.php:1139
 msgid "Failed to update decision."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:1191
+msgid "Kickbox Integration Warning:"
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:1193
+msgid "Deliverable emails are currently being blocked. This will block customer checkout and account signups and is generally not recommended."
+msgstr ""
+
+#: includes/class-kickbox-integration-admin.php:1199
+msgid "Change this setting"
+msgstr ""
+
+#: includes/class-kickbox-integration-analytics.php:460
+msgid "Email Verification"
 msgstr ""
 
 #: includes/class-kickbox-integration-checkout.php:66
@@ -357,49 +391,211 @@ msgstr ""
 msgid "We were unable to verify this email address due to unknown issue. Please use a different email address."
 msgstr ""
 
-#: includes/class-kickbox-integration-dashboard-widget.php:27
+#: includes/class-kickbox-integration-dashboard-widget.php:26
 msgid "Kickbox Email Verification Statistics"
 msgstr ""
 
-#: includes/class-kickbox-integration-dashboard-widget.php:41
-#: includes/class-kickbox-integration-dashboard-widget.php:69
+#: includes/class-kickbox-integration-dashboard-widget.php:40
+#: includes/class-kickbox-integration-dashboard-widget.php:68
 msgid "Loading statistics..."
 msgstr ""
 
-#: includes/class-kickbox-integration-dashboard-widget.php:70
+#: includes/class-kickbox-integration-dashboard-widget.php:69
 msgid "Unable to load statistics."
 msgstr ""
 
-#: includes/class-kickbox-integration-dashboard-widget.php:71
+#: includes/class-kickbox-integration-dashboard-widget.php:70
 msgid "Retry"
 msgstr ""
 
-#: includes/class-kickbox-integration-dashboard-widget.php:72
+#: includes/class-kickbox-integration-dashboard-widget.php:71
 msgid "No verification data available."
 msgstr ""
 
-#: includes/class-kickbox-integration-dashboard-widget.php:73
+#: includes/class-kickbox-integration-dashboard-widget.php:72
 msgid "Total Verifications"
 msgstr ""
 
-#: includes/class-kickbox-integration-dashboard-widget.php:74
+#: includes/class-kickbox-integration-dashboard-widget.php:73
 msgid "Deliverable"
 msgstr ""
 
-#: includes/class-kickbox-integration-dashboard-widget.php:75
+#: includes/class-kickbox-integration-dashboard-widget.php:74
 msgid "Undeliverable"
 msgstr ""
 
-#: includes/class-kickbox-integration-dashboard-widget.php:76
+#: includes/class-kickbox-integration-dashboard-widget.php:75
 msgid "Risky"
 msgstr ""
 
-#: includes/class-kickbox-integration-dashboard-widget.php:77
+#: includes/class-kickbox-integration-dashboard-widget.php:76
 msgid "Unknown"
 msgstr ""
 
-#: includes/class-kickbox-integration-dashboard-widget.php:78
+#: includes/class-kickbox-integration-dashboard-widget.php:77
 msgid "View Details"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:100
+msgid "Security check failed. Please refresh the page and try again."
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:110
+msgid "You do not have permission to perform this action."
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:120
+msgid "Invalid item ID provided."
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:137
+msgid "Flagged email not found. It may have been deleted."
+msgstr ""
+
+#. translators: %1$s is the email address, %2$s is the decision (Allow/Block)
+#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:202
+#, php-format
+msgid "Email decision for %1$s updated successfully to %2$s."
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:207
+msgid "Admin notes have been saved."
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:223
+msgid "Failed to update email decision. Please try again."
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:39
+msgid "WP_List_Table class not found. This feature requires WordPress admin."
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:89
+msgid "Email"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:90
+msgid "Kickbox Result"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:91
+msgid "Action at Verification"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:92
+msgid "Decision"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:93
+msgid "Origin"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:94
+msgid "Order ID"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:95
+msgid "Flagged Date"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:120
+#: includes/class-kickbox-integration-settings-tab.php:168
+#: includes/class-kickbox-integration-settings-tab.php:183
+#: includes/class-kickbox-integration-settings-tab.php:198
+#: includes/class-kickbox-integration-settings-tab.php:213
+msgid "Allow"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:121
+#: includes/class-kickbox-integration-settings-tab.php:170
+#: includes/class-kickbox-integration-settings-tab.php:185
+#: includes/class-kickbox-integration-settings-tab.php:200
+#: includes/class-kickbox-integration-settings-tab.php:215
+msgid "Block"
+msgstr ""
+
+#. translators: %s is the user ID with a link to edit the user
+#: includes/class-kickbox-integration-flagged-emails-table.php:161
+#, php-format
+msgid "User ID: %s (click to edit)"
+msgstr ""
+
+#. translators: %s is the user ID
+#: includes/class-kickbox-integration-flagged-emails-table.php:168
+#, php-format
+msgid "User ID: %s"
+msgstr ""
+
+#. translators: %s is the reason for the kickbox result
+#: includes/class-kickbox-integration-flagged-emails-table.php:184
+#, php-format
+msgid "Reason: %s"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:192
+msgid "Blocked"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:192
+msgid "Flagged"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:331
+msgid "You do not have sufficient permissions to perform this action."
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:337
+msgid "Security check failed."
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:345
+msgid "No items were selected for bulk action."
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:409
+msgid "Bulk action applied"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:450
+msgid "Search flagged emails"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:471
+msgid "Search emails..."
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:475
+msgid "Clear Search"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:513
+#: includes/class-kickbox-integration-flagged-emails-table.php:514
+#: includes/class-kickbox-integration-settings-tab.php:267
+msgid "Flagged Emails"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:527
+msgid "Flagged Emails per page"
+msgstr ""
+
+#. translators: %1$d is the number of emails, %2$s is the action (allowed/blocked)
+#: includes/class-kickbox-integration-flagged-emails-table.php:593
+#, php-format
+msgid "%1$d email has been %2$s."
+msgid_plural "%1$d emails have been %2$s."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d is the number of emails that failed to be processed
+#: includes/class-kickbox-integration-flagged-emails-table.php:611
+#, php-format
+msgid "%d email failed to be processed:"
+msgid_plural "%d emails failed to be processed:"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:659
+msgid "Kickbox - Flagged Emails"
 msgstr ""
 
 #: includes/class-kickbox-integration-installer.php:210
@@ -410,95 +606,206 @@ msgstr ""
 msgid "We were unable to verify this email address due to server timeout. Please use a different email address."
 msgstr ""
 
-#: includes/class-kickbox-integration-verification.php:80
+#: includes/class-kickbox-integration-settings-tab.php:34
+msgid "Kickbox"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:52
+#: includes/class-kickbox-integration-settings-tab.php:93
+msgid "Kickbox API Settings"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:54
+msgid "Allow List"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:95
+msgid "Configure your Kickbox API key and connection settings."
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:101
+msgid "Enter your Kickbox API key. You can find this in your Kickbox dashboard at kickbox.com"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:110
+msgid "Current Balance"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:117
+msgid "Enable Checkout Verification"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:118
+msgid "Verify customer emails during checkout"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:126
+msgid "Enable Registration Verification"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:127
+msgid "Verify customer emails during user registration"
+msgstr ""
+
+#. translators: %s: URL to Kickbox documentation
+#: includes/class-kickbox-integration-settings-tab.php:155
+#, php-format
+msgid "Configure what action to take for each verification result type. For detailed information about each verification result type, see the %s."
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:156
+msgid "Kickbox Terminology Documentation"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:162
+msgid "Deliverable Action"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:163
+msgid "Action to take when email is confirmed deliverable"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:164
+msgid "The recipient's mail server confirmed the recipient exists. Kickbox has performed additional analysis and determined this address is safe to send to within our 95% Delivery Guarantee."
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:177
+msgid "Undeliverable Action"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:178
+msgid "Action to take when email is confirmed undeliverable"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:179
+msgid "The email address does not exist or is syntactically incorrect (and thus does not exist)."
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:192
+msgid "Risky Action"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:193
+msgid "Action to take when email is identified as risky"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:194
+msgid "The email address has quality issues and may result in a bounce or low engagement. Use caution when sending to risky addresses. Accept All, Disposable, and Role addresses are classified as Risky."
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:207
+msgid "Unknown Action"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:208
+msgid "Action to take when email verification result is unknown"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:209
+msgid "Kickbox was unable to get a response from the recipient's mail server. This often happens if the destination mail server is too slow or temporarily unavailable. Unknown addresses don't count against your verification balance."
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:238
+msgid "Email Allow List"
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:240
+msgid "Manage emails that should skip Kickbox verification."
+msgstr ""
+
+#: includes/class-kickbox-integration-settings-tab.php:269
+msgid "Review and manage flagged email addresses."
+msgstr ""
+
+#: includes/class-kickbox-integration-verification.php:72
 msgid "Kickbox API key is not configured."
 msgstr ""
 
-#: includes/class-kickbox-integration-verification.php:84
+#: includes/class-kickbox-integration-verification.php:76
 msgid "Invalid email address format."
 msgstr ""
 
-#: includes/class-kickbox-integration-verification.php:528
+#: includes/class-kickbox-integration-verification.php:437
 msgid "Balance not yet determined. Make a verification request to check your balance."
 msgstr ""
 
 #. translators: %d: Number of verifications remaining
-#: includes/class-kickbox-integration-verification.php:532
+#: includes/class-kickbox-integration-verification.php:441
 #, php-format
 msgid "Current balance: <strong>%d</strong> verifications remaining."
 msgstr ""
 
 #. translators: %s: Date and time of last update
-#: includes/class-kickbox-integration-verification.php:538
+#: includes/class-kickbox-integration-verification.php:447
 #, php-format
 msgid "(last updated: %s)"
 msgstr ""
 
-#: kickbox-integration.php:203
+#: kickbox-integration.php:259
 msgid "Settings"
 msgstr ""
 
-#: kickbox-integration.php:314
+#: kickbox-integration.php:372
 msgid "Dependencies:"
 msgstr ""
 
-#: kickbox-integration.php:316
+#: kickbox-integration.php:374
 msgid "WooCommerce is required but not active."
 msgstr ""
 
-#: kickbox-integration.php:318
+#: kickbox-integration.php:376
 msgid "Install WooCommerce"
 msgstr ""
 
 #. translators: 1: Required WooCommerce version, 2: Current WooCommerce version
-#: kickbox-integration.php:325
+#: kickbox-integration.php:383
 #, php-format
 msgid "WooCommerce version %1$s is required. You have version %2$s."
 msgstr ""
 
-#: kickbox-integration.php:333
+#: kickbox-integration.php:391
 msgid "Update WooCommerce"
 msgstr ""
 
 #. translators: 1: Required WordPress version, 2: Current WordPress version
-#: kickbox-integration.php:358
+#: kickbox-integration.php:416
 #, php-format
 msgid "requires WordPress version %1$s or higher. You are running version %2$s."
 msgstr ""
 
 #. translators: %s: Required WordPress version
-#: kickbox-integration.php:383
+#: kickbox-integration.php:441
 #, php-format
 msgid "has been deactivated because the WordPress version is too old. Please upgrade WordPress to at least version %s."
 msgstr ""
 
-#: kickbox-integration.php:404
+#: kickbox-integration.php:462
 msgid "requires WooCommerce to be installed and active."
 msgstr ""
 
-#: kickbox-integration.php:420
+#: kickbox-integration.php:478
 msgid "has been deactivated because WooCommerce is no longer active."
 msgstr ""
 
 #. translators: 1: Required WooCommerce version, 2: Current WooCommerce version
-#: kickbox-integration.php:440
+#: kickbox-integration.php:498
 #, php-format
 msgid "requires WooCommerce version %1$s or higher. You are running version %2$s."
 msgstr ""
 
-#: kickbox-integration.php:462
+#: kickbox-integration.php:520
 msgid "has been deactivated because WooCommerce version is too old."
 msgstr ""
 
-#: kickbox-integration.php:547
-#: kickbox-integration.php:551
+#: kickbox-integration.php:605
+#: kickbox-integration.php:609
 msgid "Plugin Activation Error"
 msgstr ""
 
-#: kickbox-integration.php:549
+#: kickbox-integration.php:607
 msgid "Please resolve the issue and try activating the plugin again."
 msgstr ""
 
-#: kickbox-integration.php:550
+#: kickbox-integration.php:608
 msgid "Return to Plugins page"
 msgstr ""

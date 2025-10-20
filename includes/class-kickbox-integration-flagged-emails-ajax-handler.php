@@ -96,7 +96,7 @@ class Kickbox_Integration_Flagged_Emails_Ajax_Handler {
      */
     public function get_flagged_email_details() {
         // Verify nonce
-        if ( ! wp_verify_nonce( $_POST['nonce'], 'kickbox_get_details' ) ) {
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'kickbox_get_details' ) ) {
             $error_message = __( 'Security check failed. Please refresh the page and try again.', 'kickbox-integration' );
             set_transient( 'kickbox_ajax_notice', array(
                 'type' => 'error',
@@ -115,7 +115,7 @@ class Kickbox_Integration_Flagged_Emails_Ajax_Handler {
             wp_send_json_error( array( 'message' => $error_message ) );
         }
 
-        $item_id = intval( $_POST['item_id'] );
+        $item_id = isset( $_POST['item_id'] ) ? intval( $_POST['item_id'] ) : 0;
         if ( ! $item_id ) {
             $error_message = __( 'Invalid item ID provided.', 'kickbox-integration' );
             set_transient( 'kickbox_ajax_notice', array(
@@ -127,8 +127,10 @@ class Kickbox_Integration_Flagged_Emails_Ajax_Handler {
 
         // Get the flagged email data
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $item = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$this->table_name} WHERE id = %d",
+            "SELECT * FROM %i WHERE id = %d",
+            $this->table_name,
             $item_id
         ), ARRAY_A );
 
@@ -154,7 +156,7 @@ class Kickbox_Integration_Flagged_Emails_Ajax_Handler {
      */
     public function save_flagged_email_decision() {
         // Verify nonce
-        if ( ! wp_verify_nonce( $_POST['kickbox_modal_nonce'], 'kickbox_modal_decision' ) ) {
+        if ( ! isset( $_POST['kickbox_modal_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['kickbox_modal_nonce'] ) ), 'kickbox_modal_decision' ) ) {
             wp_send_json_error( array( 'message' => 'Security check failed' ) );
         }
 
@@ -163,9 +165,9 @@ class Kickbox_Integration_Flagged_Emails_Ajax_Handler {
             wp_send_json_error( array( 'message' => 'Permission denied' ) );
         }
 
-        $item_id = intval( $_POST['kickbox_item_id'] );
-        $decision = sanitize_text_field( $_POST['kickbox_decision'] );
-        $admin_notes = sanitize_textarea_field( $_POST['kickbox_admin_notes'] ?? '' );
+        $item_id = isset( $_POST['kickbox_item_id'] ) ? intval( $_POST['kickbox_item_id'] ) : 0;
+        $decision = isset( $_POST['kickbox_decision'] ) ? sanitize_text_field( wp_unslash( $_POST['kickbox_decision'] ) ) : '';
+        $admin_notes = isset( $_POST['kickbox_admin_notes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['kickbox_admin_notes'] ) ) : '';
 
         if ( ! $item_id || ! in_array( $decision, array( 'allow', 'block' ) ) ) {
             wp_send_json_error( array( 'message' => 'Invalid data provided' ) );
@@ -174,6 +176,7 @@ class Kickbox_Integration_Flagged_Emails_Ajax_Handler {
         // Update the decision
         global $wpdb;
         
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
         $result = $wpdb->update(
             $this->table_name,
             array(
@@ -189,14 +192,17 @@ class Kickbox_Integration_Flagged_Emails_Ajax_Handler {
 
         if ( $result !== false ) {
             // Get the email address for the success message
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
             $email_address = $wpdb->get_var( $wpdb->prepare(
-                "SELECT email FROM {$this->table_name} WHERE id = %d",
+                "SELECT email FROM %i WHERE id = %d",
+                $this->table_name,
                 $item_id
             ) );
             
             // Set success notice
             $notice_message = sprintf( 
-                __( 'Email decision for %s updated successfully to %s.', 'kickbox-integration' ), 
+                // translators: %1$s is the email address, %2$s is the decision (Allow/Block)
+                __( 'Email decision for %1$s updated successfully to %2$s.', 'kickbox-integration' ), 
                 $email_address,
                 ucfirst( $decision ) 
             );

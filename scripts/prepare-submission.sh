@@ -32,6 +32,10 @@ cd "$PROJECT_ROOT"
 npm ci
 npm run build
 
+# Generate new .pot file for translations
+echo "Generating new .pot file for translations..."
+wp i18n make-pot . languages/kickbox-integration.pot --domain=kickbox-integration --exclude="node_modules,vendor,tests,src,assets,scripts,bin,.git,.idea,.vscode,.github"
+
 # Copy all files to temp directory under the plugin slug folder
 echo "Copying plugin files to temp directory..."
 cp -r . "$TEMP_DIR/kickbox-integration/"
@@ -119,6 +123,7 @@ echo ""
 echo "✅ Plugin prepared for submission!"
 echo ""
 echo "📦 Zip file created: $ZIP_FILE"
+echo "🌐 Translation file updated: languages/kickbox-integration.pot"
 echo ""
 echo "🗑️  Files removed from submission copy:"
 echo "   - node_modules/ (npm development dependencies)"
