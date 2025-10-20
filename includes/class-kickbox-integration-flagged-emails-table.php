@@ -434,14 +434,34 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		// Get items with search
 		$offset = ( $current_page - 1 ) * $per_page;
 
-		// Build the ORDER BY clause safely using whitelist validation
-		$allowed_orderby = array( 'email', 'admin_decision', 'flagged_date', 'origin' );
-		$allowed_order   = array( 'ASC', 'DESC' );
+		// Build the ORDER BY clause safely using switch statements
+		$orderby_clause = 'flagged_date'; // Default
+		switch ( $orderby ) {
+			case 'email':
+				$orderby_clause = 'email';
+				break;
+			case 'admin_decision':
+				$orderby_clause = 'admin_decision';
+				break;
+			case 'flagged_date':
+				$orderby_clause = 'flagged_date';
+				break;
+			case 'origin':
+				$orderby_clause = 'origin';
+				break;
+		}
 
-		$orderby_safe = in_array( $orderby, $allowed_orderby ) ? $orderby : 'flagged_date';
-		$order_safe   = in_array( strtoupper( $order ), $allowed_order ) ? strtoupper( $order ) : 'DESC';
+		$order_clause = 'DESC'; // Default
+		switch ( strtoupper( $order ) ) {
+			case 'ASC':
+				$order_clause = 'ASC';
+				break;
+			case 'DESC':
+				$order_clause = 'DESC';
+				break;
+		}
 
-		$items_query = "SELECT * FROM %i" . $search_conditions . " ORDER BY $orderby_safe $order_safe LIMIT %d OFFSET %d";
+		$items_query = "SELECT * FROM %i" . $search_conditions . " ORDER BY {$orderby_clause} {$order_clause} LIMIT %d OFFSET %d";
 
 		if ( ! empty( $search_params ) ) {
 			$prepared_params = array_merge( array( $this->table_name ), $search_params, array( $per_page, $offset ) );
