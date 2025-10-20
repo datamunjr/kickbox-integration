@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom';
-import LoadingSpinner from './LoadingSpinner';
+import { Spinner } from '@wordpress/components'
 
 // Notice component for displaying messages after wp-header-end
 const AllowListNotice = ({message, type, onDismiss}) => {
@@ -188,7 +188,7 @@ const AllowList = ({}) => {
     };
 
     if (initialLoading) {
-        return <LoadingSpinner message="Loading allow list..." />;
+        return <div><Spinner /> Loading allow list ...</div>
     }
 
     return (

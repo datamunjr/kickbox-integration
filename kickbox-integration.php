@@ -96,13 +96,15 @@ class Kickbox_Integration {
      */
     public $flagged_emails;
 
-    /**
-     * Flagged emails page class instance
-     *
-     * @var Kickbox_Integration_Flagged_Emails_Page
-     * @since 1.0.0
-     */
-    public $flagged_emails_page;
+		/**
+		 * @var Kickbox_Integration_Flagged_Emails_Table
+		 */
+		public $flagged_emails_table;
+
+		/**
+		 * @var Kickbox_Integration_Flagged_Emails_Ajax_Handler
+		 */
+		public $flagged_emails_ajax_handler;
 
     /**
      * Analytics class instance
@@ -139,7 +141,17 @@ class Kickbox_Integration {
         $this->includes();
         $this->init_hooks();
         $this->init_components();
+        
+        add_action('admin_menu', array( $this, 'init_flagged_email_table'));
     }
+
+		public function init_flagged_email_table() {
+			$this->flagged_emails_table = new Kickbox_Integration_Flagged_Emails_Table();
+			$this->flagged_emails_table->add_admin_page();
+			
+			add_action('load-woocommerce_page_kickbox-flagged-emails', array( $this->flagged_emails_table, 'init_admin_page'));
+		}
+
 
     /**
      * Define additional constants if needed
@@ -167,7 +179,8 @@ class Kickbox_Integration {
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-registration.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-dashboard-widget.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails.php';
-        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails-page.php';
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails-table.php';
+        require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-flagged-emails-ajax-handler.php';
         require_once KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-analytics.php';
 
         // Settings tab is included via woocommerce_get_settings_pages filter
@@ -214,7 +227,7 @@ class Kickbox_Integration {
             $logger = wc_get_logger();
             $logger->debug( 'Kickbox settings tab filter called', array( 'source' => 'kickbox-integration' ) );
         }
-        
+
         $settings[] = include KICKBOX_INTEGRATION_PLUGIN_DIR . 'includes/class-kickbox-integration-settings-tab.php';
         return $settings;
     }
@@ -264,7 +277,7 @@ class Kickbox_Integration {
         $this->registration          = new Kickbox_Integration_Registration();
         $this->dashboard_widget      = new Kickbox_Integration_Dashboard_Widget();
         $this->flagged_emails        = new Kickbox_Integration_Flagged_Emails();
-        $this->flagged_emails_page   = new Kickbox_Integration_Flagged_Emails_Page();
+				$this->flagged_emails_ajax_handler   = new Kickbox_Integration_Flagged_Emails_Ajax_Handler();
         $this->analytics             = new Kickbox_Integration_Analytics();
     }
 
@@ -598,6 +611,9 @@ function kickbox_integration_activate() {
         );
     }
 }
+
+
+
 
 /**
  * Plugin deactivation hook

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import LoadingSpinner from './LoadingSpinner';
+import { Spinner } from '@wordpress/components'
 
 // Custom debounce hook
 const useDebounce = (value, delay) => {
@@ -271,7 +271,7 @@ const FlaggedEmails = ({onRefreshPendingCount}) => {
     };
 
     if (initialLoading) {
-        return <LoadingSpinner message="Loading flagged emails..."/>;
+        return <div><Spinner /> Loading flagged emails... </div>;
     }
 
     return (
