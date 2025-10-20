@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-10-20T16:34:12+00:00\n"
+"POT-Creation-Date: 2025-10-20T19:09:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: kickbox-integration\n"
@@ -448,21 +448,21 @@ msgstr ""
 msgid "Invalid item ID provided."
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:137
+#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:138
 msgid "Flagged email not found. It may have been deleted."
 msgstr ""
 
 #. translators: %1$s is the email address, %2$s is the decision (Allow/Block)
-#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:202
+#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:205
 #, php-format
 msgid "Email decision for %1$s updated successfully to %2$s."
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:207
+#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:210
 msgid "Admin notes have been saved."
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:223
+#: includes/class-kickbox-integration-flagged-emails-ajax-handler.php:226
 msgid "Failed to update email decision. Please try again."
 msgstr ""
 
@@ -498,7 +498,22 @@ msgstr ""
 msgid "Flagged Date"
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:120
+#: includes/class-kickbox-integration-flagged-emails-table.php:116
+msgid "All"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:126
+#: includes/class-kickbox-integration-flagged-emails-table.php:289
+msgid "Flagged"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:136
+#: includes/class-kickbox-integration-flagged-emails-table.php:289
+msgid "Blocked"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:217
+#: includes/class-kickbox-integration-flagged-emails-table.php:663
 #: includes/class-kickbox-integration-settings-tab.php:168
 #: includes/class-kickbox-integration-settings-tab.php:183
 #: includes/class-kickbox-integration-settings-tab.php:198
@@ -506,7 +521,8 @@ msgstr ""
 msgid "Allow"
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:121
+#: includes/class-kickbox-integration-flagged-emails-table.php:218
+#: includes/class-kickbox-integration-flagged-emails-table.php:664
 #: includes/class-kickbox-integration-settings-tab.php:170
 #: includes/class-kickbox-integration-settings-tab.php:185
 #: includes/class-kickbox-integration-settings-tab.php:200
@@ -515,71 +531,87 @@ msgid "Block"
 msgstr ""
 
 #. translators: %s is the user ID with a link to edit the user
-#: includes/class-kickbox-integration-flagged-emails-table.php:161
+#: includes/class-kickbox-integration-flagged-emails-table.php:258
 #, php-format
 msgid "User ID: %s (click to edit)"
 msgstr ""
 
 #. translators: %s is the user ID
-#: includes/class-kickbox-integration-flagged-emails-table.php:168
+#: includes/class-kickbox-integration-flagged-emails-table.php:265
 #, php-format
 msgid "User ID: %s"
 msgstr ""
 
 #. translators: %s is the reason for the kickbox result
-#: includes/class-kickbox-integration-flagged-emails-table.php:184
+#: includes/class-kickbox-integration-flagged-emails-table.php:281
 #, php-format
 msgid "Reason: %s"
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:192
-msgid "Blocked"
-msgstr ""
-
-#: includes/class-kickbox-integration-flagged-emails-table.php:192
-msgid "Flagged"
-msgstr ""
-
-#: includes/class-kickbox-integration-flagged-emails-table.php:331
+#: includes/class-kickbox-integration-flagged-emails-table.php:486
 msgid "You do not have sufficient permissions to perform this action."
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:337
+#: includes/class-kickbox-integration-flagged-emails-table.php:492
 msgid "Security check failed."
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:345
+#: includes/class-kickbox-integration-flagged-emails-table.php:500
 msgid "No items were selected for bulk action."
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:409
+#: includes/class-kickbox-integration-flagged-emails-table.php:565
 msgid "Bulk action applied"
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:450
+#: includes/class-kickbox-integration-flagged-emails-table.php:608
 msgid "Search flagged emails"
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:471
+#: includes/class-kickbox-integration-flagged-emails-table.php:633
 msgid "Search emails..."
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:475
+#: includes/class-kickbox-integration-flagged-emails-table.php:637
 msgid "Clear Search"
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:513
-#: includes/class-kickbox-integration-flagged-emails-table.php:514
+#: includes/class-kickbox-integration-flagged-emails-table.php:659
+msgid "Filter by Admin Decision"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:661
+msgid "All Admin Decisions"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:662
+msgid "Pending"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:667
+msgid "Filter by Origin"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:669
+msgid "All Origins"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:675
+msgid "Filter"
+msgstr ""
+
+#: includes/class-kickbox-integration-flagged-emails-table.php:717
+#: includes/class-kickbox-integration-flagged-emails-table.php:718
 #: includes/class-kickbox-integration-settings-tab.php:267
 msgid "Flagged Emails"
 msgstr ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:527
+#: includes/class-kickbox-integration-flagged-emails-table.php:731
 msgid "Flagged Emails per page"
 msgstr ""
 
 #. translators: %1$d is the number of emails, %2$s is the action (allowed/blocked)
-#: includes/class-kickbox-integration-flagged-emails-table.php:593
+#: includes/class-kickbox-integration-flagged-emails-table.php:800
 #, php-format
 msgid "%1$d email has been %2$s."
 msgid_plural "%1$d emails have been %2$s."
@@ -587,14 +619,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d is the number of emails that failed to be processed
-#: includes/class-kickbox-integration-flagged-emails-table.php:611
+#: includes/class-kickbox-integration-flagged-emails-table.php:818
 #, php-format
 msgid "%d email failed to be processed:"
 msgid_plural "%d emails failed to be processed:"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-kickbox-integration-flagged-emails-table.php:659
+#: includes/class-kickbox-integration-flagged-emails-table.php:866
 msgid "Kickbox - Flagged Emails"
 msgstr ""
 
