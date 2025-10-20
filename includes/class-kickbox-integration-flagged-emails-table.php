@@ -97,6 +97,103 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Get filter views for the table
+	 *
+	 * @return array
+	 */
+	public function get_views() {
+		$views = array();
+		
+		// Get current filter
+		$current_filter = isset( $_GET['verification_action'] ) ? sanitize_text_field( wp_unslash( $_GET['verification_action'] ) ) : '';
+		
+		// All items link
+		$class = ( '' === $current_filter ) ? 'current' : '';
+		$views['all'] = sprintf(
+			'<a href="%s" class="%s">%s <span class="count">(%d)</span></a>',
+			esc_url( remove_query_arg( 'verification_action' ) ),
+			$class,
+			__( 'All', 'kickbox-integration' ),
+			$this->get_total_items_count()
+		);
+		
+		// Flagged items link
+		$class = ( 'review' === $current_filter ) ? 'current' : '';
+		$views['flagged'] = sprintf(
+			'<a href="%s" class="%s">%s <span class="count">(%d)</span></a>',
+			esc_url( add_query_arg( 'verification_action', 'review' ) ),
+			$class,
+			__( 'Flagged', 'kickbox-integration' ),
+			$this->get_filtered_items_count( 'review' )
+		);
+		
+		// Blocked items link
+		$class = ( 'block' === $current_filter ) ? 'current' : '';
+		$views['blocked'] = sprintf(
+			'<a href="%s" class="%s">%s <span class="count">(%d)</span></a>',
+			esc_url( add_query_arg( 'verification_action', 'block' ) ),
+			$class,
+			__( 'Blocked', 'kickbox-integration' ),
+			$this->get_filtered_items_count( 'block' )
+		);
+		
+		return $views;
+	}
+
+	/**
+	 * Get total items count for all items
+	 *
+	 * @return int
+	 */
+	private function get_total_items_count() {
+		global $wpdb;
+		
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM %i",
+			$this->table_name
+		) );
+		
+		return intval( $count );
+	}
+
+	/**
+	 * Get filtered items count for specific verification action
+	 *
+	 * @param string $verification_action
+	 * @return int
+	 */
+	private function get_filtered_items_count( $verification_action ) {
+		global $wpdb;
+		
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM %i WHERE verification_action = %s",
+			$this->table_name,
+			$verification_action
+		) );
+		
+		return intval( $count );
+	}
+
+	/**
+	 * Get distinct origin values from database
+	 *
+	 * @return array
+	 */
+	private function get_origin_values() {
+		global $wpdb;
+		
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$origins = $wpdb->get_col( $wpdb->prepare(
+			"SELECT DISTINCT origin FROM %i WHERE origin IS NOT NULL AND origin != '' ORDER BY origin ASC",
+			$this->table_name
+		) );
+		
+		return $origins;
+	}
+
+	/**
 	 * Get sortable columns
 	 *
 	 * @return array
@@ -254,6 +351,14 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
 		$search = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
 
+		// Get filter parameters
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
+		$verification_action_filter = isset( $_REQUEST['verification_action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['verification_action'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
+		$admin_decision_filter = isset( $_REQUEST['admin_decision'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['admin_decision'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
+		$origin_filter = isset( $_REQUEST['origin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['origin'] ) ) : '';
+
 		// Get sorting parameters
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
 		$orderby = isset( $_REQUEST['orderby'] ) ? sanitize_sql_orderby( wp_unslash( $_REQUEST['orderby'] ) ) : 'flagged_date';
@@ -270,13 +375,56 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 			$order = 'DESC';
 		}
 
+		// Validate verification action filter
+		if ( ! in_array( $verification_action_filter, array( 'review', 'block' ) ) ) {
+			$verification_action_filter = '';
+		}
+
+		// Validate admin decision filter
+		if ( ! in_array( $admin_decision_filter, array( 'pending', 'allow', 'block' ) ) ) {
+			$admin_decision_filter = '';
+		}
+
+		// Validate origin filter (check if it exists in database)
+		if ( ! empty( $origin_filter ) ) {
+			$origin_values = $this->get_origin_values();
+			if ( ! in_array( $origin_filter, $origin_values ) ) {
+				$origin_filter = '';
+			}
+		}
+
 		// Build search conditions
 		$search_conditions = '';
 		$search_params     = array();
+		$where_conditions  = array();
 
+		// Add verification action filter
+		if ( ! empty( $verification_action_filter ) ) {
+			$where_conditions[] = "verification_action = %s";
+			$search_params[]     = $verification_action_filter;
+		}
+
+		// Add admin decision filter
+		if ( ! empty( $admin_decision_filter ) ) {
+			$where_conditions[] = "admin_decision = %s";
+			$search_params[]     = $admin_decision_filter;
+		}
+
+		// Add origin filter
+		if ( ! empty( $origin_filter ) ) {
+			$where_conditions[] = "origin = %s";
+			$search_params[]     = $origin_filter;
+		}
+
+		// Add search filter
 		if ( ! empty( $search ) ) {
-			$search_conditions = " WHERE email LIKE %s";
-			$search_params[]   = '%' . $wpdb->esc_like( $search ) . '%';
+			$where_conditions[] = "email LIKE %s";
+			$search_params[]     = '%' . $wpdb->esc_like( $search ) . '%';
+		}
+
+		// Combine all WHERE conditions
+		if ( ! empty( $where_conditions ) ) {
+			$search_conditions = " WHERE " . implode( " AND ", $where_conditions );
 		}
 
 		// Get total items with search
@@ -494,6 +642,43 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Add extra controls to the table
+	 */
+	protected function extra_tablenav( $which ) {
+		if ( 'top' === $which ) {
+			// Get current filter values
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
+			$admin_decision_filter = isset( $_GET['admin_decision'] ) ? sanitize_text_field( wp_unslash( $_GET['admin_decision'] ) ) : '';
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
+			$origin_filter = isset( $_GET['origin'] ) ? sanitize_text_field( wp_unslash( $_GET['origin'] ) ) : '';
+			
+			// Get origin values for dropdown
+			$origin_values = $this->get_origin_values();
+			?>
+			<div class="alignleft actions">
+				<label for="admin_decision_filter" class="screen-reader-text"><?php esc_html_e( 'Filter by Admin Decision', 'kickbox-integration' ); ?></label>
+				<select name="admin_decision" id="admin_decision_filter">
+					<option value=""><?php esc_html_e( 'All Admin Decisions', 'kickbox-integration' ); ?></option>
+					<option value="pending" <?php selected( $admin_decision_filter, 'pending' ); ?>><?php esc_html_e( 'Pending', 'kickbox-integration' ); ?></option>
+					<option value="allow" <?php selected( $admin_decision_filter, 'allow' ); ?>><?php esc_html_e( 'Allow', 'kickbox-integration' ); ?></option>
+					<option value="block" <?php selected( $admin_decision_filter, 'block' ); ?>><?php esc_html_e( 'Block', 'kickbox-integration' ); ?></option>
+				</select>
+				
+				<label for="origin_filter" class="screen-reader-text"><?php esc_html_e( 'Filter by Origin', 'kickbox-integration' ); ?></label>
+				<select name="origin" id="origin_filter">
+					<option value=""><?php esc_html_e( 'All Origins', 'kickbox-integration' ); ?></option>
+					<?php foreach ( $origin_values as $origin ) : ?>
+						<option value="<?php echo esc_attr( $origin ); ?>" <?php selected( $origin_filter, $origin ); ?>><?php echo esc_html( $origin ); ?></option>
+					<?php endforeach; ?>
+				</select>
+				
+				<?php submit_button( __( 'Filter', 'kickbox-integration' ), '', 'filter_action', false, array( 'id' => 'post-query-submit' ) ); ?>
+			</div>
+			<?php
+		}
+	}
+
+	/**
 	 * Display the table wrapped in a form
 	 */
 	public function display() {
@@ -513,6 +698,9 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 					echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
 				}
 			}
+
+			// Display views (filters) before the table
+			$this->views();
 
 			parent::display();
 			?>
