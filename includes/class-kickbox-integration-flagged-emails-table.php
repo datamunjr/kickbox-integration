@@ -59,15 +59,23 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		// column allow users to hide or reveal specific columns.
 		$this->screen = get_current_screen();
 
-		add_action( 'admin_init', array( $this, 'handle_bulk_actions' ) );
 		add_action( 'admin_notices', array( $this, 'bulk_action_notices' ) );
-		add_filter( "manage_{$this->screen->id}_columns", array( $this, 'get_columns' ), 0 );
+		add_action( 'admin_notices', array( $this, 'review_action_notices' ) );
+
+		// Register column filter after screen is available
+		if ( $this->screen && $this->screen->id ) {
+			add_filter( "manage_{$this->screen->id}_columns", array( $this, 'get_columns' ), 0 );
+		}
 
 		// Add filter for screen option saving
 		add_filter( 'set_screen_option_flagged_emails_per_page', array( $this, 'set_items_per_page' ), 10, 3 );
 
 		$this->set_items_per_page_option();
 		set_screen_options();
+
+		if ( $this->current_action() ) {
+			$this->handle_bulk_actions();
+		}
 	}
 
 	/**
@@ -142,9 +150,22 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 			case 'email':
 				$output = '<strong>' . esc_html( $item['email'] ) . '</strong>';
 				if ( ! empty( $item['user_id'] ) ) {
-					$output .= '<div style="font-size: 12px; color: #666;">';
-					$output .= sprintf( __( 'User ID: %s', 'kickbox-integration' ), $item['user_id'] );
-					$output .= '</div>';
+					$user_id = intval( $item['user_id'] );
+					$user    = get_user_by( 'id', $user_id );
+
+					if ( $user ) {
+						$user_edit_url = get_edit_user_link( $user_id );
+						$output        .= '<div style="font-size: 12px; color: #666;">';
+						$output        .= sprintf(
+							__( 'User ID: %s', 'kickbox-integration' ),
+							'<a href="' . esc_url( $user_edit_url ) . '" target="_blank">' . esc_html( $user_id ) . '</a>'
+						);
+						$output        .= '</div>';
+					} else {
+						$output .= '<div style="font-size: 12px; color: #666;">';
+						$output .= sprintf( __( 'User ID: %s', 'kickbox-integration' ), $user_id );
+						$output .= '</div>';
+					}
 				}
 
 				return $output;
@@ -153,13 +174,11 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 				$result = $item['kickbox_result']['result'] ?? 'unknown';
 				$reason = $item['kickbox_result']['reason'] ?? '';
 
-				$output = '<span class="kickbox_integration-badge kickbox_integration-badge-' . esc_attr( $result ) . '">';
-				$output .= esc_html( ucfirst( $result ) );
-				$output .= '</span>';
+				$output = '<strong>' . esc_html( ucfirst( $result ) ) . '</strong>';
 
 				if ( $reason ) {
 					$output .= '<div style="font-size: 12px; color: #666; margin-top: 4px;">';
-					$output .= esc_html( $reason );
+					$output .= sprintf( __( 'Reason: %s', 'kickbox-integration' ), esc_html( $reason ) );
 					$output .= '</div>';
 				}
 
@@ -169,12 +188,10 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 				$action      = $item['verification_action'];
 				$action_text = $action === 'block' ? __( 'Blocked', 'kickbox-integration' ) : __( 'Flagged', 'kickbox-integration' );
 
-				return '<span class="kickbox_integration-badge kickbox_integration-badge-' . esc_attr( $action ) . '">' . esc_html( $action_text ) . '</span>';
+				return '<strong>' . esc_html( $action_text ) . '</strong>';
 
 			case 'admin_decision':
-				$decision = $item['admin_decision'];
-
-				return '<span class="kickbox_integration-badge kickbox_integration-badge-' . esc_attr( $decision ) . '">' . esc_html( ucfirst( $decision ) ) . '</span>';
+				return $this->column_admin_decision( $item );
 
 			case 'origin':
 				return esc_html( ucfirst( $item['origin'] ) );
@@ -194,6 +211,30 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 			default:
 				return esc_html( $item[ $column_name ] ?? '' );
 		}
+	}
+
+	/**
+	 * Admin decision column content
+	 *
+	 * @param array $item
+	 *
+	 * @return string
+	 */
+	protected function column_admin_decision( $item ) {
+		$item_id  = intval( $item['id'] );
+		$decision = $item['admin_decision'];
+
+		// Make the decision clickable to open modal
+		$output = '<div class="kickbox-decision-clickable" data-item-id="' . esc_attr( $item_id ) . '" style="cursor: pointer; color: #0073aa;">';
+		$output .= '<strong>' . esc_html( ucfirst( $decision ) ) . '</strong>';
+
+		if ( ! empty( $item['admin_notes'] ) ) {
+			$output .= '<br><em style="font-size: 11px;">' . esc_html( $item['admin_notes'] ) . '</em>';
+		}
+
+		$output .= '</div>';
+
+		return $output;
 	}
 
 	/**
@@ -274,7 +315,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 	/**
 	 * Handle bulk actions
 	 */
-	public function process_bulk_action() {
+	public function handle_bulk_actions() {
 		// Check if bulk action is being performed
 		$action = $this->current_action();
 
@@ -288,12 +329,19 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		}
 
 		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'bulk-' . $this->_args['plural'] ) ) {
+		$nonce_action = 'bulk-' . $this->_args['plural'];
+		if ( ! wp_verify_nonce( $_POST['_wpnonce'], $nonce_action ) ) {
 			wp_die( __( 'Security check failed.', 'kickbox-integration' ) );
 		}
 
 		// Check if items are selected
 		if ( ! isset( $_POST['flagged_email'] ) || ! is_array( $_POST['flagged_email'] ) ) {
+			// Set a notice that no items were selected
+			set_transient( 'kickbox_bulk_notice', array(
+				'type'    => 'error',
+				'message' => __( 'No items were selected for bulk action.', 'kickbox-integration' )
+			), 30 );
+
 			return;
 		}
 
@@ -328,11 +376,14 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		set_transient( $transient_key, $bulk_results, 60 ); // Expire in 1 minute
 
 		// Redirect to prevent resubmission
-		$redirect_url = add_query_arg( array(
-			'bulk_notice' => $transient_key
-		), remove_query_arg( array( 'action', 'action2', 'flagged_email', '_wpnonce' ) ) );
+		$redirect_to = add_query_arg(
+			array(
+				'paged'       => $this->get_pagenum(),
+				'bulk_notice' => $transient_key
+			), wp_get_referer() );
+		$redirect_to = remove_query_arg( array( 'action', 'action2', 'flagged_email', '_wpnonce' ), $redirect_to );
+		wp_safe_redirect( $redirect_to );
 
-		wp_safe_redirect( $redirect_url );
 		exit;
 	}
 
@@ -396,13 +447,25 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		}
 
 		$search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
+
+		// Preserve page parameter
+		if ( isset( $_GET['page'] ) ) {
+			echo '<input type="hidden" name="page" value="' . esc_attr( $_GET['page'] ) . '" />';
+		}
+
+		// Preserve other parameters
+		foreach ( $_GET as $key => $value ) {
+			if ( ! in_array( $key, array( 's', 'paged', 'orderby', 'order', 'page' ) ) ) {
+				echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
+			}
+		}
 		?>
 		<p class="search-box">
 			<label class="screen-reader-text" for="<?php echo esc_attr( $input_id ); ?>"><?php echo esc_html( $text ); ?>
 				:</label>
 			<input type="search" id="<?php echo esc_attr( $input_id ); ?>" name="s" value="<?php echo esc_attr( $search ); ?>"
 						 placeholder="<?php _e( 'Search emails...', 'kickbox-integration' ); ?>" />
-			<input type="submit" id="search-submit" class="button" value="<?php echo esc_attr( $text ); ?>" />
+			<?php submit_button( $text, '', '', false, array( 'id' => 'search-submit' ) ); ?>
 			<?php if ( $search ): ?>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=kickbox-flagged-emails' ) ); ?>" class="button">
 					<?php _e( 'Clear Search', 'kickbox-integration' ); ?>
@@ -419,24 +482,8 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		?>
 		<form method="get" action="<?php echo esc_url( admin_url( 'admin.php?page=kickbox-flagged-emails' ) ); ?>">
 			<?php
-			// Preserve page parameter
-			if ( isset( $_GET['page'] ) ) {
-				echo '<input type="hidden" name="page" value="' . esc_attr( $_GET['page'] ) . '" />';
-			}
-
-			// Preserve other parameters
-			foreach ( $_GET as $key => $value ) {
-				if ( ! in_array( $key, array( 's', 'paged', 'orderby', 'order', 'page' ) ) ) {
-					echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
-				}
-			}
-
 			$this->search_box();
-			?>
-		</form>
 
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page=kickbox-flagged-emails' ) ); ?>">
-			<?php
 			// Add nonce for bulk actions
 			wp_nonce_field( 'bulk-' . $this->_args['plural'] );
 
@@ -480,19 +527,6 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Handle bulk actions
-	 */
-	public function handle_bulk_actions() {
-		// Check if we're on the correct page
-		if ( ! isset( $_GET['page'] ) || $_GET['page'] !== 'kickbox-flagged-emails' ) {
-			return;
-		}
-
-		// Process bulk actions
-		$this->process_bulk_action();
-	}
-
-	/**
 	 * Saves the items-per-page setting.
 	 *
 	 * @param mixed $default The default value.
@@ -505,6 +539,19 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		return 'flagged_emails_per_page' === $option ? absint( $value ) : $default;
 	}
 
+
+	/**
+	 * Display admin notices for review actions
+	 */
+	public function review_action_notices() {
+		$notice = get_transient( 'kickbox_review_notice' );
+		if ( $notice ) {
+			$class = $notice['type'] === 'success' ? 'notice-success' : 'notice-error';
+			echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible"><p>' . esc_html( $notice['message'] ) . '</p></div>';
+			delete_transient( 'kickbox_review_notice' );
+		}
+	}
+
 	/**
 	 * Display bulk action notices
 	 */
@@ -512,6 +559,16 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		// Check if we're on the correct page
 		if ( ! isset( $_GET['page'] ) || $_GET['page'] !== 'kickbox-flagged-emails' ) {
 			return;
+		}
+
+		// Check for general bulk notice (like "no items selected")
+		$bulk_notice = get_transient( 'kickbox_bulk_notice' );
+		if ( $bulk_notice ) {
+			$class = $bulk_notice['type'] === 'success' ? 'notice-success' : 'notice-error';
+			echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible"><p>' . esc_html( $bulk_notice['message'] ) . '</p></div>';
+
+			// Clear the transient
+			delete_transient( 'kickbox_bulk_notice' );
 		}
 
 		// Check for bulk action notice transient
@@ -578,6 +635,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		}
 	}
 
+
 	/**
 	 * Render admin page
 	 */
@@ -595,8 +653,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 				<?php esc_html_e( 'Kickbox - Flagged Emails', 'kickbox-integration' ); ?>
 			</h1>
 			<hr class="wp-header-end">
-
-			<?php $this->display(); ?>
+				<?php $this->display(); ?>
 		</div>
 		<?php
 	}
