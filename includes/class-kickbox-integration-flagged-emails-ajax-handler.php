@@ -27,11 +27,10 @@ class Kickbox_Integration_Flagged_Emails_Ajax_Handler {
      */
     private $table_name;
 
-    /**
-     * Constructor
-     *
-     * @param Kickbox_Integration_Flagged_Emails_Table $table Table instance
-     */
+	/**
+	 * Constructor
+	 *
+	 */
     public function __construct() {
 	    global $wpdb;
 	    $this->table_name = $wpdb->prefix . 'kickbox_integration_flagged_emails';

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Spinner } from '@wordpress/components';
 
 const KickboxApiKeyInput = ({ fieldId, initialValue, maskedValue, hasSavedKey }) => {
 	const [displayValue, setDisplayValue] = useState(maskedValue || '');
@@ -18,7 +19,7 @@ const KickboxApiKeyInput = ({ fieldId, initialValue, maskedValue, hasSavedKey })
 				'attribute': 'data-tip',
 				'fadeIn': 50,
 				'fadeOut': 50,
-				'delay': 200
+				'delay': 200,
 			});
 		}
 	}, []);
@@ -83,8 +84,8 @@ const KickboxApiKeyInput = ({ fieldId, initialValue, maskedValue, hasSavedKey })
 
 			const data = await response.json();
 			if (data.success) {
-				const balanceText = data.data.balance === 'N/A' 
-					? 'Balance: N/A (Sandbox Mode)' 
+				const balanceText = data.data.balance === 'N/A'
+					? 'Balance: N/A (Sandbox Mode)'
 					: `Balance: ${data.data.balance} verifications`;
 				const modeText = data.data.sandbox_mode ? 'Sandbox Mode' : 'Live Mode';
 				alert(`${data.data.message}\n\n${balanceText}\nMode: ${modeText}`);
@@ -117,30 +118,30 @@ const KickboxApiKeyInput = ({ fieldId, initialValue, maskedValue, hasSavedKey })
 				id={`${fieldId}_hidden`}
 				value={actualValue}
 			/>
-			
+
 			<div className="kickbox-api-key-field-wrapper" style={{ position: 'relative', display: 'inline-block' }}>
 				{/* Display input - shows masked or full value but doesn't submit */}
 				<input
 					id={fieldId}
 					type="text"
-					style={{ width: '350px', paddingRight: '40px' }}
+					style={{ width: '350px', paddingRight: '35px' }}
 					value={displayValue}
 					onChange={handleInputChange}
 					className="regular-text kickbox-api-key-input"
 					placeholder="Enter your Kickbox API key"
 					autoComplete="off"
+					disabled={isLoading}
 				/>
 				{hasSavedKey && (
 					<button
 						type="button"
 						className="button button-link kickbox-toggle-api-key"
 						onClick={handleToggleVisibility}
-						disabled={isLoading}
 						style={{
 							position: 'absolute',
-							right: '5px',
-							top: '50%',
-							transform: 'translateY(-50%)',
+							right: '0',
+							top: '40%',
+							transform: 'translateY(-45%)',
 							padding: '0',
 							border: 'none',
 							background: 'none',
@@ -149,10 +150,18 @@ const KickboxApiKeyInput = ({ fieldId, initialValue, maskedValue, hasSavedKey })
 						}}
 						title={isMasked ? 'Show API Key' : 'Hide API Key'}
 					>
-						<span
-							className={`dashicons ${isMasked ? 'dashicons-visibility' : 'dashicons-hidden'}`}
-							style={{ verticalAlign: 'middle', color: '#2271b1' }}
-						></span>
+						{isLoading && (
+							<span
+								className="spinner is-active"
+								style={{ verticalAlign: 'middle', color: '#2271b1' }}
+							></span>
+						)}
+						{!isLoading && (
+							<span
+								className={isMasked ? 'dashicons dashicons-visibility' : 'dashicons dashicons-hidden'}
+								style={{ margin: '5px 8px 5px 5px', color: '#2271b1' }}
+							></span>
+						)}
 					</button>
 				)}
 			</div>
