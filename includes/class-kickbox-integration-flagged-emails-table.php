@@ -330,12 +330,12 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 
 		// Verify nonce
 		$nonce_action = 'bulk-' . $this->_args['plural'];
-		if ( ! wp_verify_nonce( $_POST['_wpnonce'], $nonce_action ) ) {
+		if ( ! wp_verify_nonce( $_GET['_wpnonce'], $nonce_action ) ) {
 			wp_die( __( 'Security check failed.', 'kickbox-integration' ) );
 		}
 
 		// Check if items are selected
-		if ( ! isset( $_POST['flagged_email'] ) || ! is_array( $_POST['flagged_email'] ) ) {
+		if ( ! isset( $_GET['flagged_email'] ) || ! is_array( $_GET['flagged_email'] ) ) {
 			// Set a notice that no items were selected
 			set_transient( 'kickbox_bulk_notice', array(
 				'type'    => 'error',
@@ -345,7 +345,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 			return;
 		}
 
-		$email_ids     = array_map( 'intval', $_POST['flagged_email'] );
+		$email_ids     = array_map( 'intval', $_GET['flagged_email'] );
 		$success_count = 0;
 		$failed_items  = array();
 
