@@ -639,10 +639,10 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 			echo '<input type="hidden" name="page" value="' . esc_attr( sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) . '" />';
 		}
 
-		// Preserve other parameters
+		// Preserve other parameters (exclude search and pagination parameters)
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
 		foreach ( $_GET as $key => $value ) {
-			if ( ! in_array( $key, array( 's', 'paged', 'orderby', 'order', 'page' ) ) ) {
+			if ( ! in_array( $key, array( 's', 'paged', 'orderby', 'order', 'page', 'admin_decision', 'origin', 'verification_action' ) ) ) {
 				echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
 			}
 		}
@@ -718,10 +718,10 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 			// Add nonce for bulk actions
 			wp_nonce_field( 'bulk-' . $this->_args['plural'] );
 
-			// Preserve GET parameters for after redirect
+			// Preserve GET parameters for after redirect (exclude search and bulk action parameters)
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading GET parameters for display purposes
 			foreach ( $_GET as $key => $value ) {
-				if ( ! in_array( $key, array( 'action', 'action2', 'flagged_email', '_wpnonce' ) ) ) {
+				if ( ! in_array( $key, array( 'action', 'action2', 'flagged_email', '_wpnonce', 's' ) ) ) {
 					echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
 				}
 			}
