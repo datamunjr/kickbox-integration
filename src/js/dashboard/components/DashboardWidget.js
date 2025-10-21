@@ -70,23 +70,23 @@ const DashboardWidget = () => {
 
     // Prepare chart data
     const prepareChartData = () => {
-        if (!stats || !Array.isArray(stats)) {
+        if (!stats || !stats.verification_stats || !Array.isArray(stats.verification_stats)) {
             return null;
         }
 
-        const total = stats.reduce((sum, item) => sum + parseInt(item.count), 0);
+        const total = stats.verification_stats.reduce((sum, item) => sum + parseInt(item.count), 0);
 
         if (total === 0) {
             return null;
         }
 
         return {
-            labels: stats.map(item => getResultLabel(item.verification_result)),
+            labels: stats.verification_stats.map(item => getResultLabel(item.verification_result)),
             datasets: [
                 {
-                    data: stats.map(item => parseInt(item.count)),
-                    backgroundColor: stats.map(item => getResultColor(item.verification_result)),
-                    borderColor: stats.map(item => getResultColor(item.verification_result)),
+                    data: stats.verification_stats.map(item => parseInt(item.count)),
+                    backgroundColor: stats.verification_stats.map(item => getResultColor(item.verification_result)),
+                    borderColor: stats.verification_stats.map(item => getResultColor(item.verification_result)),
                     borderWidth: 1,
                     hoverBorderWidth: 2,
                 }
@@ -147,7 +147,7 @@ const DashboardWidget = () => {
     }
 
     const chartData = prepareChartData();
-    const totalVerifications = stats ? stats.reduce((sum, item) => sum + parseInt(item.count), 0) : 0;
+    const totalVerifications = stats && stats.verification_stats ? stats.verification_stats.reduce((sum, item) => sum + parseInt(item.count), 0) : 0;
 
     if (totalVerifications === 0) {
         return (
@@ -167,14 +167,14 @@ const DashboardWidget = () => {
 
                 <div className="kickbox_integration-dashboard-stat">
           <span className="kickbox_integration-dashboard-stat-number">
-            {stats ? stats.find(item => item.verification_result === 'deliverable')?.count || 0 : 0}
+            {stats && stats.verification_stats ? stats.verification_stats.find(item => item.verification_result === 'deliverable')?.count || 0 : 0}
           </span>
                     <span className="kickbox_integration-dashboard-stat-label">{kickbox_integration_dashboard.strings.deliverable}</span>
                 </div>
 
                 <div className="kickbox_integration-dashboard-stat">
           <span className="kickbox_integration-dashboard-stat-number">
-            {stats ? stats.find(item => item.verification_result === 'undeliverable')?.count || 0 : 0}
+            {stats && stats.verification_stats ? stats.verification_stats.find(item => item.verification_result === 'undeliverable')?.count || 0 : 0}
           </span>
                     <span className="kickbox_integration-dashboard-stat-label">{kickbox_integration_dashboard.strings.undeliverable}</span>
                 </div>
