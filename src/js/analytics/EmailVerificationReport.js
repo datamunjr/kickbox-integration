@@ -109,17 +109,6 @@ const EmailVerificationReport = ({ query, path, pathMatch, params }) => {
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
 
-	// Debug WooCommerce components availability
-	useEffect(() => {
-		console.log('WooCommerce components available:', {
-			wc: typeof wc,
-			wcComponents: typeof wc?.components,
-			section: typeof wc?.components?.Section,
-			card: typeof wc?.components?.Card,
-			sectionHeader: typeof wc?.components?.SectionHeader,
-		});
-	}, []);
-
 	useEffect(() => {
 		loadStats();
 	}, []);
@@ -227,12 +216,6 @@ const EmailVerificationReport = ({ query, path, pathMatch, params }) => {
 			hoverBorderWidth: 3,
 		}],
 	} : null;
-
-	// Debug logging to see what data we're getting
-	console.log('Stats data:', stats);
-	console.log('Reason stats data:', reasonStats);
-	console.log('WooCommerce Chart data:', chartData);
-	console.log('WooCommerce Reason chart data:', reasonChartData);
 
 	if (loading) {
 		return (
