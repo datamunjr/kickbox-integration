@@ -141,7 +141,7 @@ class Kickbox_Integration_Admin {
 			'react-dom'
 		), KICKBOX_INTEGRATION_VERSION, true );
 
-		wp_enqueue_style( 'kickbox-integration-admin', KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/css/admin.css', array( 'woocommerce_admin_styles' ), KICKBOX_INTEGRATION_VERSION );
+		wp_enqueue_style( 'kickbox-integration-admin', KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/css/admin-styles.css', array( 'woocommerce_admin_styles' ), KICKBOX_INTEGRATION_VERSION );
 
 		wp_localize_script( 'kickbox-integration-admin', 'kickbox_integration_admin', array(
 			'ajax_url'   => admin_url( 'admin-ajax.php' ),
