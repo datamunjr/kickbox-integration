@@ -28,27 +28,6 @@ const Section = ({ children, ...props }) => {
 	);
 };
 
-const SectionHeader = ({ title, children, ...props }) => {
-	const WooCommerceSectionHeader = wc?.components?.SectionHeader;
-	if (WooCommerceSectionHeader) {
-		return <WooCommerceSectionHeader title={title} {...props}>{children}</WooCommerceSectionHeader>;
-	}
-
-	// Fallback to custom component
-	return (
-		<div style={{
-			padding: '16px 20px',
-			borderBottom: '1px solid #ddd',
-			backgroundColor: '#f8f9fa',
-		}} {...props}>
-			<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>
-				{title}
-			</h2>
-			{children}
-		</div>
-	);
-};
-
 // WooCommerce Card component with fallback
 const Card = ({ children, ...props }) => {
 	const WooCommerceCard = wc?.components?.Card;
