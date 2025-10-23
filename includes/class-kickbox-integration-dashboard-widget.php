@@ -58,7 +58,7 @@ class Kickbox_Integration_Dashboard_Widget {
         }
 
         wp_enqueue_script( 'kickbox-integration-dashboard', KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/js/dashboard.js', array( 'jquery' ), KICKBOX_INTEGRATION_VERSION, true );
-        wp_enqueue_style( 'kickbox-integration-dashboard', KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/css/dashboard.css', array(), KICKBOX_INTEGRATION_VERSION );
+        wp_enqueue_style( 'kickbox-integration-dashboard', KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/css/dashboard-styles.css', array(), KICKBOX_INTEGRATION_VERSION );
 
         wp_localize_script( 'kickbox-integration-dashboard', 'kickbox_integration_dashboard', array(
                 'ajax_url'  => admin_url( 'admin-ajax.php' ),

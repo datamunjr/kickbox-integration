@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import AllowList from './components/AllowList';
 import FlaggedEmails from './components/FlaggedEmails';
 import KickboxApiKeyInput from './components/KickboxApiKeyInput';
-import '../../css/admin.css';
 
 // Initialize React components for WooCommerce Settings sections and Analytics page
 document.addEventListener('DOMContentLoaded', function() {

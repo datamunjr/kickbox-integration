@@ -6,13 +6,17 @@ module.exports = (env, argv) => {
   
   return {
     entry: {
-      'admin': './src/js/admin/index.js',
-      'checkout': './src/js/checkout/index.js',
-      'dashboard': './src/js/dashboard/index.js',
+      'admin': './src/js/admin.js',
+      'admin-styles': './src/scss/admin.scss',
+      'checkout': './src/js/checkout.js',
+      'checkout-styles': './src/scss/checkout.scss',
+      'dashboard': './src/js/dashboard.js',
+      'dashboard-styles': './src/scss/dashboard.scss',
       'analytics': './src/js/analytics/index.js',
+      'analytics-styles': './src/scss/analytics.scss',
       'flagged-emails-modal': './src/js/admin/flagged-emails-modal.js',
       'flagged-emails-handler': './src/js/admin/flagged-emails-handler.js',
-      'flagged-emails-modal-styles': './src/scss/admin/flagged-emails-modal.scss'
+      'flagged-emails-modal-styles': './src/scss/flagged-emails-modal.scss'
     },
     output: {
       path: path.resolve(__dirname, 'assets/js'),

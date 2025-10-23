@@ -30,14 +30,14 @@ class Kickbox_Integration_Analytics {
 	 *
 	 * @var string
 	 */
-	private $verification_table;
+	private $verification_logs_table;
 
 	/**
 	 * Constructor
 	 */
 	public function __construct() {
 		global $wpdb;
-		$this->verification_table = $wpdb->prefix . 'kickbox_integration_verification_log';
+		$this->verification_logs_table = $wpdb->prefix . 'kickbox_integration_verification_log';
 
 		// Register AJAX handlers
 		add_action( 'wp_ajax_kickbox_integration_get_stats', array( $this, 'ajax_get_verification_stats' ) );
@@ -87,10 +87,12 @@ class Kickbox_Integration_Analytics {
 	/**
 	 * Get verification statistics
 	 *
+	 * @param string $start_date Start date (Y-m-d format)
+	 * @param string $end_date End date (Y-m-d format)
 	 * @return array Statistics
 	 */
-	public function get_verification_stats() {
-		$cache_key = $this->get_cache_key_for_stats();
+	public function get_verification_stats( $start_date = null, $end_date = null ) {
+		$cache_key = $this->get_cache_key_for_stats() . '_' . ( $start_date ?: 'all' ) . '_' . ( $end_date ?: 'all' );
 
 		// Try to get from cache first
 		$stats = wp_cache_get( $cache_key, $this->cache_group );
@@ -101,10 +103,31 @@ class Kickbox_Integration_Analytics {
 
 		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$stats = $wpdb->get_results(
-			$wpdb->prepare( "SELECT verification_result, COUNT(*) as count FROM %i GROUP BY verification_result", $this->verification_table )
-		);
+		$where_clause = '';
+		$prepare_args = array( $this->verification_logs_table );
+
+		// Add date filtering if provided
+		if ( $start_date && $end_date ) {
+			$where_clause = ' WHERE created_at >= %s AND created_at <= %s';
+			$prepare_args[] = $start_date . ' 00:00:00';
+			$prepare_args[] = $end_date . ' 23:59:59';
+		} elseif ( $start_date ) {
+			$where_clause = ' WHERE created_at >= %s';
+			$prepare_args[] = $start_date . ' 00:00:00';
+		} elseif ( $end_date ) {
+			$where_clause = ' WHERE created_at <= %s';
+			$prepare_args[] = $end_date . ' 23:59:59';
+		}
+
+		// Build the complete SQL query
+		$sql = "SELECT verification_result, COUNT(*) as count FROM {$this->verification_logs_table}{$where_clause} GROUP BY verification_result";
+		
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ( empty( $prepare_args ) ) {
+			$stats = $wpdb->get_results( $sql );
+		} else {
+			$stats = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_args ) );
+		}
 
 		// Cache the result
 		wp_cache_set( $cache_key, $stats, $this->cache_group, $this->cache_expiration );
@@ -115,10 +138,12 @@ class Kickbox_Integration_Analytics {
 	/**
 	 * Get verification result reason statistics
 	 *
+	 * @param string $start_date Start date (Y-m-d format)
+	 * @param string $end_date End date (Y-m-d format)
 	 * @return array Statistics
 	 */
-	public function get_verification_reason_stats() {
-		$cache_key = $this->get_cache_key_for_reason_stats();
+	public function get_verification_reason_stats( $start_date = null, $end_date = null ) {
+		$cache_key = $this->get_cache_key_for_reason_stats() . '_' . ( $start_date ?: 'all' ) . '_' . ( $end_date ?: 'all' );
 
 		// Try to get from cache first
 		$stats = wp_cache_get( $cache_key, $this->cache_group );
@@ -129,11 +154,32 @@ class Kickbox_Integration_Analytics {
 
 		global $wpdb;
 
+		$where_clause = ' WHERE verification_data IS NOT NULL';
+		$prepare_args = array( $this->verification_logs_table );
+
+		// Add date filtering if provided
+		if ( $start_date && $end_date ) {
+			$where_clause .= ' AND created_at >= %s AND created_at <= %s';
+			$prepare_args[] = $start_date . ' 00:00:00';
+			$prepare_args[] = $end_date . ' 23:59:59';
+		} elseif ( $start_date ) {
+			$where_clause .= ' AND created_at >= %s';
+			$prepare_args[] = $start_date . ' 00:00:00';
+		} elseif ( $end_date ) {
+			$where_clause .= ' AND created_at <= %s';
+			$prepare_args[] = $end_date . ' 23:59:59';
+		}
+
+		// Build the complete SQL query
+		$sql = "SELECT verification_data FROM {$this->verification_logs_table}{$where_clause}";
+		
 		// Get all verification records with their data
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$records = $wpdb->get_results(
-			$wpdb->prepare( "SELECT verification_data FROM %i WHERE verification_data IS NOT NULL", $this->verification_table )
-		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ( empty( $prepare_args ) ) {
+			$records = $wpdb->get_results( $sql );
+		} else {
+			$records = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_args ) );
+		}
 
 		$reason_counts = array();
 
@@ -198,10 +244,12 @@ class Kickbox_Integration_Analytics {
 	/**
 	 * Get total number of verifications
 	 *
+	 * @param string $start_date Start date (Y-m-d format)
+	 * @param string $end_date End date (Y-m-d format)
 	 * @return int Total verifications
 	 */
-	public function get_total_verifications() {
-		$cache_key = $this->get_cache_key_for_total_verifications();
+	public function get_total_verifications( $start_date = null, $end_date = null ) {
+		$cache_key = $this->get_cache_key_for_total_verifications() . '_' . ( $start_date ?: 'all' ) . '_' . ( $end_date ?: 'all' );
 		
 		// Try to get from cache first
 		$count = wp_cache_get( $cache_key, $this->cache_group );
@@ -212,8 +260,31 @@ class Kickbox_Integration_Analytics {
 
 		global $wpdb;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i", $this->verification_table ) );
+		$where_clause = '';
+		$prepare_args = array( $this->verification_logs_table );
+
+		// Add date filtering if provided
+		if ( $start_date && $end_date ) {
+			$where_clause = ' WHERE created_at >= %s AND created_at <= %s';
+			$prepare_args[] = $start_date . ' 00:00:00';
+			$prepare_args[] = $end_date . ' 23:59:59';
+		} elseif ( $start_date ) {
+			$where_clause = ' WHERE created_at >= %s';
+			$prepare_args[] = $start_date . ' 00:00:00';
+		} elseif ( $end_date ) {
+			$where_clause = ' WHERE created_at <= %s';
+			$prepare_args[] = $end_date . ' 23:59:59';
+		}
+
+		// Build the complete SQL query
+		$sql = "SELECT COUNT(*) FROM {$this->verification_logs_table}{$where_clause}";
+		
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ( empty( $prepare_args ) ) {
+			$count = $wpdb->get_var( $sql );
+		} else {
+			$count = $wpdb->get_var( $wpdb->prepare( $sql, $prepare_args ) );
+		}
 
 		// Cache the result
 		wp_cache_set( $cache_key, $count, $this->cache_group, $this->cache_expiration );
@@ -243,7 +314,7 @@ class Kickbox_Integration_Analytics {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$count = $wpdb->get_var( $wpdb->prepare(
 			"SELECT COUNT(*) FROM %i WHERE DATE(created_at) = %s",
-			$this->verification_table,
+			$this->verification_logs_table,
 			$today
 		) );
 
@@ -275,7 +346,7 @@ class Kickbox_Integration_Analytics {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$count = $wpdb->get_var( $wpdb->prepare(
 			"SELECT COUNT(*) FROM %i WHERE DATE(created_at) >= %s",
-			$this->verification_table,
+			$this->verification_logs_table,
 			$week_start
 		) );
 
@@ -307,7 +378,7 @@ class Kickbox_Integration_Analytics {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$count = $wpdb->get_var( $wpdb->prepare(
 			"SELECT COUNT(*) FROM %i WHERE DATE(created_at) >= %s",
-			$this->verification_table,
+			$this->verification_logs_table,
 			$month_start
 		) );
 
@@ -330,7 +401,7 @@ class Kickbox_Integration_Analytics {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$stats = $wpdb->get_results( $wpdb->prepare(
 			"SELECT verification_result, COUNT(*) as count FROM %i WHERE DATE(created_at) BETWEEN %s AND %s GROUP BY verification_result",
-			$this->verification_table,
+			$this->verification_logs_table,
 			$start_date,
 			$end_date
 		) );
@@ -360,7 +431,7 @@ class Kickbox_Integration_Analytics {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$trends = $wpdb->get_results( $wpdb->prepare(
 			"SELECT DATE(created_at) as date, COUNT(*) as count FROM %i WHERE DATE(created_at) >= %s GROUP BY DATE(created_at) ORDER BY date ASC",
-			$this->verification_table,
+			$this->verification_logs_table,
 			$thirty_days_ago
 		) );
 
@@ -380,12 +451,30 @@ class Kickbox_Integration_Analytics {
 			wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'kickbox-integration' ) ) );
 		}
 
-		$stats        = $this->get_verification_stats();
-		$reason_stats = $this->get_verification_reason_stats();
+		// Get date range parameters
+		$start_date = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['start_date'] ) ) : null;
+		$end_date   = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( $_POST['end_date'] ) ) : null;
+
+		// Validate date format if provided
+		if ( $start_date && ! $this->validate_date_format( $start_date ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid start date format. Use YYYY-MM-DD.', 'kickbox-integration' ) ) );
+		}
+		if ( $end_date && ! $this->validate_date_format( $end_date ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid end date format. Use YYYY-MM-DD.', 'kickbox-integration' ) ) );
+		}
+
+		$stats        = $this->get_verification_stats( $start_date, $end_date );
+		$reason_stats = $this->get_verification_reason_stats( $start_date, $end_date );
+		$rates       = $this->get_success_failure_rates( $start_date, $end_date );
 
 		wp_send_json_success( array(
 			'verification_stats' => $stats,
-			'reason_stats'       => $reason_stats
+			'reason_stats'       => $reason_stats,
+			'success_failure_rates' => $rates,
+			'date_range' => array(
+				'start_date' => $start_date,
+				'end_date' => $end_date
+			)
 		) );
 	}
 
@@ -436,6 +525,72 @@ class Kickbox_Integration_Analytics {
 		}
 
 		return $summary;
+	}
+
+	/**
+	 * Get success and failure rates for analytics
+	 *
+	 * @param string $start_date Start date (Y-m-d format)
+	 * @param string $end_date End date (Y-m-d format)
+	 * @return array Success and failure rate statistics
+	 */
+	public function get_success_failure_rates( $start_date = null, $end_date = null ) {
+		$cache_key = 'success_failure_rates_' . ( $start_date ?: 'all' ) . '_' . ( $end_date ?: 'all' );
+
+		// Try to get from cache first
+		$rates = wp_cache_get( $cache_key, $this->cache_group );
+
+		if ( $rates !== false ) {
+			return $rates;
+		}
+
+		$verification_stats = $this->get_verification_stats( $start_date, $end_date );
+		$total = $this->get_total_verifications( $start_date, $end_date );
+
+		// Initialize counters
+		$successful_verifications = 0;
+		$failed_verifications = 0;
+
+		// Count successful and failed verifications
+		foreach ( $verification_stats as $stat ) {
+			$result = $stat->verification_result;
+			$count = intval( $stat->count );
+
+			// Consider 'deliverable' as successful, everything else as failed
+			if ( $result === 'deliverable' ) {
+				$successful_verifications += $count;
+			} else {
+				$failed_verifications += $count;
+			}
+		}
+
+		// Calculate rates
+		$success_rate = $total > 0 ? round( ( $successful_verifications / $total ) * 100, 1 ) : 0;
+		$failure_rate = $total > 0 ? round( ( $failed_verifications / $total ) * 100, 1 ) : 0;
+
+		$rates = array(
+			'successful_verifications' => $successful_verifications,
+			'failed_verifications' => $failed_verifications,
+			'success_rate' => $success_rate,
+			'failure_rate' => $failure_rate,
+			'total_verifications' => $total
+		);
+
+		// Cache the result
+		wp_cache_set( $cache_key, $rates, $this->cache_group, $this->cache_expiration );
+
+		return $rates;
+	}
+
+	/**
+	 * Validate date format (YYYY-MM-DD)
+	 *
+	 * @param string $date Date string to validate
+	 * @return bool True if valid format
+	 */
+	private function validate_date_format( $date ) {
+		$d = DateTime::createFromFormat( 'Y-m-d', $date );
+		return $d && $d->format( 'Y-m-d' ) === $date;
 	}
 
 	/**
@@ -492,11 +647,11 @@ class Kickbox_Integration_Analytics {
 		);
 
 		// Enqueue analytics CSS if it exists
-		$css_file = KICKBOX_INTEGRATION_PLUGIN_DIR . 'assets/css/analytics.css';
+		$css_file = KICKBOX_INTEGRATION_PLUGIN_DIR . 'assets/css/analytics-styles.css';
 		if ( file_exists( $css_file ) ) {
 			wp_enqueue_style(
 				'kickbox-integration-analytics',
-				KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/css/analytics.css',
+				KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/css/analytics-styles.css',
 				array(),
 				KICKBOX_INTEGRATION_VERSION
 			);
