@@ -30,14 +30,14 @@ class Kickbox_Integration_Analytics {
 	 *
 	 * @var string
 	 */
-	private $verification_table;
+	private $verification_logs_table;
 
 	/**
 	 * Constructor
 	 */
 	public function __construct() {
 		global $wpdb;
-		$this->verification_table = $wpdb->prefix . 'kickbox_integration_verification_log';
+		$this->verification_logs_table = $wpdb->prefix . 'kickbox_integration_verification_log';
 
 		// Register AJAX handlers
 		add_action( 'wp_ajax_kickbox_integration_get_stats', array( $this, 'ajax_get_verification_stats' ) );
@@ -104,7 +104,7 @@ class Kickbox_Integration_Analytics {
 		global $wpdb;
 
 		$where_clause = '';
-		$prepare_args = array( $this->verification_table );
+		$prepare_args = array( $this->verification_logs_table );
 
 		// Add date filtering if provided
 		if ( $start_date && $end_date ) {
@@ -120,12 +120,14 @@ class Kickbox_Integration_Analytics {
 		}
 
 		// Build the complete SQL query
-		$sql = "SELECT verification_result, COUNT(*) as count FROM {$wpdb->prefix}kickbox_integration_verifications{$where_clause} GROUP BY verification_result";
+		$sql = "SELECT verification_result, COUNT(*) as count FROM {$this->verification_logs_table}{$where_clause} GROUP BY verification_result";
 		
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$stats = $wpdb->get_results(
-			$wpdb->prepare( $sql, $prepare_args )
-		);
+		if ( empty( $prepare_args ) ) {
+			$stats = $wpdb->get_results( $sql );
+		} else {
+			$stats = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_args ) );
+		}
 
 		// Cache the result
 		wp_cache_set( $cache_key, $stats, $this->cache_group, $this->cache_expiration );
@@ -153,7 +155,7 @@ class Kickbox_Integration_Analytics {
 		global $wpdb;
 
 		$where_clause = ' WHERE verification_data IS NOT NULL';
-		$prepare_args = array( $this->verification_table );
+		$prepare_args = array( $this->verification_logs_table );
 
 		// Add date filtering if provided
 		if ( $start_date && $end_date ) {
@@ -169,13 +171,15 @@ class Kickbox_Integration_Analytics {
 		}
 
 		// Build the complete SQL query
-		$sql = "SELECT verification_data FROM {$wpdb->prefix}kickbox_integration_verifications{$where_clause}";
+		$sql = "SELECT verification_data FROM {$this->verification_logs_table}{$where_clause}";
 		
 		// Get all verification records with their data
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$records = $wpdb->get_results(
-			$wpdb->prepare( $sql, $prepare_args )
-		);
+		if ( empty( $prepare_args ) ) {
+			$records = $wpdb->get_results( $sql );
+		} else {
+			$records = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_args ) );
+		}
 
 		$reason_counts = array();
 
@@ -257,7 +261,7 @@ class Kickbox_Integration_Analytics {
 		global $wpdb;
 
 		$where_clause = '';
-		$prepare_args = array( $this->verification_table );
+		$prepare_args = array( $this->verification_logs_table );
 
 		// Add date filtering if provided
 		if ( $start_date && $end_date ) {
@@ -273,10 +277,14 @@ class Kickbox_Integration_Analytics {
 		}
 
 		// Build the complete SQL query
-		$sql = "SELECT COUNT(*) FROM {$wpdb->prefix}kickbox_integration_verifications{$where_clause}";
+		$sql = "SELECT COUNT(*) FROM {$this->verification_logs_table}{$where_clause}";
 		
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$count = $wpdb->get_var( $wpdb->prepare( $sql, $prepare_args ) );
+		if ( empty( $prepare_args ) ) {
+			$count = $wpdb->get_var( $sql );
+		} else {
+			$count = $wpdb->get_var( $wpdb->prepare( $sql, $prepare_args ) );
+		}
 
 		// Cache the result
 		wp_cache_set( $cache_key, $count, $this->cache_group, $this->cache_expiration );
@@ -306,7 +314,7 @@ class Kickbox_Integration_Analytics {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$count = $wpdb->get_var( $wpdb->prepare(
 			"SELECT COUNT(*) FROM %i WHERE DATE(created_at) = %s",
-			$this->verification_table,
+			$this->verification_logs_table,
 			$today
 		) );
 
@@ -338,7 +346,7 @@ class Kickbox_Integration_Analytics {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$count = $wpdb->get_var( $wpdb->prepare(
 			"SELECT COUNT(*) FROM %i WHERE DATE(created_at) >= %s",
-			$this->verification_table,
+			$this->verification_logs_table,
 			$week_start
 		) );
 
@@ -370,7 +378,7 @@ class Kickbox_Integration_Analytics {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$count = $wpdb->get_var( $wpdb->prepare(
 			"SELECT COUNT(*) FROM %i WHERE DATE(created_at) >= %s",
-			$this->verification_table,
+			$this->verification_logs_table,
 			$month_start
 		) );
 
@@ -393,7 +401,7 @@ class Kickbox_Integration_Analytics {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$stats = $wpdb->get_results( $wpdb->prepare(
 			"SELECT verification_result, COUNT(*) as count FROM %i WHERE DATE(created_at) BETWEEN %s AND %s GROUP BY verification_result",
-			$this->verification_table,
+			$this->verification_logs_table,
 			$start_date,
 			$end_date
 		) );
@@ -423,7 +431,7 @@ class Kickbox_Integration_Analytics {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$trends = $wpdb->get_results( $wpdb->prepare(
 			"SELECT DATE(created_at) as date, COUNT(*) as count FROM %i WHERE DATE(created_at) >= %s GROUP BY DATE(created_at) ORDER BY date ASC",
-			$this->verification_table,
+			$this->verification_logs_table,
 			$thirty_days_ago
 		) );
 
