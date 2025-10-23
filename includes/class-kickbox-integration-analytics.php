@@ -119,9 +119,12 @@ class Kickbox_Integration_Analytics {
 			$prepare_args[] = $end_date . ' 23:59:59';
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// Build the complete SQL query
+		$sql = "SELECT verification_result, COUNT(*) as count FROM {$wpdb->prefix}kickbox_integration_verifications{$where_clause} GROUP BY verification_result";
+		
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$stats = $wpdb->get_results(
-			$wpdb->prepare( "SELECT verification_result, COUNT(*) as count FROM %i{$where_clause} GROUP BY verification_result", $prepare_args )
+			$wpdb->prepare( $sql, $prepare_args )
 		);
 
 		// Cache the result
@@ -165,10 +168,13 @@ class Kickbox_Integration_Analytics {
 			$prepare_args[] = $end_date . ' 23:59:59';
 		}
 
+		// Build the complete SQL query
+		$sql = "SELECT verification_data FROM {$wpdb->prefix}kickbox_integration_verifications{$where_clause}";
+		
 		// Get all verification records with their data
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$records = $wpdb->get_results(
-			$wpdb->prepare( "SELECT verification_data FROM %i{$where_clause}", $prepare_args )
+			$wpdb->prepare( $sql, $prepare_args )
 		);
 
 		$reason_counts = array();
@@ -266,8 +272,11 @@ class Kickbox_Integration_Analytics {
 			$prepare_args[] = $end_date . ' 23:59:59';
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i{$where_clause}", $prepare_args ) );
+		// Build the complete SQL query
+		$sql = "SELECT COUNT(*) FROM {$wpdb->prefix}kickbox_integration_verifications{$where_clause}";
+		
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$count = $wpdb->get_var( $wpdb->prepare( $sql, $prepare_args ) );
 
 		// Cache the result
 		wp_cache_set( $cache_key, $count, $this->cache_group, $this->cache_expiration );
