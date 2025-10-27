@@ -1,4 +1,6 @@
 *** Kickbox Integration Changelog ***
+2025-10-27 - Version 1.0.2
+* Feature - Add Date Range filters for the Email Verification Analytics Report
 
 2025-10-21 - Version 1.0.1
 * Fix - Fixed bug with dashboard widget not rendering

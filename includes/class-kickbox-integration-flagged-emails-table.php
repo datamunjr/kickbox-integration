@@ -105,6 +105,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 		$views = array();
 
 		// Get current filter
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET parameter for filtering
 		$current_filter = isset( $_GET['verification_action'] ) ? sanitize_text_field( wp_unslash( $_GET['verification_action'] ) ) : '';
 
 		// All items link
@@ -187,7 +188,7 @@ class Kickbox_Integration_Flagged_Emails_Table extends WP_List_Table {
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$origins = $wpdb->get_col( $wpdb->prepare(
-			"SELECT DISTINCT origin FROM %i WHERE origin IS NOT NULL AND origin != '' ORDER BY origin ASC",
+			"SELECT DISTINCT origin FROM %i WHERE origin IS NOT NULL AND origin != '' ORDER BY origin",
 			$this->table_name
 		) );
 

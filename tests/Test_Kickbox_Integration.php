@@ -25,7 +25,7 @@ class Test_Kickbox_Integration extends WP_UnitTestCase {
 		$this->assertTrue( defined( 'KICKBOX_INTEGRATION_PLUGIN_URL' ) );
 		$this->assertTrue( defined( 'KICKBOX_INTEGRATION_PLUGIN_BASENAME' ) );
 
-		$this->assertEquals( '1.0.1', KICKBOX_INTEGRATION_VERSION );
+		$this->assertEquals( '1.0.2', KICKBOX_INTEGRATION_VERSION );
 		$this->assertStringEndsWith( '/', KICKBOX_INTEGRATION_PLUGIN_DIR );
 		$this->assertStringEndsWith( '/', KICKBOX_INTEGRATION_PLUGIN_URL );
 		$this->assertStringContainsString( 'kickbox-integration.php', KICKBOX_INTEGRATION_PLUGIN_BASENAME );

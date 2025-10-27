@@ -50,7 +50,7 @@ class Kickbox_Integration_Checkout {
                 'jquery',
                 'wc-checkout'
         ), KICKBOX_INTEGRATION_VERSION, true );
-        wp_enqueue_style( 'kickbox-integration-checkout', KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/css/checkout.css', array(), KICKBOX_INTEGRATION_VERSION );
+        wp_enqueue_style( 'kickbox-integration-checkout', KICKBOX_INTEGRATION_PLUGIN_URL . 'assets/css/checkout-styles.css', array(), KICKBOX_INTEGRATION_VERSION );
 
         wp_localize_script( 'kickbox-integration-checkout', 'kickbox_integration_checkout', array(
                 'ajax_url'             => admin_url( 'admin-ajax.php' ),
