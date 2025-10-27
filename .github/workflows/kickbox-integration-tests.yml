@@ -1,8 +1,13 @@
 name: Run Tests
 
 on:
-  push:
   pull_request:
+    types: [ opened, synchronize, reopened ]
+
+# Cancel previous runs when a new commit is pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   qit-tests:
@@ -43,7 +48,6 @@ jobs:
   test-kickbox-react:
     name: React Tests
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -63,7 +67,6 @@ jobs:
   test-kickbox-integration:
     name: PHPUnit Tests
     runs-on: ubuntu-latest
-
     services:
       mysql:
         image: mysql:8.0
