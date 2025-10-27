@@ -126,7 +126,7 @@ class Kickbox_Integration_Analytics {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 			$stats = $wpdb->get_results( $sql );
 		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$stats = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_args ) );
 		}
 
@@ -179,7 +179,7 @@ class Kickbox_Integration_Analytics {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 			$records = $wpdb->get_results( $sql );
 		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$records = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_args ) );
 		}
 
@@ -285,7 +285,7 @@ class Kickbox_Integration_Analytics {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 			$count = $wpdb->get_var( $sql );
 		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$count = $wpdb->get_var( $wpdb->prepare( $sql, $prepare_args ) );
 		}
 
