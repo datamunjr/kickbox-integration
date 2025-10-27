@@ -104,7 +104,7 @@ class Kickbox_Integration_Analytics {
 		global $wpdb;
 
 		$where_clause = '';
-		$prepare_args = array( $this->verification_logs_table );
+		$prepare_args = array();
 
 		// Add date filtering if provided
 		if ( $start_date && $end_date ) {
@@ -119,13 +119,14 @@ class Kickbox_Integration_Analytics {
 			$prepare_args[] = $end_date . ' 23:59:59';
 		}
 
-		// Build the complete SQL query
+		// Build the complete SQL query with proper placeholders
 		$sql = "SELECT verification_result, COUNT(*) as count FROM {$this->verification_logs_table}{$where_clause} GROUP BY verification_result";
 		
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		if ( empty( $prepare_args ) ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 			$stats = $wpdb->get_results( $sql );
 		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$stats = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_args ) );
 		}
 
@@ -155,7 +156,7 @@ class Kickbox_Integration_Analytics {
 		global $wpdb;
 
 		$where_clause = ' WHERE verification_data IS NOT NULL';
-		$prepare_args = array( $this->verification_logs_table );
+		$prepare_args = array();
 
 		// Add date filtering if provided
 		if ( $start_date && $end_date ) {
@@ -174,10 +175,11 @@ class Kickbox_Integration_Analytics {
 		$sql = "SELECT verification_data FROM {$this->verification_logs_table}{$where_clause}";
 		
 		// Get all verification records with their data
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		if ( empty( $prepare_args ) ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 			$records = $wpdb->get_results( $sql );
 		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$records = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_args ) );
 		}
 
@@ -261,7 +263,7 @@ class Kickbox_Integration_Analytics {
 		global $wpdb;
 
 		$where_clause = '';
-		$prepare_args = array( $this->verification_logs_table );
+		$prepare_args = array();
 
 		// Add date filtering if provided
 		if ( $start_date && $end_date ) {
@@ -279,10 +281,11 @@ class Kickbox_Integration_Analytics {
 		// Build the complete SQL query
 		$sql = "SELECT COUNT(*) FROM {$this->verification_logs_table}{$where_clause}";
 		
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		if ( empty( $prepare_args ) ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 			$count = $wpdb->get_var( $sql );
 		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$count = $wpdb->get_var( $wpdb->prepare( $sql, $prepare_args ) );
 		}
 
@@ -430,7 +433,7 @@ class Kickbox_Integration_Analytics {
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$trends = $wpdb->get_results( $wpdb->prepare(
-			"SELECT DATE(created_at) as date, COUNT(*) as count FROM %i WHERE DATE(created_at) >= %s GROUP BY DATE(created_at) ORDER BY date ASC",
+			"SELECT DATE(created_at) as date, COUNT(*) as count FROM %i WHERE DATE(created_at) >= %s GROUP BY DATE(created_at) ORDER BY date",
 			$this->verification_logs_table,
 			$thirty_days_ago
 		) );
@@ -463,10 +466,51 @@ class Kickbox_Integration_Analytics {
 			wp_send_json_error( array( 'message' => __( 'Invalid end date format. Use YYYY-MM-DD.', 'kickbox-integration' ) ) );
 		}
 
-		$stats        = $this->get_verification_stats( $start_date, $end_date );
-		$reason_stats = $this->get_verification_reason_stats( $start_date, $end_date );
-		$rates       = $this->get_success_failure_rates( $start_date, $end_date );
+		global $wpdb;
+		$db_errors = array();
+		$debug_info = array(
+			'start_date' => $start_date,
+			'end_date' => $end_date,
+			'queries' => array()
+		);
 
+		// Get verification stats and check for errors
+		$stats = $this->get_verification_stats( $start_date, $end_date );
+		if ( ! empty( $wpdb->last_error ) ) {
+			$db_errors[] = 'Verification Stats: ' . $wpdb->last_error;
+			$debug_info['queries'][] = $wpdb->last_query;
+		}
+
+		// Get reason stats and check for errors
+		$reason_stats = $this->get_verification_reason_stats( $start_date, $end_date );
+		if ( ! empty( $wpdb->last_error ) ) {
+			$db_errors[] = 'Reason Stats: ' . $wpdb->last_error;
+			$debug_info['queries'][] = $wpdb->last_query;
+		}
+
+		// Get success/failure rates and check for errors
+		$rates = $this->get_success_failure_rates( $start_date, $end_date );
+		if ( ! empty( $wpdb->last_error ) ) {
+			$db_errors[] = 'Success/Failure Rates: ' . $wpdb->last_error;
+			$debug_info['queries'][] = $wpdb->last_query;
+		}
+
+		// If there were any database errors, return them
+		if ( ! empty( $db_errors ) ) {
+			// Log errors using WordPress logging system
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'Kickbox Integration Database Errors: ' . implode( '; ', $db_errors ) );
+			}
+			
+			wp_send_json_error( array( 
+				'message' => __( 'Database errors occurred while fetching statistics.', 'kickbox-integration' ),
+				'error_details' => $db_errors,
+				'debug_info' => $debug_info
+			) );
+		}
+
+		// If no errors, return success
 		wp_send_json_success( array(
 			'verification_stats' => $stats,
 			'reason_stats'       => $reason_stats,
