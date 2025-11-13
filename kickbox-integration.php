@@ -20,7 +20,13 @@
 
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
+}
+
+// Load Composer autoloader if present
+$kickbox_integration_autoload = __DIR__ . '/vendor/autoload.php';
+if ( file_exists( $kickbox_integration_autoload ) ) {
+	require_once $kickbox_integration_autoload;
 }
 
 // Define plugin constants

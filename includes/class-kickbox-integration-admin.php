@@ -379,149 +379,32 @@ class Kickbox_Integration_Admin {
 		// Determine sandbox mode from API key prefix
 		$sandbox_mode = strpos( $api_key, 'test_' ) === 0;
 
-		if ( $sandbox_mode ) {
-			// For sandbox keys, test with a verification request (balance endpoint not available)
-			$api_url = 'https://api.kickbox.com/v2/verify';
-			$url = add_query_arg( array(
-				'email'  => 'test@example.com',
-				'apikey' => $api_key
-			), $api_url );
+		$client = $this->create_kickbox_client( $api_key );
+		$result = $this->perform_api_key_request( $client, $sandbox_mode );
 
-			$response = wp_remote_get( $url, array(
-				'timeout' => 30,
-				'headers' => array(
-					'User-Agent' => 'WooCommerce-Kickbox-Integration/' . KICKBOX_INTEGRATION_VERSION
-				)
-			) );
-
-			if ( is_wp_error( $response ) ) {
-				$this->logger->error( 'WP_Error during sandbox API test: ' . $response->get_error_message(), array(
-					'source'     => 'kickbox-integration',
-					'error_code' => $response->get_error_code()
-				) );
-
-				wp_send_json_error( array(
-					'message'     => $response->get_error_message(),
-					'details'     => array(
-						'error_code' => $response->get_error_code(),
-						'error_data' => $response->get_error_data()
-					),
-					'has_details' => true
-				) );
-			}
-
-			$body = wp_remote_retrieve_body( $response );
-			$data = json_decode( $body, true );
-
-			if ( json_last_error() !== JSON_ERROR_NONE ) {
-				$this->logger->error( 'Invalid JSON response from Kickbox sandbox API', array(
-					'source'        => 'kickbox-integration',
-					'json_error'    => json_last_error_msg(),
-					'response_body' => substr( $body, 0, 500 )
-				) );
-
-				wp_send_json_error( array(
-					'message'     => __( 'Invalid response from Kickbox API.', 'kickbox-integration' ),
-					'details'     => array(
-						'raw_response' => $body,
-						'json_error'   => json_last_error_msg()
-					),
-					'has_details' => true
-				) );
-			}
-
-			// For sandbox, success is indicated by having a result field
-			if ( isset( $data['result'] ) ) {
-				wp_send_json_success( array(
-					'message'      => __( 'API connection successful! (Sandbox Mode)', 'kickbox-integration' ),
-					'balance'      => 'N/A',
-					'sandbox_mode' => true
-				) );
-			} else {
-				$this->logger->error( 'Unexpected Kickbox sandbox API response', array(
-					'source'        => 'kickbox-integration',
-					'response_data' => $data
-				) );
-
-				wp_send_json_error( array(
-					'message'     => __( 'Unexpected response from Kickbox API.', 'kickbox-integration' ),
-					'details'     => $data,
-					'has_details' => true
-				) );
-			}
-		} else {
-			// For live keys, use the balance endpoint (doesn't consume credits)
-			$api_url = 'https://api.kickbox.com/v2/balance';
-
-			$url = add_query_arg( array(
-				'apikey' => $api_key
-			), $api_url );
-
-			$response = wp_remote_get( $url, array(
-				'timeout' => 30,
-				'headers' => array(
-					'User-Agent' => 'WooCommerce-Kickbox-Integration/' . KICKBOX_INTEGRATION_VERSION
-				)
-			) );
-
-			if ( is_wp_error( $response ) ) {
-				$this->logger->error( 'WP_Error during API test: ' . $response->get_error_message(), array(
-					'source'     => 'kickbox-integration',
-					'error_code' => $response->get_error_code()
-				) );
-
-				wp_send_json_error( array(
-					'message'     => $response->get_error_message(),
-					'details'     => array(
-						'error_code' => $response->get_error_code(),
-						'error_data' => $response->get_error_data()
-					),
-					'has_details' => true
-				) );
-			}
-
-			$body = wp_remote_retrieve_body( $response );
-			$data = json_decode( $body, true );
-
-			if ( json_last_error() !== JSON_ERROR_NONE ) {
-				$this->logger->error( 'Invalid JSON response from Kickbox API', array(
-					'source'        => 'kickbox-integration',
-					'json_error'    => json_last_error_msg(),
-					'response_body' => substr( $body, 0, 500 ) // Log first 500 chars
-				) );
-
-				wp_send_json_error( array(
-					'message'     => __( 'Invalid response from Kickbox API.', 'kickbox-integration' ),
-					'details'     => array(
-						'raw_response' => $body,
-						'json_error'   => json_last_error_msg()
-					),
-					'has_details' => true
-				) );
-			}
-
-			if ( isset( $data['success'] ) && $data['success'] === true && isset( $data['balance'] ) ) {
-				// Update the balance option
-				update_option( 'kickbox_integration_balance', intval( $data['balance'] ) );
-
-				wp_send_json_success( array(
-					'message'      => __( 'API connection successful!', 'kickbox-integration' ),
-					'balance'      => intval( $data['balance'] ),
-					'sandbox_mode' => $sandbox_mode
-				) );
-			} else {
-				$this->logger->error( 'Unexpected Kickbox API response', array(
-					'source'        => 'kickbox-integration',
-					'response_data' => $data
-				) );
-
-				wp_send_json_error( array(
-					'message'     => __( 'Unexpected response from Kickbox API.', 'kickbox-integration' ),
-					'details'     => $data,
-					'has_details' => true
-				) );
-			}
+		if ( is_wp_error( $result ) ) {
+			$error_response = $this->format_wp_error_for_ajax( $result );
+			wp_send_json_error( $error_response );
 		}
+
+		$data = $result['data'];
+
+		if ( $sandbox_mode ) {
+			wp_send_json_success( array(
+				'message'      => __( 'API connection successful! (Sandbox Mode)', 'kickbox-integration' ),
+				'balance'      => 'N/A',
+				'sandbox_mode' => true
+			) );
+		}
+
+		// Update the stored balance for live keys
+		update_option( 'kickbox_integration_balance', intval( $data['balance'] ) );
+
+		wp_send_json_success( array(
+			'message'      => __( 'API connection successful!', 'kickbox-integration' ),
+			'balance'      => intval( $data['balance'] ),
+			'sandbox_mode' => false
+		) );
 	}
 
 	/**
@@ -535,108 +418,166 @@ class Kickbox_Integration_Admin {
 		// Determine if this is a sandbox key
 		$sandbox_mode = strpos( $api_key, 'test_' ) === 0;
 
-		if ( $sandbox_mode ) {
-			// For sandbox keys, test with a verification request (balance endpoint not available)
-			$api_url = 'https://api.kickbox.com/v2/verify';
-			$url = add_query_arg( array(
-				'email'  => 'test@example.com',
-				'apikey' => $api_key
-			), $api_url );
-		} else {
-			// For live keys, use the balance endpoint (doesn't consume credits)
-			$api_url = 'https://api.kickbox.com/v2/balance';
-			$url = add_query_arg( array(
-				'apikey' => $api_key
-			), $api_url );
+		$client = $this->create_kickbox_client( $api_key );
+		$result = $this->perform_api_key_request( $client, $sandbox_mode );
+
+		if ( is_wp_error( $result ) ) {
+			$details = $result->get_error_data();
+			if ( ! is_array( $details ) ) {
+				$details = array();
+			}
+
+			$details['error_code'] = $result->get_error_code();
+
+			return array(
+				'success' => false,
+				'message' => $result->get_error_message(),
+				'details' => $details
+			);
 		}
 
-		$response = wp_remote_get( $url, array(
-			'timeout' => 30,
+		if ( $sandbox_mode ) {
+			return array(
+				'success' => true,
+				'message' => __( 'API key is valid (Sandbox Mode).', 'kickbox-integration' ),
+				'balance' => 'N/A'
+			);
+		}
+
+		$balance = intval( $result['data']['balance'] ?? 0 );
+		update_option( 'kickbox_integration_balance', $balance );
+
+		return array(
+			'success' => true,
+			'message' => __( 'API key is valid.', 'kickbox-integration' ),
+			'balance' => $balance
+		);
+	}
+
+	/**
+	 * Create a Kickbox client instance for the provided API key.
+	 *
+	 * @param string $api_key Kickbox API key.
+	 *
+	 * @return \Kickbox\Client
+	 */
+	private function create_kickbox_client( $api_key ) {
+		$options = array(
 			'headers' => array(
-				'User-Agent' => 'WooCommerce-Kickbox-Integration/' . KICKBOX_INTEGRATION_VERSION
+				'user-agent' => 'WooCommerce-Kickbox-Integration/' . KICKBOX_INTEGRATION_VERSION
 			)
-		) );
+		);
 
-		if ( is_wp_error( $response ) ) {
-			$this->logger->error( 'WP_Error during API validation: ' . $response->get_error_message(), array(
-				'source'     => 'kickbox-integration',
-				'error_code' => $response->get_error_code()
-			) );
+		$options = apply_filters( 'kickbox_integration_client_options', $options );
 
-			return array(
-				'success' => false,
-				'message' => $response->get_error_message(),
-				'details' => array(
-					'error_code' => $response->get_error_code(),
-					'error_data' => $response->get_error_data()
-				)
-			);
-		}
+		return new \Kickbox\Client( $api_key, $options );
+	}
 
-		$body = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body, true );
+	/**
+	 * Perform a Kickbox API request for validation purposes.
+	 *
+	 * @param \Kickbox\Client $client       Kickbox client instance.
+	 * @param bool            $sandbox_mode Whether the API key is sandbox.
+	 *
+	 * @return array|\WP_Error
+	 */
+	private function perform_api_key_request( \Kickbox\Client $client, $sandbox_mode ) {
+		try {
+			if ( $sandbox_mode ) {
+				$response = $client->kickbox()->verify( 'test@example.com' );
+				$data     = $response->body;
 
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			$this->logger->error( 'Invalid JSON response during API validation', array(
-				'source'        => 'kickbox-integration',
-				'json_error'    => json_last_error_msg(),
-				'response_body' => substr( $body, 0, 500 )
-			) );
+				if ( isset( $data['result'] ) ) {
+					return array(
+						'data'     => $data,
+						'response' => $response,
+						'mode'     => 'sandbox'
+					);
+				}
 
-			return array(
-				'success' => false,
-				'message' => __( 'Invalid response from Kickbox API.', 'kickbox-integration' ),
-				'details' => array(
-					'raw_response' => $body,
-					'json_error'   => json_last_error_msg()
-				)
-			);
-		}
-
-		if ( $sandbox_mode ) {
-			// For sandbox, check if we got a valid verification response
-			if ( isset( $data['result'] ) ) {
-				return array(
-					'success' => true,
-					'message' => __( 'API key is valid (Sandbox Mode).', 'kickbox-integration' ),
-					'balance' => 'N/A'
-				);
-			} else {
 				$this->logger->error( 'Unexpected Kickbox sandbox API response during validation', array(
 					'source'        => 'kickbox-integration',
 					'response_data' => $data
 				) );
 
-				return array(
-					'success' => false,
-					'message' => __( 'Unexpected response from Kickbox API.', 'kickbox-integration' ),
-					'details' => $data
+				return new WP_Error(
+					'unexpected_response',
+					__( 'Unexpected response from Kickbox API.', 'kickbox-integration' ),
+					$data
 				);
 			}
-		} else {
-			// For live keys, check balance
-			if ( isset( $data['success'] ) && $data['success'] === true && isset( $data['balance'] ) ) {
-				// Update the balance option
-				update_option( 'kickbox_integration_balance', intval( $data['balance'] ) );
 
-				return array(
-					'success' => true,
-					'message' => __( 'API key is valid.', 'kickbox-integration' ),
-					'balance' => intval( $data['balance'] )
-				);
-			} else {
-				$this->logger->error( 'Unexpected Kickbox API response during validation', array(
-					'source'        => 'kickbox-integration',
-					'response_data' => $data
-				) );
+			$response = $client->kickbox()->getCreditBalance();
+			$data     = $response->body;
 
+			if ( isset( $data['success'] ) && true === $data['success'] && isset( $data['balance'] ) ) {
 				return array(
-					'success' => false,
-					'message' => __( 'Unexpected response from Kickbox API.', 'kickbox-integration' ),
-					'details' => $data
+					'data'     => $data,
+					'response' => $response,
+					'mode'     => 'live'
 				);
 			}
+
+			$this->logger->error( 'Unexpected Kickbox API response during validation', array(
+				'source'        => 'kickbox-integration',
+				'response_data' => $data
+			) );
+
+			return new WP_Error(
+				'unexpected_response',
+				__( 'Unexpected response from Kickbox API.', 'kickbox-integration' ),
+				$data
+			);
+		} catch ( \ErrorException $exception ) {
+			$this->logger->error( sprintf( 'Kickbox API request failed: %s', $exception->getMessage() ), array(
+				'source'      => 'kickbox-integration',
+				'status_code' => $exception->getCode(),
+				'mode'        => $sandbox_mode ? 'sandbox' : 'live'
+			) );
+
+			return new WP_Error(
+				'kickbox_request_error',
+				__( 'Error communicating with Kickbox API. Please try again later.', 'kickbox-integration' ),
+				array(
+					'status_code' => $exception->getCode(),
+					'message'     => $exception->getMessage()
+				)
+			);
+		} catch ( \Exception $exception ) {
+			$this->logger->error( sprintf( 'Unexpected Kickbox API error: %s', $exception->getMessage() ), array(
+				'source' => 'kickbox-integration',
+				'mode'   => $sandbox_mode ? 'sandbox' : 'live'
+			) );
+
+			return new WP_Error(
+				'kickbox_unexpected_error',
+				__( 'Unexpected error communicating with Kickbox API.', 'kickbox-integration' )
+			);
 		}
+	}
+
+	/**
+	 * Format a WP_Error for AJAX error responses.
+	 *
+	 * @param \WP_Error $error Error instance.
+	 *
+	 * @return array
+	 */
+	private function format_wp_error_for_ajax( \WP_Error $error ) {
+		$details = $error->get_error_data();
+		if ( ! is_array( $details ) ) {
+			$details = array();
+		}
+
+		if ( ! isset( $details['error_code'] ) ) {
+			$details['error_code'] = $error->get_error_code();
+		}
+
+		return array(
+			'message'     => $error->get_error_message(),
+			'details'     => $details,
+			'has_details' => ! empty( $details )
+		);
 	}
 
 	/**
