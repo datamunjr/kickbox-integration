@@ -44,7 +44,7 @@ jobs:
         run: ./scripts/prepare-submission.sh
 
       - name: Run ${{ matrix.qit-test }} qit test
-        run: qit run:${{ matrix.qit-test }} kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait
+        run: qit run:${{ matrix.qit-test }} kickbox-integration --zip="${{ github.workspace }}/kickbox-integration.zip" --wait --timeout=3600
 
   test-kickbox-react:
     name: React Tests
