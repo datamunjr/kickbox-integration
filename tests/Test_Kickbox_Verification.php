@@ -191,21 +191,30 @@ class Test_Kickbox_Verification extends WP_UnitTestCase {
 		                          ) )
 		                          ->getMock();
 
-		// Mock the HTTP call method
-		$mock_kickbox_result = array(
-			'response' => array( 'code' => 200 ),
-			'data'     => array(
-				'result'       => 'deliverable',
-				'reason'       => 'accepted_email',
-				'sendex'       => 1,
-				'role'         => false,
-				'free'         => false,
-				'disposable'   => false,
-				'accept_all'   => false,
-				'did_you_mean' => null,
-				'domain'       => 'example.com',
-				'user'         => 'test'
+		// Mock the Kickbox SDK response
+		$mock_response_body = array(
+			'result'       => 'deliverable',
+			'reason'       => 'accepted_email',
+			'sendex'       => 1,
+			'role'         => false,
+			'free'         => false,
+			'disposable'   => false,
+			'accept_all'   => false,
+			'did_you_mean' => null,
+			'domain'       => 'example.com',
+			'user'         => 'test'
+		);
+		$mock_response      = new \Kickbox\HttpClient\Response(
+			$mock_response_body,
+			200,
+			array(
+				'X-Kickbox-Balance' => array( '100' )
 			)
+		);
+
+		$mock_kickbox_result = array(
+			'response' => $mock_response,
+			'data'     => $mock_response_body
 		);
 
 		$verification_mock->expects( $this->once() )
@@ -316,9 +325,9 @@ class Test_Kickbox_Verification extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test verify_email with wp_remote_get error
+	 * Test verify_email with Kickbox API error
 	 */
-	public function test_verify_email_wp_remote_get_error() {
+	public function test_verify_email_kickbox_error() {
 		// Set up API key
 		update_option( 'kickbox_integration_api_key', 'test_123456789' );
 
@@ -337,8 +346,8 @@ class Test_Kickbox_Verification extends WP_UnitTestCase {
 		$result = $verification_mock->verify_email( 'test@example.com' );
 
 		// Verify the result is a WP_Error
-		$this->assertInstanceOf( 'WP_Error', $result, 'Result should be WP_Error when wp_remote_get fails' );
-		$this->assertEquals( 'http_error', $result->get_error_code(), 'Error code should match wp_remote_get error' );
+		$this->assertInstanceOf( 'WP_Error', $result, 'Result should be WP_Error when the Kickbox SDK returns an error' );
+		$this->assertEquals( 'http_error', $result->get_error_code(), 'Error code should match the mocked error' );
 
 		// Clean up
 		delete_option( 'kickbox_integration_api_key' );
@@ -393,9 +402,17 @@ class Test_Kickbox_Verification extends WP_UnitTestCase {
 		                          ) )
 		                          ->getMock();
 
-		// Mock the HTTP call method
+		// Mock the Kickbox SDK response
+		$mock_response = new \Kickbox\HttpClient\Response(
+			$expected_result,
+			200,
+			array(
+				'X-Kickbox-Balance' => array( '100' )
+			)
+		);
+
 		$mock_kickbox_result = array(
-			'response' => array( 'code' => 200 ),
+			'response' => $mock_response,
 			'data'     => $expected_result
 		);
 

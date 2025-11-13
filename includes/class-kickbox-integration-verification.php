@@ -17,6 +17,13 @@ class Kickbox_Integration_Verification {
 	private $logger;
 
 	/**
+	 * Kickbox client instance
+	 *
+	 * @var \Kickbox\Client|null
+	 */
+	private $kickbox_client = null;
+
+	/**
 	 * Cache group for verification data
 	 *
 	 * @var string
@@ -174,25 +181,54 @@ class Kickbox_Integration_Verification {
 	 * @return array|WP_Error Array with 'response' and 'data' keys, or WP_Error on failure
 	 */
 	protected function get_kickbox_verification_results_for_email( $email ) {
-		$url = add_query_arg( array(
-			'email'  => urlencode( $email ),
-			'apikey' => $this->api_key
-		), $this->api_url );
+		try {
+			$client = $this->get_kickbox_client();
 
-		$response = wp_remote_get( $url, array(
-			'headers' => array(
-				'User-Agent' => 'WooCommerce-Kickbox-Integration/' . KICKBOX_INTEGRATION_VERSION
-			)
-		) );
+			$options = apply_filters( 'kickbox_integration_verify_options', array(), $email );
+			if ( ! isset( $options['headers'] ) || ! is_array( $options['headers'] ) ) {
+				$options['headers'] = array();
+			}
 
-		if ( is_wp_error( $response ) ) {
-			return $response;
+			$options['headers']['user-agent'] = 'WooCommerce-Kickbox-Integration/' . KICKBOX_INTEGRATION_VERSION;
+
+			$response = $client->kickbox()->verify( $email, $options );
+		} catch ( \ErrorException $exception ) {
+			$this->logger->error( sprintf( 'Kickbox verification request failed: %s', $exception->getMessage() ), array(
+				'source'      => 'kickbox-integration',
+				'status_code' => $exception->getCode(),
+				'email'       => $email
+			) );
+
+			return new WP_Error(
+				'kickbox_request_error',
+				__( 'Error communicating with Kickbox API. Please try again later.', 'kickbox-integration' ),
+				array(
+					'status_code' => $exception->getCode(),
+					'message'     => $exception->getMessage()
+				)
+			);
+		} catch ( \Exception $exception ) {
+			$this->logger->error( sprintf( 'Unexpected Kickbox verification error: %s', $exception->getMessage() ), array(
+				'source' => 'kickbox-integration',
+				'email'  => $email
+			) );
+
+			return new WP_Error(
+				'kickbox_unexpected_error',
+				__( 'Unexpected error communicating with Kickbox API.', 'kickbox-integration' )
+			);
 		}
 
-		$body = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body, true );
+		$data = $response->body;
 
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
+		if ( ! is_array( $data ) ) {
+			$this->logger->error( 'Kickbox API response could not be decoded.', array(
+				'source'  => 'kickbox-integration',
+				'email'   => $email,
+				'body'    => $response->body,
+				'headers' => $response->headers
+			) );
+
 			return new WP_Error( 'invalid_response', __( 'Invalid response from Kickbox API.', 'kickbox-integration' ) );
 		}
 
@@ -368,17 +404,54 @@ class Kickbox_Integration_Verification {
 	/**
 	 * Update balance from API response headers
 	 *
-	 * @param array $response WordPress HTTP response
+	 * @param array|\Kickbox\HttpClient\Response $response API response
 	 */
 	protected function update_balance_from_response( $response ) {
+		$headers = array();
 
-		$headers = wp_remote_retrieve_headers( $response );
-
-		if ( isset( $headers['x-kickbox-balance'] ) ) {
-			$balance = intval( $headers['x-kickbox-balance'] );
-			update_option( 'kickbox_integration_api_balance', $balance );
-			update_option( 'kickbox_integration_balance_last_updated', current_time( 'mysql' ) );
+		if ( $response instanceof \Kickbox\HttpClient\Response ) {
+			$headers = $response->headers ?? array();
+		} elseif ( is_array( $response ) ) {
+			if ( isset( $response['headers'] ) && is_array( $response['headers'] ) ) {
+				$headers = $response['headers'];
+			} else {
+				$headers = $response;
+			}
+		} else {
+			return;
 		}
+
+		if ( ! is_array( $headers ) || empty( $headers ) ) {
+			return;
+		}
+
+		$possible_keys = array(
+			'x-kickbox-balance',
+			'X-Kickbox-Balance',
+			'X-KICKBOX-BALANCE'
+		);
+
+		$balance_header = null;
+
+		foreach ( $possible_keys as $key ) {
+			if ( isset( $headers[ $key ] ) ) {
+				$balance_header = $headers[ $key ];
+				break;
+			}
+		}
+
+		if ( null === $balance_header ) {
+			return;
+		}
+
+		$balance_value = is_array( $balance_header ) ? reset( $balance_header ) : $balance_header;
+
+		if ( false === $balance_value || null === $balance_value || '' === $balance_value ) {
+			return;
+		}
+
+		update_option( 'kickbox_integration_api_balance', intval( $balance_value ) );
+		update_option( 'kickbox_integration_balance_last_updated', current_time( 'mysql' ) );
 	}
 
 	/**
@@ -449,5 +522,31 @@ class Kickbox_Integration_Verification {
 		}
 
 		return $message;
+	}
+
+	/**
+	 * Retrieve the Kickbox client instance.
+	 *
+	 * @return \Kickbox\Client
+	 * @throws \RuntimeException When the API key is missing
+	 */
+	protected function get_kickbox_client() {
+		if ( empty( $this->api_key ) ) {
+			throw new \RuntimeException( 'Kickbox API key is not configured.' );
+		}
+
+		if ( null === $this->kickbox_client ) {
+			$options = array(
+				'headers' => array(
+					'user-agent' => 'WooCommerce-Kickbox-Integration/' . KICKBOX_INTEGRATION_VERSION
+				)
+			);
+
+			$options = apply_filters( 'kickbox_integration_client_options', $options );
+
+			$this->kickbox_client = new \Kickbox\Client( $this->api_key, $options );
+		}
+
+		return $this->kickbox_client;
 	}
 }

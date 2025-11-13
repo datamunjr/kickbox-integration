@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
 
-if [ $# -lt 3 ]; then
-	echo "usage: $0 <db-name> <db-user> <db-pass> [db-host] [wp-version] [skip-database-creation] [woocommerce-version]"
-	exit 1
-fi
-
-DB_NAME=$1
-DB_USER=$2
-DB_PASS=$3
-DB_HOST=${4-localhost}
-WP_VERSION=${5-latest}
-SKIP_DB_CREATE=${6-false}
-WC_VERSION=${7-}
+DB_NAME=${1:-wordpress_test}
+DB_USER=${2:-root}
+DB_PASS=${3:-}
+DB_HOST=${4:-localhost}
+WP_VERSION=${5:-latest}
+SKIP_DB_CREATE=${6:-false}
+WC_VERSION=${7:-latest}
 
 TMPDIR=${TMPDIR-/tmp}
 TMPDIR=$(echo $TMPDIR | sed -e "s/\/$//")
@@ -117,14 +112,17 @@ install_test_suite() {
 	fi
 
 	# set up testing suite if it doesn't yet exist
-	if [ ! -d $WP_TESTS_DIR ]; then
-		# set up testing suite
-		mkdir -p $WP_TESTS_DIR
-		rm -rf $WP_TESTS_DIR/{includes,data}
-        check_svn_installed
-		svn export --quiet --ignore-externals https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ $WP_TESTS_DIR/includes
-		svn export --quiet --ignore-externals https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ $WP_TESTS_DIR/data
+	if [ -d $WP_TESTS_DIR ]; then
+		echo "Existing WordPress tests directory detected; removing for a fresh setup..."
+		rm -rf $WP_TESTS_DIR
 	fi
+
+	# set up testing suite
+	mkdir -p $WP_TESTS_DIR
+	rm -rf $WP_TESTS_DIR/{includes,data}
+    check_svn_installed
+	svn export --quiet --ignore-externals https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ $WP_TESTS_DIR/includes
+	svn export --quiet --ignore-externals https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ $WP_TESTS_DIR/data
 
 	if [ ! -f wp-tests-config.php ]; then
 		download https://develop.svn.wordpress.org/${WP_TESTS_TAG}/wp-tests-config-sample.php "$WP_TESTS_DIR"/wp-tests-config.php
@@ -202,6 +200,13 @@ create_wp_config() {
 
 	# Create wp-config.php using WP-CLI
 	cd "$WP_CORE_DIR"
+
+	# Remove existing wp-config.php to avoid conflicts
+	if [ -f "wp-config.php" ]; then
+		echo "Existing wp-config.php found; removing so it can be recreated..."
+		rm -f wp-config.php
+	fi
+
 	wp config create --dbname="$DB_NAME" --dbuser="$DB_USER" --dbpass="$DB_PASS" --dbhost="$DB_HOST" --allow-root
 	cd - > /dev/null
 	
@@ -243,6 +248,12 @@ install_woocommerce() {
 
 	# Install WordPress core and WooCommerce using WP-CLI
 	cd "$WP_CORE_DIR"
+	
+	# Remove existing WooCommerce plugin directory if it exists to avoid conflicts
+	if [ -d "wp-content/plugins/woocommerce" ]; then
+		echo "Existing WooCommerce directory detected; removing to allow a fresh installation..."
+		rm -rf "wp-content/plugins/woocommerce"
+	fi
 	
 	# Install WooCommerce
 	if [[ $WC_VERSION == 'latest' ]]; then

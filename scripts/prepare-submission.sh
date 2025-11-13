@@ -26,11 +26,14 @@ fi
 echo "Creating temp directory: $TEMP_DIR"
 mkdir -p "$TEMP_DIR/kickbox-integration"
 
-# Build assets before copying (run from project root)
+# Build assets and refresh production Composer dependencies before copying (run from project root)
 echo "Building assets..."
 cd "$PROJECT_ROOT"
 npm ci
 npm run build
+
+echo "Installing production Composer dependencies (no dev)..."
+composer install --no-dev
 
 # Generate new .pot file for translations
 echo "Generating new .pot file for translations..."
@@ -49,7 +52,7 @@ echo "Cleaning up submission copy..."
 echo "Removing development directories..."
 rm -rf node_modules/
 rm -rf src/
-rm -rf vendor/
+# Keep vendor/ for production; it was freshly installed via composer install --no-dev
 rm -rf tests/
 rm -rf bin/
 rm -rf scripts/
@@ -116,6 +119,11 @@ unzip -l "$PROJECT_ROOT/$ZIP_FILE" | tail -1
 echo "Cleaning up temp directory..."
 rm -rf "$TEMP_DIR"
 
+# Restore development Composer dependencies
+echo "Re-installing development Composer dependencies..."
+cd "$PROJECT_ROOT"
+composer install
+
 # Go back to original directory (scripts folder)
 cd "$(dirname "$(realpath "$0")")"
 
@@ -127,7 +135,6 @@ echo "🌐 Translation file updated: languages/kickbox-integration.pot"
 echo ""
 echo "🗑️  Files removed from submission copy:"
 echo "   - node_modules/ (npm development dependencies)"
-echo "   - vendor/ (Composer dependencies)"
 echo "   - tests/ (test files and directories)"
 echo "   - __tests__/ (React test directories)"
 echo "   - bin/ (development scripts)"
